@@ -1,4 +1,4 @@
-public class Consumer extends Node{
+public class Consumer{
     public void register(Broker broker, ArtistName name){
 
     }

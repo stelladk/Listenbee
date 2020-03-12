@@ -4,25 +4,32 @@ import java.math.BigInteger;
 import java.security.MessageDigest; 
 import java.security.NoSuchAlgorithmException;
 
-public class Broker extends Node{
+public class Broker implements Node{
     public static final List<Consumer> registeredUsers = new ArrayList<>();
     public static final List<Publisher> registeredPublishers = new ArrayList<>();
 
-    private String hashValue;
-    private HashMap<MusicFile, Publisher> files;
+    private static final int PORT = 2000;
+    private String IP;
+    private String HASH_VALUE;
 
-    private String ip;
-    private int port;
+    private List<Broker> brokers;
+    private HashMap<ArtistName, MusicFile> files;
+    private boolean online;
 
-    public Broker(int port){
-        this.port = port;
+    public Broker(){
         try{
-            this.ip = InetAddress.getLocalHost().getHostAddress();
+            IP = InetAddress.getLocalHost().getHostAddress();
+            online = true;
         }catch(UnknownHostException e){
-            e.printStackTrace();
+            online = false;
             return;
         }
-        this.hashValue = SHA1(ip+""+port);
+        HASH_VALUE = SHA1(IP+""+PORT);
+    }
+
+    public Broker(String IP){
+        this.IP = IP;
+        this.HASH_VALUE = SHA1(IP+""+PORT);
     }
 
     public void calculateKeys(){
@@ -61,5 +68,32 @@ public class Broker extends Node{
         }catch (NoSuchAlgorithmException e) { 
             throw new RuntimeException(e); 
         }
+    }
+
+    public String getHash(){
+        return HASH_VALUE;
+    }
+
+    public void updateNodes(){
+
+    }
+
+    public void init(int num, List<String> IPs){
+        brokers = new ArrayList<Broker>();
+        for(String ip : IPs){
+            brokers.add(new Broker(ip)); //check if its online
+        }
+    }
+
+    public List<Broker> getBrokers(){
+        return brokers;
+    }
+
+    public void connect(){
+
+    }
+
+    public void disconnect(){
+
     }
 }
