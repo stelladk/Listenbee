@@ -1,0 +1,8 @@
+#IntelliJ
+/.idea/
+*.iml
+
+#General
+Notes.docx
+Project.pdf
+Structure.png
