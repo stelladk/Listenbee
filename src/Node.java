@@ -1,15 +1,26 @@
 import java.util.*;
 
-public interface Node {
+public class Node {
     public static final List<Broker> brokers = new ArrayList<>();
 
-    public void init(int num);
+    public void init(int num){
+        
+    }
 
-    public List<Broker> getBrokers();
+    public List<Broker> getBrokers(){
 
-    public void connect();
+        return null;
+    }
 
-    public void disconnect();
+    public void connect(){
 
-    public void updateNodes();
+    }
+
+    public void disconnect(){
+
+    }
+
+    public void updateNodes(){
+        
+    }
 }

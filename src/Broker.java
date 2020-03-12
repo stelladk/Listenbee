@@ -1,16 +1,28 @@
 import java.util.*;
 
-public interface Broker extends Node{
+public class Broker extends Node{
     public static final List<Consumer> registeredUsers = new ArrayList<>();
     public static final List<Publisher> registeredPublishers = new ArrayList<>();
 
-    public void calculateKeys();
+    public void calculateKeys(){
 
-    public Publisher acceptConnection(Publisher publisher);
+    }
 
-    public Consumer acceptConnection(Consumer consumer);
+    public Publisher acceptConnection(Publisher publisher){
 
-    public void notifyPublisher(String message);
+        return null;
+    }
 
-    public void pull(ArtistName name);
+    public Consumer acceptConnection(Consumer consumer){
+
+        return null;
+    }
+
+    public void notifyPublisher(String message){
+
+    }
+
+    public void pull(ArtistName name){
+
+    }
 }
