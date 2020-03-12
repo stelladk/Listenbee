@@ -1,4 +1,13 @@
+import java.util.*;
+
 public class Publisher extends Node{
+    private List<ArtistName> artists;
+    private List<MusicFile> files;
+
+    public Publisher(ArrayList<ArtistName> artists, ArrayList<MusicFile> files){
+        this.artists = artists;
+        this.files = files;
+    }
 
     public void getBrokerList(){
 
@@ -9,7 +18,7 @@ public class Publisher extends Node{
         return null;
     }
 
-    public void push(ArtistName name, Value value){
+    public void push(ArtistName name, MusicFile file){
 
     }
     
