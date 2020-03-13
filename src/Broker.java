@@ -12,8 +12,9 @@ public class Broker implements Node{
     private String IP;
     private String HASH_VALUE;
 
-    private List<Broker> brokers;
-    private HashMap<ArtistName, MusicFile> files;
+    // private List<Broker> brokers;
+    private HashMap<ArtistName, Broker> brokers;
+    private HashMap<ArtistName, MusicFile> files; 
     private boolean online;
 
     public Broker(){
@@ -32,6 +33,7 @@ public class Broker implements Node{
         this.HASH_VALUE = SHA1(IP+""+PORT);
     }
 
+    //save data to hashmap 
     public void calculateKeys(){
 
     }
@@ -46,12 +48,16 @@ public class Broker implements Node{
         return null;
     }
 
+    //send message to publisher for the artists that it handles
     public void notifyPublisher(String message){
 
     }
 
+    //send data to consumer on consumer demand
     public void pull(ArtistName name){
-
+        //request data from publisher using push method
+        //find data in hashmap
+        //send the entire list with astistName as key
     }
 
     private String SHA1(String value){
@@ -68,10 +74,6 @@ public class Broker implements Node{
         }catch (NoSuchAlgorithmException e) { 
             throw new RuntimeException(e); 
         }
-    }
-
-    public String getHash(){
-        return HASH_VALUE;
     }
 
     public void updateNodes(){
@@ -95,5 +97,25 @@ public class Broker implements Node{
 
     public void disconnect(){
 
+    }
+
+    public static int getPORT(){
+        return PORT;
+    }
+
+    public int getIP(){
+        return IP;
+    }
+
+    public String getHash(){
+        return HASH_VALUE;
+    }
+
+    public HashMap<ArtistName, Broker> getBrokers(){
+        return brokers;
+    }
+
+    public boolean isOnline(){
+        return online;
     }
 }

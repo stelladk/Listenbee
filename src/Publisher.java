@@ -4,20 +4,29 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Publisher implements Node{
-    private List<ArtistName> artists;
-    private List<MusicFile> files;
+    private HashMap<ArtistName,List<MusicFile>> files; //hash with artistName
 
     private List<Broker> brokers;
 
-    public Publisher(ArrayList<ArtistName> artists, ArrayList<MusicFile> files){
-        this.artists = artists;
-        this.files = files;
+    public Publisher(ArrayList<MusicFile> songs){
+        files = new HashMap<>();
+        List<MusicFile> list;
+        for(MusicFile song: songs){
+            if(!files.contains(song.artistName)){
+                list = new ArrayList<MusicFile>();
+            }
+            list = files.get(song.artistName);
+            list.add(song);
+            files.push(song.artistName, list);
+        }
     }
 
+    //get brokers and their hashes usinf method from broker
     public void getBrokerList(){
 
     }
 
+    //find the right broker using getBrokerList
     public Broker hashTopic(ArtistName name){
         String hashValue = SHA1(name.artistName);
         for(Broker br: brokers){
@@ -28,7 +37,13 @@ public class Publisher implements Node{
         return null;
     }
 
+    //transfer data to broker on broker demand
     public void push(ArtistName name, MusicFile file){
+        //send file using different threads
+        //each song raises a thread that raises mupliple threads
+        //send all the songs with artistName as key
+
+        //call hashTopic to choose Broker
 
     }
     
