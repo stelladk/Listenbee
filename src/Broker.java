@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest; 
 import java.security.NoSuchAlgorithmException;
 
-public class Broker implements Node{
+public class Broker{
     public static final List<Consumer> registeredUsers = new ArrayList<>();
     public static final List<Publisher> registeredPublishers = new ArrayList<>();
 
@@ -33,7 +33,7 @@ public class Broker implements Node{
         this.HASH_VALUE = SHA1(IP+""+PORT);
     }
 
-    //save data to hashmap 
+    //save data to hashmap files
     public void calculateKeys(){
 
     }
@@ -74,29 +74,6 @@ public class Broker implements Node{
         }catch (NoSuchAlgorithmException e) { 
             throw new RuntimeException(e); 
         }
-    }
-
-    public void updateNodes(){
-
-    }
-
-    public void init(int num, List<String> IPs){
-        brokers = new ArrayList<Broker>();
-        for(String ip : IPs){
-            brokers.add(new Broker(ip)); //check if its online
-        }
-    }
-
-    public List<Broker> getBrokers(){
-        return brokers;
-    }
-
-    public void connect(){
-
-    }
-
-    public void disconnect(){
-
     }
 
     public static int getPORT(){

@@ -3,10 +3,10 @@ import java.math.BigInteger;
 import java.security.MessageDigest; 
 import java.security.NoSuchAlgorithmException;
 
-public class Publisher implements Node{
+public class Publisher{
     private HashMap<ArtistName,List<MusicFile>> files; //hash with artistName
 
-    private List<Broker> brokers;
+    private HashMap<ArtistName, Broker> brokers;
 
     public Publisher(ArrayList<MusicFile> songs){
         files = new HashMap<>();
@@ -43,7 +43,7 @@ public class Publisher implements Node{
         //each song raises a thread that raises mupliple threads
         //send all the songs with artistName as key
 
-        //call hashTopic to choose Broker
+        //search hashmap to choose Broker
 
     }
     
@@ -65,26 +65,6 @@ public class Publisher implements Node{
         }catch (NoSuchAlgorithmException e) { 
             throw new RuntimeException(e); 
         }
-    }
-
-    public void updateNodes(){
-
-    }
-
-    public void init(int num, List<String> IPs){
-
-    }
-
-    public List<Broker> getBrokers(){
-        return null;
-    }
-
-    public void connect(){
-
-    }
-
-    public void disconnect(){
-
     }
 
 }
