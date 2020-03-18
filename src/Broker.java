@@ -10,7 +10,7 @@ public class Broker{
 
     private static final int PORT = 2000;
     private String IP;
-    private String HASH_VALUE;
+    private BigInteger HASH_VALUE;
 
     // private List<Broker> brokers;
     private HashMap<ArtistName, Broker> brokers;
@@ -25,12 +25,12 @@ public class Broker{
             online = false;
             return;
         }
-        HASH_VALUE = SHA1(IP+""+PORT);
+        HASH_VALUE = Utilities.SHA1(IP+""+PORT);
     }
 
     public Broker(String IP){
         this.IP = IP;
-        this.HASH_VALUE = SHA1(IP+""+PORT);
+        this.HASH_VALUE = Utilities.SHA1(IP+""+PORT);
     }
 
     //save data to hashmap files
@@ -60,31 +60,15 @@ public class Broker{
         //send the entire list with astistName as key
     }
 
-    private String SHA1(String value){
-        try { 
-            MessageDigest md = MessageDigest.getInstance("SHA-1"); 
-  
-            byte[] messageDigest = md.digest(value.getBytes()); 
-            BigInteger no = new BigInteger(1, messageDigest);
-            String hashtext = no.toString(16); 
-            while (hashtext.length() < 32) { 
-                hashtext = "0" + hashtext; 
-            } 
-            return hashtext; 
-        }catch (NoSuchAlgorithmException e) { 
-            throw new RuntimeException(e); 
-        }
-    }
-
     public static int getPORT(){
         return PORT;
     }
 
-    public int getIP(){
+    public String  getIP(){
         return IP;
     }
 
-    public String getHash(){
+    public BigInteger getHash(){
         return HASH_VALUE;
     }
 

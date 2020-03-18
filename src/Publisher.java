@@ -1,70 +1,93 @@
+import java.io.*;
+import java.math.BigInteger;
+import java.net.Socket;
 import java.util.*;
-import java.math.BigInteger; 
-import java.security.MessageDigest; 
-import java.security.NoSuchAlgorithmException;
 
 public class Publisher{
-    private HashMap<ArtistName,List<MusicFile>> files; //hash with artistName
+    private static final int PORT = 1999;
 
-    private HashMap<ArtistName, Broker> brokers;
+    private HashMap<ArtistName, List<MusicFile>> files; //hash with artistName
+    private HashMap<Broker, List<ArtistName>> brokers;
 
-    public Publisher(ArrayList<MusicFile> songs){
+    public void init (List<MusicFile> songs, String IP) {
         files = new HashMap<>();
-        List<MusicFile> list;
-        for(MusicFile song: songs){
-            if(!files.contains(song.artistName)){
-                list = new ArrayList<MusicFile>();
+        for (MusicFile song: songs){
+            if (!files.containsKey(song.artistName)) {
+                files.put(song.artistName, new ArrayList<MusicFile>());
             }
-            list = files.get(song.artistName);
-            list.add(song);
-            files.push(song.artistName, list);
+            files.get(song.artistName).add(song);
         }
-    }
 
-    //get brokers and their hashes usinf method from broker
-    public void getBrokerList(){
+        /////////////////////////////////////////////////////////////////////////////////
+        try (Socket socket = new Socket(IP, PORT)){
+            OutputStream out = socket.getOutputStream();
+            Writer writer = new OutputStreamWriter(out);
+            writer = new BufferedWriter(writer);
 
-    }
+            writer.write("Online");
+            writer.flush();
 
-    //find the right broker using getBrokerList
-    public Broker hashTopic(ArtistName name){
-        String hashValue = SHA1(name.artistName);
-        for(Broker br: brokers){
-            if(br.getHash() >= hashValue){ //mod
-                return br;
+            while (true){
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                List<Broker> tempBrokers = null;
+                try {
+                    tempBrokers = (ArrayList<Broker>) in.readObject();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                Broker max = tempBrokers.get(tempBrokers.size()-1);
+                BigInteger maxHash = max.getHash();
+
+                for (ArtistName artist : files.keySet()){
+                    BigInteger hash_artist = Utilities.SHA1(artist.getName()).mod(maxHash);
+
+                    for (Broker broker : tempBrokers) {
+                        if (hash_artist.compareTo(broker.getHash()) == -1){
+                            if (!brokers.containsKey(broker)){
+                                brokers.put(broker, new ArrayList<>());
+                            }
+                            brokers.get(broker).add(artist);
+                            break;
+                        }
+                    }
+
+                }
             }
+        } catch(IOException e){
+            e.printStackTrace();
         }
-        return null;
-    }
 
-    //transfer data to broker on broker demand
-    public void push(ArtistName name, MusicFile file){
-        //send file using different threads
-        //each song raises a thread that raises mupliple threads
-        //send all the songs with artistName as key
-
-        //search hashmap to choose Broker
-
-    }
-    
-    public void notifyFailure(Broker broker){
 
     }
 
-    private String SHA1(String value){
-        try { 
-            MessageDigest md = MessageDigest.getInstance("SHA-1"); 
-  
-            byte[] messageDigest = md.digest(value.getBytes()); 
-            BigInteger no = new BigInteger(1, messageDigest);
-            String hashtext = no.toString(16); 
-            while (hashtext.length() < 32) { 
-                hashtext = "0" + hashtext; 
-            } 
-            return hashtext; 
-        }catch (NoSuchAlgorithmException e) { 
-            throw new RuntimeException(e); 
-        }
-    }
+//    //get brokers and their hashes usinf method from broker
+//    public void getBrokerList(){
+//
+//    }
+//
+//    //find the right broker using getBrokerList
+//    public Broker hashTopic(ArtistName name){
+//        String hashValue = SHA1(name.artistName);
+//        for(Broker br: brokers){
+//            if(br.getHash() >= hashValue){ //mod
+//                return br;
+//            }
+//        }
+//        return null;
+//    }
+//
+//    //transfer data to broker on broker demand
+//    public void push(ArtistName name, MusicFile file){
+//        //send file using different threads
+//        //each song raises a thread that raises mupliple threads
+//        //send all the songs with artistName as key
+//
+//        //search hashmap to choose Broker
+//
+//    }
+//
+//    public void notifyFailure(Broker broker){
+//
+//    }
 
 }

@@ -1,3 +1,7 @@
 public class ArtistName {
-    protected String artistName;
+    private String artistName;
+
+    public String getName() {
+        return artistName;
+    }
 }
