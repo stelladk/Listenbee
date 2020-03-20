@@ -223,7 +223,7 @@ public class Broker{
         }
     }
 
-    //TODO: make method synchronizes and list static
+    //TODO: send messages to check availability
     private void acknowledgeServer(List<String> server_IPs){
         brokersList = new ArrayList<>();
         brokersList.add(this); //add yourself
