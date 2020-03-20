@@ -72,14 +72,20 @@ public class Broker{
             return;
         }
 
-        setArtistSource(artists, broker);
+        setOuterArtistSource(artists, broker);
     }
 
     public void acceptPublisherConnection(Socket conn){
         ObjectOutputStream out;
         ObjectInputStream in;
 
+        //register publisher
+        String clientIP = conn.getInetAddress().getHostAddress();
+        Publisher publisher = new Publisher(clientIP);
+        registeredPublishers.add(publisher); //make constructor
+
         //send broker hashes
+        List<ArtistName> artists;
         out = new ObjectOutputStream(conn.getOutputStream());
         out.writeObject(brokersList);
         out.flush();
@@ -91,13 +97,13 @@ public class Broker{
         }catch(ClassNotFoundException e){
             e.printStackTrace();
             //notifyFailure();
-            continue;
+            return;
         }
 
         //save artists
-        setArtistSource(artists, conn.getInetAddress().getHostAddress());
+        setInnerArtistSource(artists, publisher);
         try{
-            socket.close();
+            conn.close();
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -107,8 +113,9 @@ public class Broker{
     }
 
     public void acceptConsumerConnection(Socket conn){
-
-        return null;
+        ObjectOutputStream out;
+        ObjectInputStream in;
+        
     }
 
     //send message to publisher for the artists that it handles
@@ -148,9 +155,7 @@ public class Broker{
     }
 
     //save your artists
-    public synchronized void setArtistSource(List<ArtistName> artists, String publisherIP){
-        //TODO: search in registered publishers
-        Publisher publisher = new Publisher(publisherIP); //make constructor
+    public synchronized void setInnerArtistSource(List<ArtistName> artists, Publisher publisher){
         for(ArtistName artist : artists){
             artistsToBrokers.put(artist, this);
             publishers.put(artist,publisher);
@@ -158,7 +163,7 @@ public class Broker{
     }
 
     //save other artists
-    private synchronized void setArtistSource(List<ArtistName> artists, Broker broker){
+    private synchronized void setOuterArtistSource(List<ArtistName> artists, Broker broker){
         for(ArtistName artist : artists){
             artistsToBrokers.put(artist, broker);
         }
@@ -237,6 +242,7 @@ public class Broker{
         }
     }
 
+    //TODO: check logged in clients and create different processing
     //Thread to accept connections from Consumers
     private class ClientConnections extends Thread{
         @Override
@@ -248,7 +254,7 @@ public class Broker{
                 Thread thread = new Thread(new Runnable(){
                     @Override
                     public void run(){
-                        acceptConnection(socket);
+                        acceptConsumerConnection(socket);
                         try{
                             socket.close();
                         }catch(IOException e){
