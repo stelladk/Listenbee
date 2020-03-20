@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Broker{
+    public static final List<Consumer> loggedinUsers = new ArrayList<>();
     public static final List<Consumer> registeredUsers = new ArrayList<>();
     public static final List<Publisher> registeredPublishers = new ArrayList<>();
 
@@ -81,8 +82,7 @@ public class Broker{
 
         //register publisher
         String clientIP = conn.getInetAddress().getHostAddress();
-        Publisher publisher = new Publisher(clientIP);
-        registeredPublishers.add(publisher); //make constructor
+        Publisher publisher = registerPublisher(clientIP);
 
         //send broker hashes
         List<ArtistName> artists;
@@ -112,7 +112,7 @@ public class Broker{
         notifyBrokers(artists);
     }
 
-    public void acceptConsumerConnection(Socket conn){
+    public void acceptConsumerConnection(Socket conn, Consumer consumer){
         ObjectOutputStream out;
         ObjectInputStream in;
         
@@ -167,6 +167,34 @@ public class Broker{
         for(ArtistName artist : artists){
             artistsToBrokers.put(artist, broker);
         }
+    }
+
+    private synchronized Publisher registerPublisher(String clientIP){
+        Publisher publisher = new Publisher(clientIP); //make constructor
+        registeredPublishers.add(publisher);
+        return publisher;
+    }
+
+    private synchronized Consumer registerUser(Socket conn, String clientIP){
+        ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+        String username = (String) in.readObject();
+        String password = (String) in.readObject();
+        //TODO: handle passwords -> save in file
+        //hash password
+        Consumer consumer = new Consumer(clientIP);
+        registeredUsers.add(consumer);
+        return consumer;
+    }
+
+    private synchronized Consumer loginUser(Socket conn, String clientIP){
+        ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+        String username = (String) in.readObject();
+        String password = (String) in.readObject();
+        //TODO: check with registedUsers
+        Consumer consumer = null;
+        //if not registered send message to register
+        loggedinUsers.add(consumer);
+        return consumer;
     }
 
     private void notifyBrokers(List<ArtistName> artists){
@@ -254,7 +282,21 @@ public class Broker{
                 Thread thread = new Thread(new Runnable(){
                     @Override
                     public void run(){
-                        acceptConsumerConnection(socket);
+                        boolean processed = false;
+                        String clientIP = socket.getInetAddress().getHostAddress();
+                        //search in logged-in users
+                        for(Consumer consumer: registeredUsers){
+                            if(consumer.getIP().equals(clientIP)){
+                                acceptConsumerConnection(socket, consumer);
+                                processed = true;
+                                break;
+                            }
+                        }
+
+                        if(!processed){
+                            loginUser(socket, clientIP);
+                        }
+
                         try{
                             socket.close();
                         }catch(IOException e){
