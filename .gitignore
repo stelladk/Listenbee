@@ -2,6 +2,7 @@
 /.idea/
 *.iml
 /out/
+/res/
 
 #VSCode
 *.class
@@ -10,3 +11,4 @@
 Notes.pdf
 Project.pdf
 Structure.png
+Test.java
