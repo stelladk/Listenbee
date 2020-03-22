@@ -1,5 +1,3 @@
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
-
 import java.io.*;
 import java.math.BigInteger;
 import java.net.ServerSocket;
@@ -7,40 +5,59 @@ import java.net.Socket;
 import java.util.*;
 
 public class Publisher{
-    private static final int PORT = 1999;
+    private final int PORT;
+    private final String IP;
 
     private ServerSocket server;
-    private HashMap<ArtistName, List<MusicFile>> files; //hash with artistName
-    private HashMap<Broker, List<ArtistName>> brokers;
+
+    private Map<String, List<MusicFile>> files; //hash with artistName
+    private Map<Broker, List<String>> brokers;
+
+    public Publisher(String IP, int PORT){
+        this.IP = IP;
+        this.PORT = PORT;
+    }
 
     /**
      * Initialize publisher
      * load tracks, get all brokers, find with whom to connect and send them the artists
-     * @param songs
-     * @param IP
+     * @param brokerIP
+     * @param brokerPort
      */
-    public void init (List<MusicFile> songs, String IP) {
+    public void init (String brokerIP, int brokerPort) {
         //load the specified songs
-        loadTracks(songs);
+       files =  MusicFileHandler.read();
 
         Socket socket = null;
         try {
-            //open connection
-            socket = new Socket(IP, PORT);
+            //open connection with broker
+            socket = new Socket(brokerIP, brokerPort);
 
+            //get all active brokers
             List<Broker> brokerList =  getBrokerList(socket);
 
+            //close connection with broker
             closeConnection(socket);
 
-            assignArtistToBroker(brokerList);
+            //find the brokers that are responsible for this publisher
+            if (brokerList != null){
+                if (brokerList.isEmpty()) {
+                    return;
+                }
+                assignArtistToBroker(brokerList);
+            } else {
+                return;
+            }
 
+            //TODO
+            //connect with responsible brokers
             for (Broker broker : brokers.keySet()){
                 Thread task = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         Socket socket_conn = null;
                         try {
-                            socket_conn = new Socket(broker.getIP(), PORT);
+                            socket_conn = new Socket(broker.getIP(), broker.getPort());
 
                             ObjectOutputStream out = new ObjectOutputStream(socket_conn.getOutputStream());
                             out.writeObject(brokers.get(broker));
@@ -55,10 +72,8 @@ public class Publisher{
                 task.start();
             }
         } catch(IOException e){
-            e.printStackTrace();
+            System.err.println("ERROR: Could not initialize broker");
         }
-
-
     }
 
     public void online (){
@@ -72,40 +87,42 @@ public class Publisher{
         }
     }
 
-    private void loadTracks (List<MusicFile> songs){
-        files = new HashMap<>();
-        for (MusicFile song: songs){
-            if (!files.containsKey(song.artistName)) {
-                files.put(song.artistName, new ArrayList<MusicFile>());
-            }
-            files.get(song.artistName).add(song);
-        }
-    }
-
-    //get brokers and their hashes usinf method from broker
-    private List<Broker> getBrokerList(Socket socket) throws IOException {
-        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+    /**
+     * Get all active brokers from a random broker
+     * @param socket broker's socket
+     * @return a list with all active brokers
+     */
+    private List<Broker> getBrokerList(Socket socket) {
+        List<Broker> brokers;
+        ObjectInputStream in = null;
+        //open input stream with the broker to accept input
         try {
-            return (ArrayList<Broker>) in.readObject();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            in = new ObjectInputStream(socket.getInputStream());
+            brokers = (List<Broker>) in.readObject();
+        } catch (ClassNotFoundException | IOException e) {
+            System.err.println("ERROR: Could not cast Object to List");
             return null;
         }
+        return brokers;
     }
 
+    /**
+     * Find the brokers that are responsible for this artist
+     * hash(artist_name) < hash(broker_IP + broker_port)
+     * @param brokerList list with active brokers
+     */
     private void assignArtistToBroker (List<Broker> brokerList){
         //find broker whose hash value is greater than the others
         Broker maxBroker = brokerList.get(brokerList.size()-1);
         BigInteger maxBrokerHash = maxBroker.getHash();
 
-        //find which broker is responsible for the specific artists
-        for (ArtistName artist : files.keySet()){
-            //if hash(artist_value) is greater than the maximum hash(broker)
-            //modulo with the maximum broker so that in range [min_broker, max_broker]
-            BigInteger hash_artist = Utilities.SHA1(artist.getName()).mod(maxBrokerHash);
+        for (String artist : files.keySet()){
+            //if hash(artist_name) > maximum hash(broker)
+            //modulo with the maximum broker so that hash(artist_name) is in range [min_broker, max_broker]
+            BigInteger hashArtist = Utilities.SHA1(artist).mod(maxBrokerHash);
 
             for (Broker broker : brokerList) {
-                if (hash_artist.compareTo(broker.getHash()) < 0){
+                if (hashArtist.compareTo(broker.getHash()) < 0){
                     if (!brokers.containsKey(broker)){
                         brokers.put(broker, new ArrayList<>());
                     }
@@ -116,12 +133,16 @@ public class Publisher{
         }
     }
 
+    /**
+     * Close the connection established with the broker
+     * @param socket broker's socket
+     */
     private void closeConnection (Socket socket){
         if (socket != null){
             try {
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("ERROR: Could not close socket");
             }
         }
     }

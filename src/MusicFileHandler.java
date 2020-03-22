@@ -51,6 +51,8 @@ public class MusicFileHandler {
                         }
                         songs.get(artist).add(new MusicFile(title, artist, metadata.get("xmpDM:album"), metadata.get("xmpDM:genre"), Files.readAllBytes(file.toPath())));
                     }
+
+                    stream.close();
                 } catch (IOException | SAXException | TikaException e) {
                     System.err.println("ERROR: Could not parse file");
                     return null;
