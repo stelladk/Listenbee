@@ -5,17 +5,16 @@ import java.net.Socket;
 import java.util.*;
 
 public class Publisher{
-    private final int PORT;
+    private static final int PORT = 2001;
     private final String IP;
 
     private ServerSocket server;
 
-    private Map<String, List<MusicFile>> files; //hash with artistName
+    private Map<String, List<MusicFile>> files;
     private Map<Broker, List<String>> brokers;
 
-    public Publisher(String IP, int PORT){
+    public Publisher(String IP){
         this.IP = IP;
-        this.PORT = PORT;
     }
 
     /**
@@ -49,34 +48,16 @@ public class Publisher{
                 return;
             }
 
-            //TODO
             //connect with responsible brokers
-            for (Broker broker : brokers.keySet()){
-                Thread task = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Socket socket_conn = null;
-                        try {
-                            socket_conn = new Socket(broker.getIP(), broker.getPort());
+            //and send them publisher's artists
+            informBrokers();
 
-                            ObjectOutputStream out = new ObjectOutputStream(socket_conn.getOutputStream());
-                            out.writeObject(brokers.get(broker));
-                            out.flush();
-                        } catch (IOException e){
-                            e.printStackTrace();
-                        } finally {
-                            closeConnection(socket_conn);
-                        }
-                    }
-                });
-                task.start();
-            }
         } catch(IOException e){
             System.err.println("ERROR: Could not initialize broker");
         }
     }
 
-    public void online (){
+    public void online(){
         try {
             server = new ServerSocket(PORT);
             while (true) {
@@ -85,6 +66,14 @@ public class Publisher{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getIP() {
+        return IP;
+    }
+
+    public static int getPORT() {
+        return PORT;
     }
 
     /**
@@ -130,6 +119,32 @@ public class Publisher{
                     break;
                 }
             }
+        }
+    }
+
+    /**
+     * Connect with responsible brokers and send them publisher's artists
+     */
+    private void informBrokers(){
+        for (Broker broker : brokers.keySet()){
+            Thread task = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Socket socket_conn = null;
+                    try {
+                        socket_conn = new Socket(broker.getIP(), broker.getInnerPORT());
+
+                        ObjectOutputStream out = new ObjectOutputStream(socket_conn.getOutputStream());
+                        out.writeObject(brokers.get(broker));
+                        out.flush();
+                    } catch (IOException e){
+                        System.err.println("ERROR: Could not communicate artists to broker");
+                    } finally {
+                        closeConnection(socket_conn);
+                    }
+                }
+            });
+            task.start();
         }
     }
 
