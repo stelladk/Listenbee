@@ -50,7 +50,7 @@ public class Broker{
 
     }
 
-    public void runServer(){
+    public void runServer() throws IOException{
         innerServer = new ServerSocket(InnerPORT);
         publicServer = new ServerSocket(ConsumerPORT);
         InnerConnections innerConn = new InnerConnections();
@@ -59,7 +59,7 @@ public class Broker{
         clientConn.start();
     }
 
-    public void acceptBrokerConnection(Socket conn, Broker broker){
+    public void acceptBrokerConnection(Socket conn, Broker broker) throws IOException{
         ObjectOutputStream out;
         ObjectInputStream in;
         List<ArtistName> artists;
@@ -76,7 +76,7 @@ public class Broker{
         setOuterArtistSource(artists, broker);
     }
 
-    public void acceptPublisherConnection(Socket conn){
+    public void acceptPublisherConnection(Socket conn) throws IOException{
         ObjectOutputStream out;
         ObjectInputStream in;
 
@@ -175,7 +175,7 @@ public class Broker{
         return publisher;
     }
 
-    private synchronized Consumer registerUser(Socket conn, String clientIP){
+    private synchronized Consumer registerUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
         String username = (String) in.readObject();
         String password = (String) in.readObject();
@@ -186,7 +186,7 @@ public class Broker{
         return consumer;
     }
 
-    private synchronized Consumer loginUser(Socket conn, String clientIP){
+    private synchronized Consumer loginUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
         String username = (String) in.readObject();
         String password = (String) in.readObject();
@@ -197,7 +197,7 @@ public class Broker{
         return consumer;
     }
 
-    private void notifyBrokers(List<ArtistName> artists){
+    private void notifyBrokers(List<ArtistName> artists) throws IOException{
         for(Broker broker: brokersList){
             if(broker != this){
                 Thread notify = new Thread(new Runnable(){
@@ -206,11 +206,11 @@ public class Broker{
                         Socket socket;
                         ObjectOutputStream out;
                         while(true){
-                            socket = new Socket(broker.getIP(), InnerPORT); //wait for connection with broker
-                            out = new ObjectOutputStream(socket.getOutputStream());
-                            out.writeObject(artists);
-                            out.flush();
                             try{
+                                socket = new Socket(broker.getIP(), InnerPORT); //wait for connection with broker
+                                out = new ObjectOutputStream(socket.getOutputStream());
+                                out.writeObject(artists);
+                                out.flush();
                                 socket.close();
                             }catch(IOException e){
                                 e.printStackTrace();
@@ -236,26 +236,39 @@ public class Broker{
     private class InnerConnections extends Thread{
         @Override
         public void run(){
-            Socket socket;
             while(true){
-                socket = innerServer.accept(); 
                 //make thread to proccess connection
                 Thread thread = new Thread(new Runnable(){
                     @Override
                     public void run(){
+                        Socket socket;
+                        try{
+                            socket = innerServer.accept(); 
+                        }catch(IOException e){
+                            e.printStackTrace();
+                            return;
+                        }
                         boolean proccessed = false;
                         String clientIP = socket.getInetAddress().getHostAddress();
                         for(Broker broker:brokersList){
                             if(broker.getIP().equals(clientIP)){
                                 //process connection from broker
-                                acceptBrokerConnection(socket, broker);
+                                try{
+                                    acceptBrokerConnection(socket, broker);
+                                }catch(IOException e){
+                                    e.printStackTrace();
+                                }
                                 proccessed = true;
                                 break;
                             }
                         }
                         //process connection from publisher
                         if(!proccessed){
-                            acceptPublisherConnection(socket);
+                            try{
+                                acceptPublisherConnection(socket);
+                            }catch(IOException e){
+                                e.printStackTrace();
+                            }
                         }
 
                         try{
@@ -275,13 +288,18 @@ public class Broker{
     private class ClientConnections extends Thread{
         @Override
         public void run(){
-            Socket socket;
             while(true){
-                socket = publicServer.accept();
                 //make thread to process connection
                 Thread thread = new Thread(new Runnable(){
                     @Override
                     public void run(){
+                        Socket socket;
+                        try{
+                            socket = publicServer.accept(); 
+                        }catch(IOException e){
+                            e.printStackTrace();
+                            return;
+                        }
                         boolean processed = false;
                         String clientIP = socket.getInetAddress().getHostAddress();
                         //search in logged-in users
@@ -294,7 +312,13 @@ public class Broker{
                         }
 
                         if(!processed){
-                            loginUser(socket, clientIP);
+                            try{
+                                loginUser(socket, clientIP);
+                            }catch(IOException e){
+                                e.printStackTrace();
+                            }catch(ClassNotFoundException e){
+                                e.printStackTrace();
+                            }
                         }
 
                         try{

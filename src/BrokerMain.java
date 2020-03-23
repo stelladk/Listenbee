@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.*;
 
 public class BrokerMain {
@@ -14,6 +15,10 @@ public class BrokerMain {
 
         Broker broker = new Broker();
         broker.init(brokerIPs);
-        broker.runServer();
+        try{
+            broker.runServer();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 }

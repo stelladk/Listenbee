@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.IOException;
 import java.net.*;
 
 public class Consumer{
@@ -11,8 +12,8 @@ public class Consumer{
         this.server_IP = server_IP;
     }
 
-    public void register(Broker broker, ArtistName name){
-        Socket conn = new Socket(server_IP, PORT);
+    public void register(Broker broker, ArtistName name) throws IOException{
+        //Socket conn = new Socket(server_IP, PORT);
     }
 
     public void disconnect(Broker broker, ArtistName name){
@@ -20,7 +21,7 @@ public class Consumer{
     }
 
     //request data from broke using method pull
-    public void playData(ArtistName name, MusicFile files){
+    public void playData(ArtistName name, MusicFile files) throws IOException{
         //find valid broker using hashmap
         Broker broker = brokers.get(name);
         register(broker, name);
@@ -30,5 +31,13 @@ public class Consumer{
     //get brokers and their assigned artists
     public void getBrokers(){
 
+    }
+
+    public String getIP(){
+        try{
+            return InetAddress.getLocalHost().getHostAddress();
+        }catch(UnknownHostException e){
+            return null;
+        }
     }
 }
