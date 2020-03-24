@@ -57,14 +57,51 @@ public class Publisher{
         }
     }
 
+    /**
+     * Make publisher online (await incoming connections)
+     * Get the song, search for it and push it to broker
+     */
     public void online(){
         try {
+            //open server socket
             server = new ServerSocket(PORT);
-            while (true) {
 
+            //await for connections
+            while (true) {
+                try {
+                    Socket connection = server.accept();
+
+                    //for each connection create a new thread
+                    Thread task = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
+                                /* TODO
+                                 *get input from broker (song etc artist asked for)
+                                 *search for them
+                                 *send them back using push
+                                */
+                            }catch (IOException e){
+                                //TODO
+                            }finally {
+                                closeConnection(connection);
+                            }
+                        }
+                    });
+                    task.start();
+                } catch(IOException e) {
+                    //TODO
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("ERROR: Server could not go online");
+        } finally {
+            try {
+                if (server != null) server.close();
+            } catch (IOException e) {
+                System.err.println("ERROR: Server could not shut down");
+            }
         }
     }
 
