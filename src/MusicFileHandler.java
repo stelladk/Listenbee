@@ -15,6 +15,7 @@ import java.util.Map;
 public class MusicFileHandler {
 
     /**
+     * TODO keep specific files according to publisher's interests
      * Reads music files into a Map, with artist as the key and artist's songs as values
      * @return a Map with the artists and their songs
      */

@@ -185,6 +185,10 @@ public class Publisher{
         }
     }
 
+    private void inform_brokers(){
+
+    }
+
     /**
      * Close the connection established with the broker
      * @param socket broker's socket
