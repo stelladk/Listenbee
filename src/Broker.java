@@ -18,8 +18,8 @@ public class Broker{
     private BigInteger HASH_VALUE;
 
     private List<Broker> brokersList; //list of available brokers
-    private static HashMap<ArtistName, Broker> artistsToBrokers = new HashMap<>(); //artsist assigned to brokers
-    private HashMap<ArtistName, Publisher> publishers; //artists assigned to publishers
+    private static HashMap<String, Broker> artistsToBrokers = new HashMap<>(); //artsist assigned to brokers
+    private HashMap<String, Publisher> publishers; //artists assigned to publishers
     private boolean online;
 
     private ServerSocket innerServer; //publisher and broker server
@@ -68,13 +68,13 @@ public class Broker{
     public void acceptBrokerConnection(Socket conn, Broker broker) throws IOException{
         ObjectOutputStream out;
         ObjectInputStream in;
-        List<ArtistName> artists;
+        List<String> artists;
         print("Processing Broker Connection");
 
         //get artists from other broker
         in = new ObjectInputStream(conn.getInputStream());
         try{
-            artists = (List<ArtistName>) in.readObject();
+            artists = (List<String>) in.readObject();
         }catch(ClassNotFoundException e){
             e.printStackTrace();
             return;
@@ -88,36 +88,47 @@ public class Broker{
         ObjectInputStream in;
         print("Processing Publisher Connection");
 
-        //register publisher
         String clientIP = conn.getInetAddress().getHostAddress();
-        Publisher publisher = registerPublisher(clientIP);
+
+        for(Publisher pub : registeredPublishers){
+            //Case 1 : Publisher is registered
+            if(pub.getIP().equals(clientIP)){ 
+                List<String> artists;
+
+                //wait for artists
+                in = new ObjectInputStream(conn.getInputStream());
+                try{
+                    artists = (List<String>) ((Message<List<String>>) in.readObject()).getMessage();
+                }catch(ClassNotFoundException e){
+                    e.printStackTrace();
+                    //notifyFailure();
+                    return;
+                }
+        
+                //save artists
+                setInnerArtistSource(artists, pub);
+                try{
+                    conn.close();
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+        
+                //send info to other brokers
+                notifyBrokers(artists);
+                return;
+            }
+        }
+
+        //Case 2 : Publisher is not registed
+        
+        //register publisher
+        registerPublisher(clientIP);
 
         //send broker hashes
-        List<ArtistName> artists;
+        Message<List<Broker>> msg = new Message<List<Broker>>(brokersList);
         out = new ObjectOutputStream(conn.getOutputStream());
-        out.writeObject(brokersList);
+        out.writeObject(msg);
         out.flush();
-
-        //wait for artists
-        in = new ObjectInputStream(conn.getInputStream());
-        try{
-            artists = (List<ArtistName>) in.readObject();
-        }catch(ClassNotFoundException e){
-            e.printStackTrace();
-            //notifyFailure();
-            return;
-        }
-
-        //save artists
-        setInnerArtistSource(artists, publisher);
-        try{
-            conn.close();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
-        //send info to other brokers
-        notifyBrokers(artists);
     }
 
     public void acceptConsumerConnection(Socket conn, Consumer consumer){
@@ -132,7 +143,7 @@ public class Broker{
     }
 
     //send data to consumer on consumer demand
-    public void pull(ArtistName name){
+    public void pull(String artist){
         //request data from publisher using push method
         //find data in hashmap
         //send the entire list with astistName as key
@@ -154,7 +165,7 @@ public class Broker{
         return HASH_VALUE;
     }
 
-    public HashMap<ArtistName, Broker> getBrokers(){
+    public HashMap<String, Broker> getBrokers(){
         return artistsToBrokers;
     }
 
@@ -163,16 +174,16 @@ public class Broker{
     }
 
     //save your artists
-    public synchronized void setInnerArtistSource(List<ArtistName> artists, Publisher publisher){
-        for(ArtistName artist : artists){
+    public synchronized void setInnerArtistSource(List<String> artists, Publisher publisher){
+        for(String artist : artists){
             artistsToBrokers.put(artist, this);
             publishers.put(artist,publisher);
         }
     }
 
     //save other artists
-    private synchronized void setOuterArtistSource(List<ArtistName> artists, Broker broker){
-        for(ArtistName artist : artists){
+    private synchronized void setOuterArtistSource(List<String> artists, Broker broker){
+        for(String artist : artists){
             artistsToBrokers.put(artist, broker);
         }
     }
@@ -205,7 +216,7 @@ public class Broker{
         return consumer;
     }
 
-    private void notifyBrokers(List<ArtistName> artists) throws IOException{
+    private void notifyBrokers(List<String> artists) throws IOException{
         for(Broker broker: brokersList){
             if(broker != this){
                 Thread notify = new Thread(new Runnable(){

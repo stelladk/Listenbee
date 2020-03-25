@@ -11,7 +11,7 @@ public class Publisher{
     private ServerSocket server;
 
     private Map<String, List<MusicFile>> files;
-    private Map<Broker, List<String>> brokers;
+    private Map<Broker, List<String>> brokers; //artists assigned to brokers
 
     public Publisher(String IP){
         this.IP = IP;
@@ -124,7 +124,7 @@ public class Publisher{
         //open input stream with the broker to accept input
         try {
             in = new ObjectInputStream(socket.getInputStream());
-            brokers = (List<Broker>) in.readObject();
+            brokers = (List<Broker>) ((Message<List<Broker>>) in.readObject()).getMessage();
         } catch (ClassNotFoundException | IOException e) {
             System.err.println("ERROR: Could not cast Object to List");
             return null;
@@ -171,8 +171,9 @@ public class Publisher{
                     try {
                         socket_conn = new Socket(broker.getIP(), broker.getInnerPORT());
 
+                        Message<List<String>> msg = new Message<List<String>>(brokers.get(broker));
                         ObjectOutputStream out = new ObjectOutputStream(socket_conn.getOutputStream());
-                        out.writeObject(brokers.get(broker));
+                        out.writeObject(msg);
                         out.flush();
                     } catch (IOException e){
                         System.err.println("ERROR: Could not communicate artists to broker");
