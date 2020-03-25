@@ -1,4 +1,6 @@
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.io.*;
 import java.net.*;
 import java.math.BigInteger; 
@@ -22,6 +24,8 @@ public class Broker{
 
     private ServerSocket innerServer; //publisher and broker server
     private ServerSocket publicServer; //consumer server
+
+    ExecutorService threadPool = Executors.newCachedThreadPool();
 
     public Broker(){
 
@@ -55,14 +59,17 @@ public class Broker{
         publicServer = new ServerSocket(ConsumerPORT);
         InnerConnections innerConn = new InnerConnections();
         ClientConnections clientConn = new ClientConnections();
-        innerConn.start();
-        clientConn.start();
+        // innerConn.start();
+        // clientConn.start();
+        threadPool.execute(innerConn);
+        threadPool.execute(clientConn);
     }
 
     public void acceptBrokerConnection(Socket conn, Broker broker) throws IOException{
         ObjectOutputStream out;
         ObjectInputStream in;
         List<ArtistName> artists;
+        print("Processing Broker Connection");
 
         //get artists from other broker
         in = new ObjectInputStream(conn.getInputStream());
@@ -79,6 +86,7 @@ public class Broker{
     public void acceptPublisherConnection(Socket conn) throws IOException{
         ObjectOutputStream out;
         ObjectInputStream in;
+        print("Processing Publisher Connection");
 
         //register publisher
         String clientIP = conn.getInetAddress().getHostAddress();
@@ -115,7 +123,7 @@ public class Broker{
     public void acceptConsumerConnection(Socket conn, Consumer consumer){
         ObjectOutputStream out;
         ObjectInputStream in;
-        
+        print("Processing Consumer Connection");
     }
 
     //send message to publisher for the artists that it handles
@@ -232,22 +240,27 @@ public class Broker{
         }
     }
 
+    public synchronized void print(String str){
+        System.out.println(str);
+    }
+
     //Thread to accept inner connections
     private class InnerConnections extends Thread{
         @Override
         public void run(){
             while(true){
+                Socket socket;
+                try{
+                    socket = innerServer.accept(); //accept connection
+                    print("Accepted Inner Connection");
+                }catch(IOException e){
+                    e.printStackTrace();
+                    return;
+                }
                 //make thread to proccess connection
                 Thread thread = new Thread(new Runnable(){
                     @Override
                     public void run(){
-                        Socket socket;
-                        try{
-                            socket = innerServer.accept(); 
-                        }catch(IOException e){
-                            e.printStackTrace();
-                            return;
-                        }
                         boolean proccessed = false;
                         String clientIP = socket.getInetAddress().getHostAddress();
                         for(Broker broker:brokersList){
@@ -272,13 +285,15 @@ public class Broker{
                         }
 
                         try{
+                            print("Closing Inner Connection");
                             socket.close();
                         }catch(IOException e){
                             e.printStackTrace();
                         }
                     }
                 });
-                thread.start();
+                // thread.start();
+                threadPool.execute(thread);
             }
         }
     }
@@ -289,17 +304,17 @@ public class Broker{
         @Override
         public void run(){
             while(true){
+                Socket socket;
+                try{
+                    socket = publicServer.accept(); //accept connection
+                }catch(IOException e){
+                    e.printStackTrace();
+                    return;
+                }
                 //make thread to process connection
                 Thread thread = new Thread(new Runnable(){
                     @Override
                     public void run(){
-                        Socket socket;
-                        try{
-                            socket = publicServer.accept(); 
-                        }catch(IOException e){
-                            e.printStackTrace();
-                            return;
-                        }
                         boolean processed = false;
                         String clientIP = socket.getInetAddress().getHostAddress();
                         //search in logged-in users
@@ -328,7 +343,8 @@ public class Broker{
                         }
                     }
                 });
-                thread.start();
+                // thread.start();
+                threadPool.execute(thread);
             }
         }
     }

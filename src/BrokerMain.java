@@ -14,9 +14,12 @@ public class BrokerMain {
         }
 
         Broker broker = new Broker();
+        System.out.println("Constructed Broker");
         broker.init(brokerIPs);
+        System.out.println("Initialisez Broker");
         try{
             broker.runServer();
+            System.out.println("Run Server");
         }catch(IOException e){
             e.printStackTrace();
         }
