@@ -5,9 +5,7 @@ import org.apache.tika.parser.mp3.Mp3Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +45,10 @@ public class MusicFileHandler {
                     String artist = metadata.get("xmpDM:artist");
 
                     //if title is null then get it from file signature
-                    if (title == null) title = file.getName().substring(0, file.getName().indexOf('.'));
+                    if (title == null) {
+                        title = file.getName().substring(0, file.getName().indexOf('.'));
+                        metadata.set("title", title);
+                    }
 
                     if (artist != null){
                         if (!songs.containsKey(artist)){ //if artist doesn't exist make a new record
@@ -66,7 +67,54 @@ public class MusicFileHandler {
         return !songs.isEmpty() ? songs : null;
     }
 
-    public static void write(MusicFile file){
+    /**
+     * FIXME when file is saved the properties (title, genre, image) aren't saved
+     * Save a song to Downloads directory
+     * @param file the music file
+     * @return true if the song was saved to directory
+     */
+    public static boolean write(MusicFile file) {
+        //if the file is null then cancel the activity
+        if (file == null) {
+            System.err.println("ERROR: Null object passed");
+            return  false;
+        }
 
+        //create directory if it doesn't exist
+        File dir = new File("./res/Downloads/");
+        if (!dir.exists()) {
+           if (!dir.mkdir()) {
+               System.err.println("ERROR: Could not create directory");
+               return false;
+           }
+        }
+
+        //create file
+        File savedFile = new File(dir, file.getTrackName() + ".mp3");
+
+        FileOutputStream stream = null;
+        ObjectOutputStream out = null;
+        try{
+            stream = new FileOutputStream(savedFile);
+            out = new ObjectOutputStream(stream);
+            out.writeObject(file);
+
+            out.close();
+            stream.close();
+
+            return true;
+        } catch (IOException e) {
+            System.out.println("ERROR: Could not write file to directory");
+
+            try {
+                //close streams
+               if (out != null) out.close();
+               if (stream != null) stream.close();
+            } catch (IOException ex) {
+                System.out.println("ERROR: Could not close streams");
+            }
+
+            return false;
+        }
     }
 }

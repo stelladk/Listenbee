@@ -1,16 +1,18 @@
-public class MusicFile {
+import java.io.Serializable;
+
+public class MusicFile implements Serializable {
     private String trackName;
     private String artistName;
     private String albumInfo;
     private String genre;
-    private byte[] musicFileExtract;
+    private byte[] fileBytes;
 
-    public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] musicFileExtract) {
+    public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] fileBytes) {
         this.trackName = trackName;
         this.artistName = artistName;
         this.albumInfo = albumInfo;
         this.genre = genre;
-        this.musicFileExtract = musicFileExtract;
+        this.fileBytes = fileBytes;
     }
 
     //Accessors
@@ -30,7 +32,7 @@ public class MusicFile {
         return genre;
     }
 
-    public byte[] getMusicFileExtract() {
-        return musicFileExtract;
+    public byte[] getFileBytes() {
+        return fileBytes;
     }
 }
