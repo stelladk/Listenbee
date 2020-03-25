@@ -45,7 +45,11 @@ public class MusicFileHandler {
 
                     String title = metadata.get("title");
                     String artist = metadata.get("xmpDM:artist");
-                    if (artist != null && title != null){
+
+                    //if title is null then get it from file signature
+                    if (title == null) title = file.getName().substring(0, file.getName().indexOf('.'));
+
+                    if (artist != null){
                         if (!songs.containsKey(artist)){ //if artist doesn't exist make a new record
                             songs.put(artist, new ArrayList<MusicFile>());
                         }
