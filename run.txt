@@ -1,7 +1,7 @@
 *in the same folder
-javac -cp "org.apache.tika.parsers.jar;org.apache.tika.jar;" *.java
-java -cp .;org.apache.tika.parsers.jar;org.apache.tika.jar Main
+javac -cp "tika-app-1.24.jar;" *.java
+java -cp .;tika-app-1.24.jar; Main
 
 *in lib folder
-javac -cp "../lib/org.apache.tika.parsers.jar;../lib/org.apache.tika.jar;" *.java
-java -cp .;../lib/org.apache.tika.parsers.jar;../lib/org.apache.tika.jar Main
+javac -cp "../lib/tika-app-1.24.jar;" *.java
+java -cp .;../lib/tika-app-1.24.jar; Main 

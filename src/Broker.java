@@ -6,6 +6,7 @@ import java.net.*;
 import java.math.BigInteger; 
 import java.security.MessageDigest; 
 import java.security.NoSuchAlgorithmException;
+import java.io.Serializable;
 
 public class Broker{
     public static final List<Consumer> loggedinUsers = new ArrayList<>();
@@ -17,8 +18,8 @@ public class Broker{
     private String IP;
     private BigInteger HASH_VALUE;
 
-    private List<Broker> brokersList; //list of available brokers
-    private static HashMap<String, Broker> artistsToBrokers = new HashMap<>(); //artsist assigned to brokers
+    private ArrayList<DemoBroker> brokersList; //list of available brokers
+    private static HashMap<String, DemoBroker> artistsToBrokers = new HashMap<>(); //artsist assigned to brokers
     private HashMap<String, Publisher> publishers; //artists assigned to publishers
     private boolean online;
 
@@ -26,6 +27,8 @@ public class Broker{
     private ServerSocket publicServer; //consumer server
 
     ExecutorService threadPool = Executors.newCachedThreadPool();
+
+    DemoBroker self;
 
     public Broker(){
 
@@ -39,6 +42,7 @@ public class Broker{
     public void init(List<String> server_IPs){
         try{
             IP = InetAddress.getLocalHost().getHostAddress();
+            self = new DemoBroker(getIP());
             online = true;
         }catch(UnknownHostException e){
             online = false;
@@ -65,7 +69,7 @@ public class Broker{
         threadPool.execute(clientConn);
     }
 
-    public void acceptBrokerConnection(Socket conn, Broker broker) throws IOException{
+    public void acceptBrokerConnection(Socket conn, DemoBroker broker) throws IOException{
         ObjectOutputStream out;
         ObjectInputStream in;
         List<String> artists;
@@ -125,9 +129,9 @@ public class Broker{
         registerPublisher(clientIP);
 
         //send broker hashes
-        Message<List<Broker>> msg = new Message<List<Broker>>(brokersList);
+        //Message<ArrayList<Broker>> msg = new Message<ArrayList<Broker>>(brokersList);
         out = new ObjectOutputStream(conn.getOutputStream());
-        out.writeObject(msg);
+        out.writeObject(brokersList);
         out.flush();
     }
 
@@ -165,7 +169,7 @@ public class Broker{
         return HASH_VALUE;
     }
 
-    public HashMap<String, Broker> getBrokers(){
+    public HashMap<String, DemoBroker> getBrokers(){
         return artistsToBrokers;
     }
 
@@ -176,13 +180,13 @@ public class Broker{
     //save your artists
     public synchronized void setInnerArtistSource(List<String> artists, Publisher publisher){
         for(String artist : artists){
-            artistsToBrokers.put(artist, this);
+            artistsToBrokers.put(artist, self);
             publishers.put(artist,publisher);
         }
     }
 
     //save other artists
-    private synchronized void setOuterArtistSource(List<String> artists, Broker broker){
+    private synchronized void setOuterArtistSource(List<String> artists, DemoBroker broker){
         for(String artist : artists){
             artistsToBrokers.put(artist, broker);
         }
@@ -217,8 +221,8 @@ public class Broker{
     }
 
     private void notifyBrokers(List<String> artists) throws IOException{
-        for(Broker broker: brokersList){
-            if(broker != this){
+        for(DemoBroker broker: brokersList){
+            if(broker.equals(this)){
                 Thread notify = new Thread(new Runnable(){
                     @Override
                     public void run(){
@@ -245,10 +249,15 @@ public class Broker{
     //TODO: send messages to check availability
     private void acknowledgeServer(List<String> server_IPs){
         brokersList = new ArrayList<>();
-        brokersList.add(this); //add yourself
+        brokersList.add(new DemoBroker(getIP())); //add yourself
         for(String ip : server_IPs){
-            brokersList.add(new Broker(ip));
+            brokersList.add(new DemoBroker(ip));
         }
+    }
+
+    @Override
+    public String toString(){
+        return "Broker@"+getIP()+"@"+getInnerPORT()+"@"+getConsumerPORT()+"@"+getHash();
     }
 
     public synchronized void print(String str){
@@ -274,7 +283,7 @@ public class Broker{
                     public void run(){
                         boolean proccessed = false;
                         String clientIP = socket.getInetAddress().getHostAddress();
-                        for(Broker broker:brokersList){
+                        for(DemoBroker broker:brokersList){
                             if(broker.getIP().equals(clientIP)){
                                 //process connection from broker
                                 try{
