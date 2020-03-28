@@ -108,6 +108,7 @@ public class Broker {
                     while (true){
                         try {
                             Socket connection = toPubServer.accept();
+                            System.out.println("Waiting for inner");
 
                             //create thread to process connection
                             Thread processTask = new Thread(new Runnable() {
@@ -148,7 +149,7 @@ public class Broker {
                             });
                             threadPool.execute(processTask);
                         } catch (IOException e){
-                            //TODO
+                            return;
                         }
                     }
                 }
@@ -156,13 +157,15 @@ public class Broker {
             threadPool.execute(task);
         }catch (IOException e) {
             System.err.println("ERROR: Server could not go online");
-        } finally {
-            try {
-                if (toPubServer != null) toPubServer.close();
-            } catch (IOException e) {
-                System.err.println("ERROR: Server could not shut down");
-            }
-        }
+        } 
+        System.out.println("Closing server");
+        // finally {
+        //     try {
+        //         if (toPubServer != null) toPubServer.close();
+        //     } catch (IOException e) {
+        //         System.err.println("ERROR: Server could not shut down");
+        //     }
+        // }
     }
     
     //TODO: check logged in clients and create different processing
@@ -241,6 +244,7 @@ public class Broker {
 
     }
     
+    //Sindeetai broker pairnei tous artists
     public void acceptBrokerConnection(Socket conn, Broker broker) throws IOException{
         ObjectOutputStream out;
         ObjectInputStream in;
@@ -259,6 +263,7 @@ public class Broker {
         setOuterArtistSource(artists, broker);
     }
 
+    //koitaei an publisher registered lamvanei tragoudia an oxi stelnei hash
     public void acceptPublisherConnection(Socket conn) throws IOException{
         ObjectOutputStream out;
         ObjectInputStream in;
@@ -331,6 +336,7 @@ public class Broker {
         }
     }
     
+    //grafei publisher
     private synchronized Publisher registerPublisher(String clientIP){
         Publisher publisher = new Publisher(clientIP); //make constructor
         registeredPublishers.add(publisher);
