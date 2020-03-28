@@ -23,7 +23,7 @@ public class PublisherMain {
 
         //initialize broker
         Publisher pub = new Publisher(IP);
-        pub.init(broker.getIP(), Broker.getInnerPORT());
+        pub.init(broker.getIP(), Broker.getToPubPort());
         pub.online();
     }
 }

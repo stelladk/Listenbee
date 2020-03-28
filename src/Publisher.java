@@ -171,11 +171,10 @@ public class Publisher{
                 public void run() {
                     Socket socket_conn = null;
                     try {
-                        socket_conn = new Socket(broker.getIP(), broker.getInnerPORT());
+                        socket_conn = new Socket(broker.getIP(), Broker.getToPubPort());
 
-                        Message<List<String>> msg = new Message<List<String>>(brokers.get(broker));
                         ObjectOutputStream out = new ObjectOutputStream(socket_conn.getOutputStream());
-                        out.writeObject(msg);
+                        out.writeObject(brokers.get(broker));
                         out.flush();
                     } catch (IOException e){
                         System.err.println("ERROR: Could not communicate artists to broker");

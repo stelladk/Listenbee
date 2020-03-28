@@ -8,68 +8,239 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.io.Serializable;
 
-public class Broker{
+public class Broker {
+    private static final int TO_PUB_PORT = 1999; //port for publishers and inner broker communication
+    private static final int TO_CLI_PORT = 2000; //port for consumer communication
+    private final String IP;
+    private final BigInteger HASH_VALUE;
+
+    private ServerSocket toPubServer; //publisher and broker server
+    private ServerSocket toCliServer; //consumer server
+
+    private List<Broker> brokersList; //available brokers
     public static final List<Consumer> loggedinUsers = new ArrayList<>();
     public static final List<Consumer> registeredUsers = new ArrayList<>();
     public static final List<Publisher> registeredPublishers = new ArrayList<>();
-
-    private static final int InnerPORT = 1999; //port for publishers and inner broker communication
-    private static final int ConsumerPORT = 2000;
-    private String IP;
-    private BigInteger HASH_VALUE;
-
-    private ArrayList<DemoBroker> brokersList; //list of available brokers
-    private static HashMap<String, DemoBroker> artistsToBrokers = new HashMap<>(); //artsist assigned to brokers
     private HashMap<String, Publisher> publishers; //artists assigned to publishers
-    private boolean online;
-
-    private ServerSocket innerServer; //publisher and broker server
-    private ServerSocket publicServer; //consumer server
+    private static HashMap<String, Broker> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
 
     ExecutorService threadPool = Executors.newCachedThreadPool();
 
-    DemoBroker self;
-
-    public Broker(){
-
-    }
-
     public Broker(String IP){
         this.IP = IP;
-        this.HASH_VALUE = Utilities.SHA1(IP+""+InnerPORT);
+        this.HASH_VALUE = Utilities.SHA1(IP+TO_PUB_PORT);
     }
 
-    public void init(List<String> server_IPs){
-        try{
-            IP = InetAddress.getLocalHost().getHostAddress();
-            self = new DemoBroker(getIP());
-            online = true;
-        }catch(UnknownHostException e){
-            online = false;
-            return;
+    /**
+     * Initialize broker
+     * register all available brokers
+     * @param brokerIPs online broker IPs
+     */
+    public void init (List<String> brokerIPs){
+        acknowledgeServer(brokerIPs);
+        //TODO
+    }
+    
+    public void runServer(){
+        toPubConnection();
+        toCliConnection();
+    }
+
+    //send message to publisher for the artists that it handles
+    public void notifyPublisher(String message){
+
+    }
+
+    //send data to consumer on consumer demand
+    //(PREVIOUS) String --> ArtistName
+    public void pull(String name){
+        //request data from publisher using push method
+        //find data in hashmap
+        //send the entire list with astistName as key
+    }
+
+    //(PREVIOUS) String --> ArtistName
+    public HashMap<String, Broker> getBrokers(){
+        return artistsToBrokers;
+    }
+
+    /**
+     * @return the port for inner broker communication and broker to publisher communication
+     */
+    public static int getToPubPort() {
+        return TO_PUB_PORT;
+    }
+    
+    /**
+     * @return the port for broker to consumer communication
+     */
+    public static int getToCliPort() {
+        return TO_CLI_PORT;
+    }
+
+    /**
+     * @return broker IP address
+     */
+    public String  getIP(){
+        return IP;
+    }
+
+    /**
+     * @return broker hash value
+     */
+    public BigInteger getHash(){
+        return HASH_VALUE;
+    }
+
+    /**
+     * Make broker online for publishers and other brokers (await incoming connections)
+     * Create a thread to accept each connection
+     * Create a thread to process each accepted connection
+     */
+    private void toPubConnection(){
+        try {
+            toPubServer = new ServerSocket(TO_PUB_PORT);
+
+            //create a thread to await connections from publishers/brokers
+            Thread task = new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    while (true){
+                        try {
+                            Socket connection = toPubServer.accept();
+
+                            //create thread to process connection
+                            Thread processTask = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    boolean proccessed = false;
+                                    String clientIP = connection.getInetAddress().getHostAddress();
+                                    for(Broker broker:brokersList){
+                                        if(broker.getIP().equals(clientIP)){
+                                            //process connection from broker
+                                            try{
+                                                acceptBrokerConnection(connection, broker);
+                                            }catch(IOException e){
+                                                e.printStackTrace();
+                                            }
+                                            proccessed = true;
+                                            break;
+                                        }
+                                    }
+                                    //process connection from publisher
+                                    if(!proccessed){
+                                        try{
+                                            acceptPublisherConnection(connection);
+                                        }catch(IOException e){
+                                            e.printStackTrace();
+                                        }
+                                    }
+            
+                                    try{
+                                        print("Closing Inner Connection");
+                                        connection.close();
+                                    }catch(IOException e){
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                            threadPool.execute(processTask);
+                        } catch (IOException e){
+                            //TODO
+                        }
+                    }
+                }
+            });
+            threadPool.execute(task);
+        }catch (IOException e) {
+            System.err.println("ERROR: Server could not go online");
+        } finally {
+            try {
+                if (toPubServer != null) toPubServer.close();
+            } catch (IOException e) {
+                System.err.println("ERROR: Server could not shut down");
+            }
         }
-        HASH_VALUE = Utilities.SHA1(IP+""+InnerPORT);
-        
-        acknowledgeServer(server_IPs);
     }
+    
+    //TODO: check logged in clients and create different processing
+    //Thread to accept connections from Consumers
+    /**
+     * Make broker online for consumers (await incoming connections)
+     * Create a thread to accept each connection
+     * Create a thread to process each accepted connection
+     */
+    private void toCliConnection(){
+        try {
+            toCliServer = new ServerSocket(TO_CLI_PORT);
 
+            //create a thread to await connections from consumers
+            Thread task = new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    while (true){
+                        try {
+                            Socket connection = toCliServer.accept();
+
+                            //create thread to process connection
+                            Thread processTask = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    boolean processed = false;
+                                    String clientIP = connection.getInetAddress().getHostAddress();
+                                    //search in logged-in users
+                                    for(Consumer consumer: registeredUsers){
+                                        if(consumer.getIP().equals(clientIP)){
+                                            acceptConsumerConnection(connection, consumer);
+                                            processed = true;
+                                            break;
+                                        }
+                                    }
+            
+                                    if(!processed){
+                                        try{
+                                            loginUser(connection, clientIP);
+                                        }catch(IOException e){
+                                            e.printStackTrace();
+                                        }catch(ClassNotFoundException e){
+                                            e.printStackTrace();
+                                        }
+                                    }
+            
+                                    try{
+                                        connection.close();
+                                    }catch(IOException e){
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            });
+                            threadPool.execute(processTask);
+                        } catch (IOException e){
+                            //TODO
+                        }
+                    }
+                }
+            });
+            threadPool.execute(task);
+        }catch (IOException e) {
+            System.err.println("ERROR: Server could not go online");
+        } finally {
+            try {
+                if (toCliServer != null) toCliServer.close();
+            } catch (IOException e) {
+                System.err.println("ERROR: Server could not shut down");
+            }
+        }
+    }
+    
     //save data to hashmap files
     public void calculateKeys(){
 
     }
-
-    public void runServer() throws IOException{
-        innerServer = new ServerSocket(InnerPORT);
-        publicServer = new ServerSocket(ConsumerPORT);
-        InnerConnections innerConn = new InnerConnections();
-        ClientConnections clientConn = new ClientConnections();
-        // innerConn.start();
-        // clientConn.start();
-        threadPool.execute(innerConn);
-        threadPool.execute(clientConn);
-    }
-
-    public void acceptBrokerConnection(Socket conn, DemoBroker broker) throws IOException{
+    
+    public void acceptBrokerConnection(Socket conn, Broker broker) throws IOException{
         ObjectOutputStream out;
         ObjectInputStream in;
         List<String> artists;
@@ -102,7 +273,7 @@ public class Broker{
                 //wait for artists
                 in = new ObjectInputStream(conn.getInputStream());
                 try{
-                    artists = (List<String>) ((Message<List<String>>) in.readObject()).getMessage();
+                    artists = (List<String>) in.readObject();
                 }catch(ClassNotFoundException e){
                     e.printStackTrace();
                     //notifyFailure();
@@ -116,88 +287,52 @@ public class Broker{
                 }catch(IOException e){
                     e.printStackTrace();
                 }
-        
+                
                 //send info to other brokers
                 notifyBrokers(artists);
                 return;
             }
         }
-
+        
         //Case 2 : Publisher is not registed
         
         //register publisher
         registerPublisher(clientIP);
-
+        
         //send broker hashes
         //Message<ArrayList<Broker>> msg = new Message<ArrayList<Broker>>(brokersList);
         out = new ObjectOutputStream(conn.getOutputStream());
         out.writeObject(brokersList);
         out.flush();
     }
-
+    
     public void acceptConsumerConnection(Socket conn, Consumer consumer){
         ObjectOutputStream out;
         ObjectInputStream in;
         print("Processing Consumer Connection");
     }
-
-    //send message to publisher for the artists that it handles
-    public void notifyPublisher(String message){
-
-    }
-
-    //send data to consumer on consumer demand
-    public void pull(String artist){
-        //request data from publisher using push method
-        //find data in hashmap
-        //send the entire list with astistName as key
-    }
-
-    public static int getInnerPORT(){
-        return InnerPORT;
-    }
-
-    public static int getConsumerPORT(){
-        return ConsumerPORT;
-    }
-
-    public String  getIP(){
-        return IP;
-    }
-
-    public BigInteger getHash(){
-        return HASH_VALUE;
-    }
-
-    public HashMap<String, DemoBroker> getBrokers(){
-        return artistsToBrokers;
-    }
-
-    public boolean isOnline(){
-        return online;
-    }
-
+    
     //save your artists
     public synchronized void setInnerArtistSource(List<String> artists, Publisher publisher){
         for(String artist : artists){
-            artistsToBrokers.put(artist, self);
+            artistsToBrokers.put(artist, this);
             publishers.put(artist,publisher);
         }
     }
-
+    
     //save other artists
-    private synchronized void setOuterArtistSource(List<String> artists, DemoBroker broker){
+    private synchronized void setOuterArtistSource(List<String> artists, Broker broker){
         for(String artist : artists){
             artistsToBrokers.put(artist, broker);
         }
     }
-
+    
     private synchronized Publisher registerPublisher(String clientIP){
         Publisher publisher = new Publisher(clientIP); //make constructor
         registeredPublishers.add(publisher);
         return publisher;
     }
-
+    
     private synchronized Consumer registerUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
         String username = (String) in.readObject();
@@ -208,7 +343,7 @@ public class Broker{
         registeredUsers.add(consumer);
         return consumer;
     }
-
+    
     private synchronized Consumer loginUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
         String username = (String) in.readObject();
@@ -221,7 +356,7 @@ public class Broker{
     }
 
     private void notifyBrokers(List<String> artists) throws IOException{
-        for(DemoBroker broker: brokersList){
+        for(Broker broker: brokersList){
             if(broker.equals(this)){
                 Thread notify = new Thread(new Runnable(){
                     @Override
@@ -230,7 +365,7 @@ public class Broker{
                         ObjectOutputStream out;
                         while(true){
                             try{
-                                socket = new Socket(broker.getIP(), InnerPORT); //wait for connection with broker
+                                socket = new Socket(broker.getIP(), TO_PUB_PORT); //wait for connection with broker
                                 out = new ObjectOutputStream(socket.getOutputStream());
                                 out.writeObject(artists);
                                 out.flush();
@@ -246,126 +381,26 @@ public class Broker{
         }
     }
 
-    //TODO: send messages to check availability
-    private void acknowledgeServer(List<String> server_IPs){
+    //TODO: send messages to check availability (ALL BROKERS INITIALIZED ARE ONLINE)
+    /**
+     * Register all available brokers
+     * @param brokerIPs available broker IPs
+     */
+    private void acknowledgeServer(List<String> brokerIPs){
         brokersList = new ArrayList<>();
-        brokersList.add(new DemoBroker(getIP())); //add yourself
-        for(String ip : server_IPs){
-            brokersList.add(new DemoBroker(ip));
+        brokersList.add(this); //add yourself
+        for (String IP : brokerIPs){
+            brokersList.add(new Broker(IP));
         }
     }
 
     @Override
     public String toString(){
-        return "Broker@"+getIP()+"@"+getInnerPORT()+"@"+getConsumerPORT()+"@"+getHash();
+        return "Broker@"+getIP()+"@"+getToPubPort()+"@"+getToCliPort()+"@"+getHash();
     }
 
     public synchronized void print(String str){
         System.out.println(str);
     }
 
-    //Thread to accept inner connections
-    private class InnerConnections extends Thread{
-        @Override
-        public void run(){
-            while(true){
-                Socket socket;
-                try{
-                    socket = innerServer.accept(); //accept connection
-                    print("Accepted Inner Connection");
-                }catch(IOException e){
-                    e.printStackTrace();
-                    return;
-                }
-                //make thread to proccess connection
-                Thread thread = new Thread(new Runnable(){
-                    @Override
-                    public void run(){
-                        boolean proccessed = false;
-                        String clientIP = socket.getInetAddress().getHostAddress();
-                        for(DemoBroker broker:brokersList){
-                            if(broker.getIP().equals(clientIP)){
-                                //process connection from broker
-                                try{
-                                    acceptBrokerConnection(socket, broker);
-                                }catch(IOException e){
-                                    e.printStackTrace();
-                                }
-                                proccessed = true;
-                                break;
-                            }
-                        }
-                        //process connection from publisher
-                        if(!proccessed){
-                            try{
-                                acceptPublisherConnection(socket);
-                            }catch(IOException e){
-                                e.printStackTrace();
-                            }
-                        }
-
-                        try{
-                            print("Closing Inner Connection");
-                            socket.close();
-                        }catch(IOException e){
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                // thread.start();
-                threadPool.execute(thread);
-            }
-        }
-    }
-
-    //TODO: check logged in clients and create different processing
-    //Thread to accept connections from Consumers
-    private class ClientConnections extends Thread{
-        @Override
-        public void run(){
-            while(true){
-                Socket socket;
-                try{
-                    socket = publicServer.accept(); //accept connection
-                }catch(IOException e){
-                    e.printStackTrace();
-                    return;
-                }
-                //make thread to process connection
-                Thread thread = new Thread(new Runnable(){
-                    @Override
-                    public void run(){
-                        boolean processed = false;
-                        String clientIP = socket.getInetAddress().getHostAddress();
-                        //search in logged-in users
-                        for(Consumer consumer: registeredUsers){
-                            if(consumer.getIP().equals(clientIP)){
-                                acceptConsumerConnection(socket, consumer);
-                                processed = true;
-                                break;
-                            }
-                        }
-
-                        if(!processed){
-                            try{
-                                loginUser(socket, clientIP);
-                            }catch(IOException e){
-                                e.printStackTrace();
-                            }catch(ClassNotFoundException e){
-                                e.printStackTrace();
-                            }
-                        }
-
-                        try{
-                            socket.close();
-                        }catch(IOException e){
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                // thread.start();
-                threadPool.execute(thread);
-            }
-        }
-    }
 }

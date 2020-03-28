@@ -6,25 +6,25 @@ public class Consumer{
     public static final int PORT = 2000;
     public String server_IP;
 
-    private HashMap<ArtistName, Broker> brokers;
+    private HashMap<String, Broker> brokers; //brokers with artists
 
     public Consumer(String server_IP){
         this.server_IP = server_IP;
     }
 
-    public void register(Broker broker, ArtistName name) throws IOException{
+    public void register(Broker broker, String artistName) throws IOException{
         //Socket conn = new Socket(server_IP, PORT);
     }
 
-    public void disconnect(Broker broker, ArtistName name){
+    public void disconnect(Broker broker, String artistName){
 
     }
 
     //request data from broke using method pull
-    public void playData(ArtistName name, MusicFile files) throws IOException{
+    public void playData(String artistName, MusicFile files) throws IOException{
         //find valid broker using hashmap
-        Broker broker = brokers.get(name);
-        register(broker, name);
+        Broker broker = brokers.get(artistName);
+        register(broker, artistName);
     }
 
     //{ListOfBrokers {IP,Port} , < BrokerId, ArtistName>}.
