@@ -3,9 +3,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.io.*;
 import java.net.*;
-import java.math.BigInteger; 
-import java.security.MessageDigest; 
-import java.security.NoSuchAlgorithmException;
+import java.math.BigInteger;
 import javafx.util.*;
 
 public class Broker {
@@ -100,65 +98,64 @@ public class Broker {
     private void toPubConnection(){
         try {
             toPubServer = new ServerSocket(TO_PUB_PORT);
+        }catch (IOException e) {
+            System.err.println("ERROR: Server could not go online");
+        }
+        //create a thread to await connections from publishers/brokers
+        Thread task = new Thread(new Runnable(){
+            @Override
+            public void run() {
+                while (true){
+                    Socket connection;
+                    try {
+                        System.out.println("Waiting for publisher/broker");
+                        connection = toPubServer.accept();
+                    
+                        //create thread to process connection
+                        Thread processTask = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
 
-            //create a thread to await connections from publishers/brokers
-            Thread task = new Thread(new Runnable(){
-                @Override
-                public void run() {
-                    while (true){
-                        try {
-                            Socket connection = toPubServer.accept();
-                            System.out.println("Waiting for inner");
-
-                            //create thread to process connection
-                            Thread processTask = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    boolean proccessed = false;
-                                    String clientIP = connection.getInetAddress().getHostAddress();
-                                    for(Broker broker:brokersList){
-                                        if(broker.getIP().equals(clientIP)){
-                                            //process connection from broker
-                                            try{
-                                                acceptBrokerConnection(connection, broker);
-                                            }catch(IOException e){
-                                                e.printStackTrace();
-                                            }
-                                            proccessed = true;
-                                            break;
-                                        }
-                                    }
-                                    //process connection from publisher
-                                    if(!proccessed){
+                                boolean proccessed = false;
+                                String clientIP = connection.getInetAddress().getHostAddress();
+                                for(Broker broker:brokersList){
+                                    if(broker.getIP().equals(clientIP)){
+                                        //process connection from broker
                                         try{
-                                            System.out.println("Got publisher request");
-                                            acceptPublisherConnection(connection);
+                                            acceptBrokerConnection(connection, broker);
                                         }catch(IOException e){
                                             e.printStackTrace();
                                         }
+                                        proccessed = true;
+                                        break;
                                     }
-            
+                                }
+                                //process connection from publisher
+                                if(!proccessed){
                                     try{
-                                        print("Closing Inner Connection");
-                                        connection.close();
+                                        System.out.println("Got publisher request");
+                                        acceptPublisherConnection(connection);
                                     }catch(IOException e){
                                         e.printStackTrace();
                                     }
                                 }
-                            });
-                            threadPool.execute(processTask);
-                        } catch (IOException e){
-                            return;
-                        }
+        
+                                try{
+                                    print("Closing Inner Connection");
+                                    connection.close();
+                                }catch(IOException e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        threadPool.execute(processTask);
+                    }catch (IOException e){
+                        //TODO
                     }
                 }
-            });
-            threadPool.execute(task);
-        }catch (IOException e) {
-            System.err.println("ERROR: Server could not go online");
-        } 
-        System.out.println("Closing server");
+            }
+        });
+        threadPool.execute(task);
         // finally {
         //     try {
         //         if (toPubServer != null) toPubServer.close();
@@ -178,65 +175,66 @@ public class Broker {
     private void toCliConnection(){
         try {
             toCliServer = new ServerSocket(TO_CLI_PORT);
-
-            //create a thread to await connections from consumers
-            Thread task = new Thread(new Runnable(){
-                @Override
-                public void run() {
-                    while (true){
-                        try {
-                            Socket connection = toCliServer.accept();
-
-                            //create thread to process connection
-                            Thread processTask = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    boolean processed = false;
-                                    String clientIP = connection.getInetAddress().getHostAddress();
-                                    //search in logged-in users
-                                    for(Consumer consumer: registeredUsers){
-                                        if(consumer.getIP().equals(clientIP)){
-                                            acceptConsumerConnection(connection, consumer);
-                                            processed = true;
-                                            break;
-                                        }
-                                    }
-            
-                                    if(!processed){
-                                        try{
-                                            loginUser(connection, clientIP);
-                                        }catch(IOException e){
-                                            e.printStackTrace();
-                                        }catch(ClassNotFoundException e){
-                                            e.printStackTrace();
-                                        }
-                                    }
-            
-                                    try{
-                                        connection.close();
-                                    }catch(IOException e){
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                            });
-                            threadPool.execute(processTask);
-                        } catch (IOException e){
-                            //TODO
-                        }
-                    }
-                }
-            });
-            threadPool.execute(task);
         }catch (IOException e) {
             System.err.println("ERROR: Server could not go online");
-        } finally {
-            try {
-                if (toCliServer != null) toCliServer.close();
-            } catch (IOException e) {
-                System.err.println("ERROR: Server could not shut down");
+        } 
+        //create a thread to await connections from consumers
+        Thread task = new Thread(new Runnable(){
+            @Override
+            public void run() {
+                while (true){
+                    try {
+                        System.out.println("Waiting for client");
+                        Socket connection = toCliServer.accept();
+
+                        //create thread to process connection
+                        Thread processTask = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                boolean processed = false;
+                                String clientIP = connection.getInetAddress().getHostAddress();
+                                //search in logged-in users
+                                for(Consumer consumer: registeredUsers){
+                                    if(consumer.getIP().equals(clientIP)){
+                                        acceptConsumerConnection(connection, consumer);
+                                        processed = true;
+                                        break;
+                                    }
+                                }
+        
+                                if(!processed){
+                                    try{
+                                        loginUser(connection, clientIP);
+                                    }catch(IOException e){
+                                        e.printStackTrace();
+                                    }catch(ClassNotFoundException e){
+                                        e.printStackTrace();
+                                    }
+                                }
+        
+                                try{
+                                    connection.close();
+                                }catch(IOException e){
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        });
+                        threadPool.execute(processTask);
+                    } catch (IOException e){
+                        //TODO
+                    }
+                }
             }
-        }
+        });
+        threadPool.execute(task);
+        // finally {
+        //     try {
+        //         if (toCliServer != null) toCliServer.close();
+        //     } catch (IOException e) {
+        //         System.err.println("ERROR: Server could not shut down");
+        //     }
+        // }
     }
     
     //save data to hashmap files

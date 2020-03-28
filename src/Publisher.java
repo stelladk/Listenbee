@@ -26,7 +26,8 @@ public class Publisher{
      */
     public void init (String brokerIP, int brokerPort) {
         //load the specified songs
-       files =  MusicFileHandler.read();
+        System.out.println("Loading songs");
+        files =  MusicFileHandler.read();
 
         Socket socket = null;
         try {

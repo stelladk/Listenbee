@@ -19,7 +19,7 @@ public class PublisherMain {
             return;
         }
 
-        String BrokerIP = "2.87.142.126";
+        String BrokerIP = "127.0.0.1";
 
         //initialize broker
         Publisher pub = new Publisher(IP);

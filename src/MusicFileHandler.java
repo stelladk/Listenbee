@@ -21,7 +21,7 @@ public class MusicFileHandler {
      */
     public static Map<String, List<MusicFile>> read(){
         //get the directory
-        File dir = new File("./res/dataset2/");
+        File dir = new File("../res/dataset2/");
         if (!dir.exists()) {
             System.err.println("ERROR: Directory doesn't exist");
             return null;
