@@ -140,6 +140,7 @@ public class Publisher{
      * @param brokerList list with active brokers
      */
     private void assignArtistToBroker (ArrayList<Pair<String,BigInteger>> brokerList){
+        brokers = new HashMap<>();
         //find broker whose hash value is greater than the others
         Pair<String,BigInteger> maxBroker = brokerList.get(brokerList.size()-1);
         BigInteger maxBrokerHash = maxBroker.getValue();
