@@ -11,7 +11,7 @@ public class Publisher{
     private ServerSocket server;
 
     private Map<String, List<MusicFile>> files;
-    private Map<DemoBroker, List<String>> brokers; //artists assigned to brokers
+    private Map<Broker, List<String>> brokers; //artists assigned to brokers
 
     public Publisher(String IP){
         this.IP = IP;
@@ -33,7 +33,7 @@ public class Publisher{
             socket = new Socket(brokerIP, brokerPort);
 
             //get all active brokers
-            List<DemoBroker> brokerList =  getBrokerList(socket);
+            List<Broker> brokerList =  getBrokerList(socket);
 
             //close connection with broker
             closeConnection(socket);
@@ -118,15 +118,15 @@ public class Publisher{
      * @param socket broker's socket
      * @return a list with all active brokers
      */
-    private List<DemoBroker> getBrokerList(Socket socket) {
-        ArrayList<DemoBroker> brokers = new ArrayList<>();
+    private List<Broker> getBrokerList(Socket socket) {
+        ArrayList<Broker> brokers = new ArrayList<>();
         ObjectInputStream in = null;
         //open input stream with the broker to accept input
         try {
             in = new ObjectInputStream(socket.getInputStream());
             //brokers = (ArrayList<Broker>) ((Message<ArrayList<Broker>>) in.readObject()).getMessage();
             brokers = (ArrayList) in.readObject();
-            System.out.println("Got demo Yayyyy");
+            System.out.println("Got brokers Yayyyy");
         } catch (ClassNotFoundException | IOException e) {
             System.err.println("ERROR: Could not cast Object to List");
             return null;
@@ -139,9 +139,9 @@ public class Publisher{
      * hash(artist_name) < hash(broker_IP + broker_port)
      * @param brokerList list with active brokers
      */
-    private void assignArtistToBroker (List<DemoBroker> brokerList){
+    private void assignArtistToBroker (List<Broker> brokerList){
         //find broker whose hash value is greater than the others
-        DemoBroker maxBroker = brokerList.get(brokerList.size()-1);
+        Broker maxBroker = brokerList.get(brokerList.size()-1);
         BigInteger maxBrokerHash = maxBroker.getHash();
 
         for (String artist : files.keySet()){
@@ -149,7 +149,7 @@ public class Publisher{
             //modulo with the maximum broker so that hash(artist_name) is in range [min_broker, max_broker]
             BigInteger hashArtist = Utilities.SHA1(artist).mod(maxBrokerHash);
 
-            for (DemoBroker broker : brokerList) {
+            for (Broker broker : brokerList) {
                 if (hashArtist.compareTo(broker.getHash()) < 0){
                     if (!brokers.containsKey(broker)){
                         brokers.put(broker, new ArrayList<>());
@@ -165,7 +165,7 @@ public class Publisher{
      * Connect with responsible brokers and send them publisher's artists
      */
     private void informBrokers(){
-        for (DemoBroker broker : brokers.keySet()){
+        for (Broker broker : brokers.keySet()){
             Thread task = new Thread(new Runnable() {
                 @Override
                 public void run() {
