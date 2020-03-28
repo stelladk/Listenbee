@@ -19,11 +19,11 @@ public class PublisherMain {
             return;
         }
 
-        Broker broker = new Broker("127.0.0.1");
+        
 
         //initialize broker
         Publisher pub = new Publisher(IP);
-        pub.init(broker.getIP(), Broker.getToPubPort());
+        pub.init("127.0.0.1", Broker.getToPubPort());
         pub.online();
     }
 }

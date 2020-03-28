@@ -5,8 +5,8 @@ import java.util.List;
 
 public class BrokerMain {
     public static void main(String[] args) {
-        //int numBrokers = args.length + 1;
-        //System.out.println("Number of brokers: " + numBrokers);
+        int numBrokers = args.length + 1;
+        System.out.println("Number of brokers: " + numBrokers);
         List<String> brokerIPs = new ArrayList<>();
         for (String IP : args){
             if (isValidIP(IP)){
@@ -32,7 +32,9 @@ public class BrokerMain {
         //initialize broker
         Broker broker = new Broker(IP);
         broker.init(brokerIPs);
+        System.out.println("Initialise server");
         broker.runServer();
+        System.out.println("Run server");
 
     }
 

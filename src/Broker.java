@@ -6,7 +6,7 @@ import java.net.*;
 import java.math.BigInteger; 
 import java.security.MessageDigest; 
 import java.security.NoSuchAlgorithmException;
-import java.io.Serializable;
+import javafx.util.*;
 
 public class Broker {
     private static final int TO_PUB_PORT = 1999; //port for publishers and inner broker communication
@@ -131,6 +131,7 @@ public class Broker {
                                     //process connection from publisher
                                     if(!proccessed){
                                         try{
+                                            System.out.println("Got publisher request");
                                             acceptPublisherConnection(connection);
                                         }catch(IOException e){
                                             e.printStackTrace();
@@ -298,11 +299,14 @@ public class Broker {
         
         //register publisher
         registerPublisher(clientIP);
-        
+        System.out.println("Accepted request from Publisher");
         //send broker hashes
-        //Message<ArrayList<Broker>> msg = new Message<ArrayList<Broker>>(brokersList);
+        ArrayList<Pair<String,BigInteger>> brokers = new ArrayList<>();
+        for(Broker broker : brokersList){
+            brokers.add(new Pair<>(broker.getIP(), broker.getHash()));
+        }
         out = new ObjectOutputStream(conn.getOutputStream());
-        out.writeObject(brokersList);
+        out.writeObject(brokers);
         out.flush();
     }
     

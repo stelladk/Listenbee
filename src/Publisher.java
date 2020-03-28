@@ -3,6 +3,7 @@ import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import javafx.util.*;
 
 public class Publisher{
     private static final int PORT = 2001;
@@ -11,7 +12,7 @@ public class Publisher{
     private ServerSocket server;
 
     private Map<String, List<MusicFile>> files;
-    private Map<Broker, List<String>> brokers; //artists assigned to brokers
+    private Map<String, List<String>> brokers; //artists assigned to brokers IPs
 
     public Publisher(String IP){
         this.IP = IP;
@@ -31,13 +32,13 @@ public class Publisher{
         try {
             //open connection with broker
             socket = new Socket(brokerIP, brokerPort);
-
+            
             //get all active brokers
-            List<Broker> brokerList =  getBrokerList(socket);
-
+            ArrayList<Pair<String,BigInteger>> brokerList =  getBrokerList(socket);
+            
             //close connection with broker
             closeConnection(socket);
-
+            
             //find the brokers that are responsible for this publisher
             if (brokerList != null){
                 if (brokerList.isEmpty()) {
@@ -47,14 +48,14 @@ public class Publisher{
             } else {
                 return;
             }
-
+            
             //connect with responsible brokers
             //and send them publisher's artists
             informBrokers();
-
         } catch(IOException e){
             System.err.println("ERROR: Could not initialize broker");
         }
+            
     }
 
     /**
@@ -118,15 +119,13 @@ public class Publisher{
      * @param socket broker's socket
      * @return a list with all active brokers
      */
-    private List<Broker> getBrokerList(Socket socket) {
-        ArrayList<Broker> brokers = new ArrayList<>();
+    private ArrayList<Pair<String,BigInteger>> getBrokerList(Socket socket) {
+        ArrayList<Pair<String,BigInteger>> brokers;
         ObjectInputStream in = null;
         //open input stream with the broker to accept input
         try {
             in = new ObjectInputStream(socket.getInputStream());
-            //brokers = (ArrayList<Broker>) ((Message<ArrayList<Broker>>) in.readObject()).getMessage();
             brokers = (ArrayList) in.readObject();
-            System.out.println("Got brokers Yayyyy");
         } catch (ClassNotFoundException | IOException e) {
             System.err.println("ERROR: Could not cast Object to List");
             return null;
@@ -139,22 +138,22 @@ public class Publisher{
      * hash(artist_name) < hash(broker_IP + broker_port)
      * @param brokerList list with active brokers
      */
-    private void assignArtistToBroker (List<Broker> brokerList){
+    private void assignArtistToBroker (ArrayList<Pair<String,BigInteger>> brokerList){
         //find broker whose hash value is greater than the others
-        Broker maxBroker = brokerList.get(brokerList.size()-1);
-        BigInteger maxBrokerHash = maxBroker.getHash();
+        Pair<String,BigInteger> maxBroker = brokerList.get(brokerList.size()-1);
+        BigInteger maxBrokerHash = maxBroker.getValue();
 
         for (String artist : files.keySet()){
             //if hash(artist_name) > maximum hash(broker)
             //modulo with the maximum broker so that hash(artist_name) is in range [min_broker, max_broker]
             BigInteger hashArtist = Utilities.SHA1(artist).mod(maxBrokerHash);
 
-            for (Broker broker : brokerList) {
-                if (hashArtist.compareTo(broker.getHash()) < 0){
-                    if (!brokers.containsKey(broker)){
-                        brokers.put(broker, new ArrayList<>());
+            for (Pair<String,BigInteger> broker : brokerList) {
+                if (hashArtist.compareTo(broker.getValue()) < 0){
+                    if (!brokers.containsKey(broker.getKey())){
+                        brokers.put(broker.getKey(), new ArrayList<>());
                     }
-                    brokers.get(broker).add(artist);
+                    brokers.get(broker.getKey()).add(artist);
                     break;
                 }
             }
@@ -165,13 +164,13 @@ public class Publisher{
      * Connect with responsible brokers and send them publisher's artists
      */
     private void informBrokers(){
-        for (Broker broker : brokers.keySet()){
+        for (String broker : brokers.keySet()){
             Thread task = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     Socket socket_conn = null;
                     try {
-                        socket_conn = new Socket(broker.getIP(), Broker.getToPubPort());
+                        socket_conn = new Socket(broker, Broker.getToPubPort());
 
                         ObjectOutputStream out = new ObjectOutputStream(socket_conn.getOutputStream());
                         out.writeObject(brokers.get(broker));
@@ -185,10 +184,6 @@ public class Publisher{
             });
             task.start();
         }
-    }
-
-    private void inform_brokers(){
-
     }
 
     /**
