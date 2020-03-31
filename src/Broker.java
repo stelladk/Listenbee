@@ -16,15 +16,17 @@ public class Broker {
     private ServerSocket toCliServer; //consumer server
 
     private List<Broker> brokersList; //available brokers
-    public static final List<Consumer> loggedinUsers = new ArrayList<>();
-    public static final List<Consumer> registeredUsers = new ArrayList<>();
-    public static final List<Publisher> registeredPublishers = new ArrayList<>();
+    private static final List<Consumer> loggedinUsers = new ArrayList<>();
+    private static final List<Consumer> registeredUsers = new ArrayList<>();
+    private static final List<Publisher> registeredPublishers = new ArrayList<>();
+
     private HashMap<String, Publisher> publishers; //artists assigned to publishers
     private static HashMap<String, Broker> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
 
-    ExecutorService threadPool = Executors.newCachedThreadPool();
+    private ExecutorService threadPool = Executors.newCachedThreadPool();
 
     public Broker(String IP){
+        System.out.println("BROKER: Construct broker");
         this.IP = IP;
         this.HASH_VALUE = Utilities.SHA1(IP+TO_PUB_PORT);
     }
@@ -35,11 +37,17 @@ public class Broker {
      * @param brokerIPs online broker IPs
      */
     public void init (List<String> brokerIPs){
+        System.out.println("BROKER: Initialize broker");
+
         acknowledgeServer(brokerIPs);
-        //TODO
     }
-    
+
+    /**
+     * Make broker online (await incoming connections)
+     */
     public void runServer(){
+        System.out.println("BROKER: Make broker online");
+
         toPubConnection();
         toCliConnection();
     }
@@ -96,11 +104,14 @@ public class Broker {
      * Create a thread to process each accepted connection
      */
     private void toPubConnection(){
+        System.out.println("BROKER: Make broker online for publishers/brokers");
+
         try {
             toPubServer = new ServerSocket(TO_PUB_PORT);
         }catch (IOException e) {
-            System.err.println("ERROR: Server could not go online");
+            System.err.println("BROKER: ERROR: Server could not go online for publishers/brokers");
         }
+
         //create a thread to await connections from publishers/brokers
         Thread task = new Thread(new Runnable(){
             @Override
@@ -108,7 +119,6 @@ public class Broker {
                 while (true){
                     Socket connection;
                     try {
-                        System.out.println("Waiting for publisher/broker");
                         connection = toPubServer.accept();
                     
                         //create thread to process connection
@@ -117,9 +127,11 @@ public class Broker {
                             public void run() {
 
                                 boolean proccessed = false;
+                                //get connected client IP address
                                 String clientIP = connection.getInetAddress().getHostAddress();
-                                for(Broker broker:brokersList){
-                                    if(broker.getIP().equals(clientIP)){
+                                //find if the IP is registered to a broker or a publisher
+                                for (Broker broker : brokersList){
+                                    if (broker.getIP().equals(clientIP)){
                                         //process connection from broker
                                         try{
                                             acceptBrokerConnection(connection, broker);
@@ -133,7 +145,6 @@ public class Broker {
                                 //process connection from publisher
                                 if(!proccessed){
                                     try{
-                                        System.out.println("Got publisher request");
                                         acceptPublisherConnection(connection);
                                     }catch(IOException e){
                                         e.printStackTrace();
@@ -141,7 +152,6 @@ public class Broker {
                                 }
         
                                 try{
-                                    print("Closing Inner Connection");
                                     connection.close();
                                 }catch(IOException e){
                                     e.printStackTrace();
@@ -173,18 +183,20 @@ public class Broker {
      * Create a thread to process each accepted connection
      */
     private void toCliConnection(){
+        System.out.println("BROKER: Make broker online for consumers");
+
         try {
             toCliServer = new ServerSocket(TO_CLI_PORT);
         }catch (IOException e) {
-            System.err.println("ERROR: Server could not go online");
-        } 
+            System.err.println("BROKER: ERROR: Server could not go online for consumers");
+        }
+
         //create a thread to await connections from consumers
         Thread task = new Thread(new Runnable(){
             @Override
             public void run() {
                 while (true){
                     try {
-                        System.out.println("Waiting for client");
                         Socket connection = toCliServer.accept();
 
                         //create thread to process connection
@@ -326,6 +338,20 @@ public class Broker {
             publishers.put(artist,publisher);
         }
     }
+
+
+    /**
+     * TODO: send messages to check availability (ALL BROKERS INITIALIZED ARE ONLINE)
+     * Register all available brokers
+     * @param brokerIPs available broker IPs
+     */
+    private void acknowledgeServer(List<String> brokerIPs){
+        brokersList = new ArrayList<>();
+        brokersList.add(this); //add yourself
+        for (String IP : brokerIPs){
+            brokersList.add(new Broker(IP));
+        }
+    }
     
     //save other artists
     private synchronized void setOuterArtistSource(List<String> artists, Broker broker){
@@ -386,19 +412,6 @@ public class Broker {
                 });
                 notify.start();
             }
-        }
-    }
-
-    //TODO: send messages to check availability (ALL BROKERS INITIALIZED ARE ONLINE)
-    /**
-     * Register all available brokers
-     * @param brokerIPs available broker IPs
-     */
-    private void acknowledgeServer(List<String> brokerIPs){
-        brokersList = new ArrayList<>();
-        brokersList.add(this); //add yourself
-        for (String IP : brokerIPs){
-            brokersList.add(new Broker(IP));
         }
     }
 
