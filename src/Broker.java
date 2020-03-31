@@ -340,7 +340,7 @@ public class Broker {
         // Publisher is not registered
         registerPublisher(clientIP);
         //send broker hashes
-        //TODO CAN BE DONE BETTER
+        //TODO CAN BE DONE BETTER (GET PART INSTEAD CREATING NEW LIST)
         ArrayList< Pair<String,BigInteger> > brokers = new ArrayList<>();
         for (Broker broker : brokersList){
             brokers.add(new Pair<>(broker.getIP(), broker.getHash()));
@@ -363,23 +363,28 @@ public class Broker {
         }
     }
 
+    //TODO -------------------------------------- QUESTION --------------------------------------
     private void notifyBrokers(List<String> artists){
+        System.out.println("BROKER: Notify brokers");
+
         for (Broker broker: brokersList){
-            if(broker.equals(this)){
+            if (broker.equals(this)) {
                 Thread notify = new Thread(new Runnable(){
                     @Override
                     public void run(){
                         Socket socket;
                         ObjectOutputStream out;
-                        while(true){
+                        while(true) {
                             try{
                                 socket = new Socket(broker.getIP(), TO_PUB_PORT); //wait for connection with broker
+
                                 out = new ObjectOutputStream(socket.getOutputStream());
                                 out.writeObject(artists);
                                 out.flush();
-                                socket.close();
+
+                                closeConnection(socket);
                             }catch(IOException e){
-                                e.printStackTrace();
+                                System.err.println("BROKER: NOTIFY BROKERS: ERROR: Problem notifying brokers");
                             }
                         }
                     }
@@ -389,21 +394,25 @@ public class Broker {
         }
     }
 
-    //grafei publisher
+    /**
+     * TODO PUBLISHER OBJECT IS NOT THE SHAME WITH THE REAL ONE --> SHOULD WE KEEP A STRING ?
+     * Pass publisher in broker's registered publisher list
+     * @param clientIP publisher's IP address
+     */
     private synchronized Publisher registerPublisher(String clientIP){
-        Publisher publisher = new Publisher(clientIP); //make constructor
+        Publisher publisher = new Publisher(clientIP);
         registeredPublishers.add(publisher);
         return publisher;
     }
-    
+
+    //TODO -------------------------------------- JAVADOC --------------------------------------
     public void acceptConsumerConnection(Socket conn, Consumer consumer){
         ObjectOutputStream out;
         ObjectInputStream in;
         print("Processing Consumer Connection");
     }
-    
 
-    
+    //TODO -------------------------------------- JAVADOC --------------------------------------
     private synchronized Consumer registerUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
         String username = (String) in.readObject();
@@ -414,7 +423,8 @@ public class Broker {
         registeredUsers.add(consumer);
         return consumer;
     }
-    
+
+    //TODO -------------------------------------- JAVADOC --------------------------------------
     private synchronized Consumer loginUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
         String username = (String) in.readObject();
