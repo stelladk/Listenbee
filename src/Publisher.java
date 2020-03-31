@@ -5,7 +5,6 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import javafx.util.*;
 
 import musicFile.MusicFile;
@@ -17,7 +16,7 @@ public class Publisher {
 
     private ServerSocket server;
 
-    private ArrayList<Pair<String,BigInteger>> brokerList; //active brokers
+    private ArrayList< Pair<String,BigInteger> > brokerList; //active brokers
     private Map<String, ArrayList<MusicFile>> files;
     private Map<String, ArrayList<String>> brokers; //artists assigned to brokers IPs
 
@@ -32,8 +31,7 @@ public class Publisher {
     /**
      * Initialize publisher
      * load tracks, get all brokers, find with whom to connect and send them the artists
-     * @param brokerIP broker's IP address
-     * @param brokerPort broker's port number
+     * @param brokerIPs broker's IP address
      */
     public void init (List<String> brokerIPs) {
         System.out.println("PUBLISHER: Initialize publisher");
@@ -126,9 +124,8 @@ public class Publisher {
     }
 
     /**
-     * Get all active brokers from a random broker
-     * @param socket broker's socket
-     * @return a list with all active brokers
+     * Get all brokers and sort them according to their IP addresses
+     * @param serverIPs brokers' IP addresses
      */
     private void getBrokerList(List<String> serverIPs) {
         System.out.println("PUBLISHER: Fetching brokers");
@@ -139,41 +136,45 @@ public class Publisher {
         for(String IP: serverIPs){
             threads.add(getServerHash(IP));
         }
+
+        //before you continue wait for all threads to end
         for(Thread t : threads){
-            try{
+            try {
                 t.join();
             }catch(InterruptedException e){
-                System.err.println("ERROR@getBrokerList: Thread Interrupted");
+                System.err.println("PUBLISHER: ERROR: Thread Interrupted");
             }
         }
 
-        Collections.sort(brokerList, new Comparator<Pair<String,BigInteger>>() {
+        brokerList.sort(new Comparator<Pair<String, BigInteger>>() {
             @Override
-            public int compare(Pair<String,BigInteger> a, Pair<String,BigInteger> b){
+            public int compare(Pair<String, BigInteger> a, Pair<String, BigInteger> b) {
                 return a.getValue().compareTo(b.getValue());
             }
         });
-
     }
 
+    /**
+     * Connect with broker and get its hash value
+     * @param serverIP broker's IP address
+     */
     private Thread getServerHash(String serverIP){
         Thread thread = new Thread(new Runnable(){
             @Override
             public void run(){
                 Socket connection;
                 ObjectInputStream in;
-                BigInteger HASH;
+                BigInteger hashValue;
                 try{
-                    connection = new Socket(IP, Broker.getToPubPort());
+                    connection = new Socket(serverIP, Broker.getToPubPort());
 
                     //get hash code
                     in = new ObjectInputStream(connection.getInputStream());
-                    HASH = (BigInteger) in.readObject();
-                    updateBrokerList(IP, HASH);
+                    hashValue = (BigInteger) in.readObject();
+                    updateBrokerList(serverIP, hashValue);
                 }catch(IOException | ClassNotFoundException e){
-                    System.err.println("ERROR: Could not get hash of server "+IP);
+                    System.err.println("PUBLISHER: ERROR: Could not get hash of server " + serverIP);
                 }
-                
             }
         });
         threadPool.execute(thread);
