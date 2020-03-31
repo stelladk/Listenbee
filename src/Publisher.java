@@ -14,6 +14,7 @@ public class Publisher {
 
     private ServerSocket server;
 
+    private ArrayList<Pair<String,BigInteger>> brokerList; //active brokers
     private Map<String, List<MusicFile>> files;
     private Map<String, List<String>> brokers; //artists assigned to brokers IPs
 
@@ -28,42 +29,30 @@ public class Publisher {
      * @param brokerIP broker's IP address
      * @param brokerPort broker's port number
      */
-    public void init (String brokerIP, int brokerPort) {
+    public void init (List<String> brokerIPs) {
         System.out.println("PUBLISHER: Initialize publisher");
 
         //load the specified songs
         files =  MusicFileHandler.read();
 
-        Socket socket = null;
-        try {
-            //open connection with broker
-            socket = new Socket(brokerIP, brokerPort);
-
-            //get all active brokers
-            ArrayList< Pair<String,BigInteger> > brokerList =  getBrokerList(socket);
-            
-            //close connection with broker
-            closeConnection(socket);
-            
-            //find the brokers that are responsible for this publisher
-            if (brokerList != null){
-                if (brokerList.isEmpty()) {
-                    System.err.println("PUBLISHER: ERROR: No brokers found for this publisher");
-                    return;
-                }
-                assignArtistToBroker(brokerList);
-            } else {
-                System.err.println("PUBLISHER: ERROR: No brokers initialized");
+        //get all active brokers
+        getBrokerList(brokerIPs);
+        
+        //find the brokers that are responsible for this publisher
+        if (brokerList != null){
+            if (brokerList.isEmpty()) {
+                System.err.println("PUBLISHER: ERROR: No brokers found for this publisher");
                 return;
             }
-            
-            //connect with responsible brokers
-            //and send them publisher's artists
-            informBrokers();
-        } catch(IOException e){
-            System.err.println("PUBLISHER: ERROR: Could not initialize broker");
+            assignArtistToBroker(brokerList);
+        } else {
+            System.err.println("PUBLISHER: ERROR: No brokers initialized");
+            return;
         }
-            
+        
+        //connect with responsible brokers
+        //and send them publisher's artists
+        informBrokers();
     }
 
     /**
@@ -135,20 +124,58 @@ public class Publisher {
      * @param socket broker's socket
      * @return a list with all active brokers
      */
-    private ArrayList<Pair<String,BigInteger>> getBrokerList(Socket socket) {
+    private void getBrokerList(List<String> serverIPs) {
         System.out.println("PUBLISHER: Fetching brokers");
 
-        ArrayList< Pair<String,BigInteger> > brokers;
-        ObjectInputStream in = null;
-        //open input stream with the broker to accept input
-        try {
-            in = new ObjectInputStream(socket.getInputStream());
-            brokers = (ArrayList) in.readObject();
-        } catch (ClassNotFoundException | IOException e) {
-            System.err.println("PUBLISHER: ERROR: Could not cast Object to List");
-            return null;
+        brokerList = new ArrayList<>();
+        ArrayList<Thread> threads = new ArrayList<>();
+
+        for(String IP: serverIPs){
+            threads.add(getServerHash(IP));
         }
-        return brokers;
+        for(Thread t : threads){
+            try{
+                t.join();
+            }catch(InterruptedException e){
+                System.err.println("ERROR@getBrokerList: Thread Interrupted");
+            }
+        }
+
+        Collections.sort(brokerList, new Comparator<Pair<String,BigInteger>>() {
+            @Override
+            public int compare(Pair<String,BigInteger> a, Pair<String,BigInteger> b){
+                return a.getValue().compareTo(b.getValue());
+            }
+        });
+
+    }
+
+    private Thread getServerHash(String serverIP){
+        Thread thread = new Thread(new Runnable(){
+            @Override
+            public void run(){
+                Socket connection;
+                ObjectInputStream in;
+                BigInteger HASH;
+                try{
+                    connection = new Socket(IP, Broker.getToPubPort());
+
+                    //get hash code
+                    in = new ObjectInputStream(connection.getInputStream());
+                    HASH = (BigInteger) in.readObject();
+                    updateBrokerList(IP, HASH);
+                }catch(IOException | ClassNotFoundException e){
+                    System.err.println("ERROR: Could not get hash of server "+IP);
+                }
+                
+            }
+        });
+        thread.start();
+        return thread;
+    }
+
+    private synchronized void updateBrokerList(String IP, BigInteger HASH){
+        brokerList.add(new Pair<>(IP, HASH));
     }
 
     /**

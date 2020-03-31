@@ -1,3 +1,4 @@
+import java.util.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -21,7 +22,9 @@ public class PublisherMain {
 
         //initialize broker
         Publisher pub = new Publisher(IP);
-        pub.init("127.0.0.1", Broker.getToPubPort());
+        List<String> serverIPs = new ArrayList<>();
+        serverIPs.add("127.0.0.1");
+        pub.init(serverIPs);
         pub.online();
     }
 }

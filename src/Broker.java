@@ -336,16 +336,11 @@ public class Broker {
         registerPublisher(clientIP);
         //send broker hashes
         //TODO CAN BE DONE BETTER (GET PART INSTEAD CREATING NEW LIST)
-        //FIXME TO BE DELETED DUE TO CHANGES
-
-        // ArrayList< Pair<String,BigInteger> > brokers = new ArrayList<>();
-        // for (Broker broker : brokersList){
-        //     brokers.add(new Pair<>(broker.getIP(), broker.getHash()));
-        // }
-
+        
+        //send your hash code
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
-            // out.writeObject(brokers);
+            out.writeObject(getHash());
             out.flush();
 
             closeConnection(connection);
@@ -381,6 +376,7 @@ public class Broker {
                     public void run(){
                         Socket socket;
                         ObjectOutputStream out;
+                        //try until you get it
                         while(true) {
                             try{
                                 socket = new Socket(broker, TO_PUB_PORT); //open connection
