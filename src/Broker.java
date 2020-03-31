@@ -419,7 +419,8 @@ public class Broker {
                 pull(request, trackName);
             }
         }catch(IOException | ClassNotFoundException e){
-
+            //TODO exw hasei ti mpala me ta system.err help me
+            System.err.println();
         }
     }
 
@@ -479,6 +480,26 @@ public class Broker {
             ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
             out.writeObject(message);
             out.flush();
+        }
+        closeConnection(conn);
+    }
+
+    private synchronized void logoutUser(Socket conn, String clientIP){
+        boolean verified = false;
+        for(int i = 0; i < loggedinUsers.size(); ++i){
+            if(loggedinUsers.get(i).equals(clientIP)){
+                loggedinUsers.remove(i);
+                verified = true;
+                break;
+            }
+        }
+        //send message to consumer
+        try{
+            ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+            out.writeObject(verified);
+            out.flush();
+        }catch(IOException e){
+            //TODO exw hasei ti mpala me ta system.err help me
         }
         closeConnection(conn);
     }

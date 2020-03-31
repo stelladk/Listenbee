@@ -23,8 +23,9 @@ public class Consumer{
     }
 
     public void loginUser(){
+        Socket conn = null;
         try{
-            Socket conn = new Socket(server_IP, Broker.getToCliPort());
+            conn = new Socket(server_IP, Broker.getToCliPort());
             while(true){
                 //send credentials
                 System.out.println("Please log in");
@@ -37,31 +38,35 @@ public class Consumer{
                 String message = (String) in.readObject();
                 if(message.equals("REGISTER")) {
                     closeConnection(conn);
-                    registerUser(conn);
+                    registerUser();
                     break;
                 }else if(message.equals("VERIFIED")){
-                    
                     break;
                 }else if(message.equals("FALSE")){
                     System.out.println("Could not login try again");
                 }
             }
-            closeConnection(conn);
         }catch(IOException | ClassNotFoundException e){
-            System.err.println("REGISTRATION ERROR: Could not connect to server");
+            System.err.println("LOGIN ERROR: Could not connect to server");
         }
+        closeConnection(conn);
     }
 
     // public void register(Broker broker, String artistName) throws IOException{
     //     //Socket conn = new Socket(server_IP, PORT);
     // }
 
-    private void registerUser(Socket conn){
+    private void registerUser(){
+        Socket conn = null;
         try{
+            conn = new Socket(server_IP, Broker.getToCliPort());
+            ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+            out.writeObject("REGISTER");
+            out.flush();
             while(true){
                 //send credentials
                 System.out.println("Please register");
-                ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+                out = new ObjectOutputStream(conn.getOutputStream());
                 out.writeObject(getCredentials());
                 out.flush();
     
@@ -74,12 +79,14 @@ public class Consumer{
         }catch(IOException | ClassNotFoundException e){
             System.err.println("REGISTRATION ERROR: Could not connect to server");
         }
+        closeConnection(conn);
     }
 
     public void logoutUser(){
+        Socket conn = null;
         try{
-            Socket conn = new Socket(server_IP, Broker.getToCliPort());
             while(true){
+                conn = new Socket(server_IP, Broker.getToCliPort());
                 //send log-out message
                 ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
                 out.writeObject("OUT");
@@ -88,12 +95,15 @@ public class Consumer{
                 //wait for confirmation
                 ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
                 boolean confirmed = (boolean) in.readObject();
-                if(confirmed) break;
+                closeConnection(conn);
+                if(confirmed){
+                    break;
+                }
             }
-            closeConnection(conn);
         }catch(IOException | ClassNotFoundException e){
             System.err.println("REGISTRATION ERROR: Could not connect to server");
         }
+        closeConnection(conn);
     }
 
     public void disconnect(Broker broker, String artistName){
