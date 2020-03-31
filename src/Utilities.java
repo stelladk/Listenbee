@@ -3,6 +3,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Utilities {
+
+    /**
+     * Hash a string input with SHA1 method
+     * @param input string input to be hashed
+     * @return hashed string
+     */
     public static BigInteger SHA1 (String input){
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1"); //choose hashing function
