@@ -235,11 +235,6 @@ public class Broker {
         //     }
         // }
     }
-    
-    //save data to hashmap files
-    public void calculateKeys(){
-
-    }
 
     /**
      * TODO: send messages to check availability (ALL BROKERS INITIALIZED ARE ONLINE)
