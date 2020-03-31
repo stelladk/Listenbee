@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.*;
 import java.math.BigInteger;
 import javafx.util.*;
+import musicFile.MusicFile;
 
 public class Broker {
     private static final int TO_PUB_PORT = 1999; //port for publishers and inner broker communication
@@ -59,13 +60,51 @@ public class Broker {
 
     //send data to consumer on consumer demand
     //(PREVIOUS) String --> ArtistName
-    public void pull(String artistName, String trackName){
+    public void pull(Socket clientConnx, String artistName, String trackName){
         //request data from publisher using push method
         //find data in hashmap
         //send the entire list with astistName as key
 
-        try{
-            Socket connection = new Socket()
+        String broker = artistsToBrokers.get(artistName);
+        if(broker.equals(getIP())){ //the current broker is responsible for the artist
+            String publisher = artistsToPublishers.get(artistName);
+            try{
+                Socket PubConnx = new Socket(publisher, Publisher.getPORT());
+
+                //send request for music file
+                ObjectOutputStream pubOut = new ObjectOutputStream(PubConnx.getOutputStream());
+                // pubOut.writeObject(artistName);
+                // pubOut.flush();
+                //TODO: check if artist name is needed
+                pubOut.writeObject(trackName);
+                pubOut.flush();
+
+                //get files from publisher
+                ObjectOutputStream clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
+                ObjectInputStream pubIn = new ObjectInputStream(PubConnx.getInputStream());
+                MusicFile file;
+                while((file = (MusicFile) pubIn.readObject()) != null){
+                    //send files back to consumer
+                    clientOut.writeObject(file);
+                    clientOut.flush();
+                }
+                closeConnection(PubConnx);
+                closeConnection(clientConnx);
+
+            }catch(IOException | ClassNotFoundException e){
+                //TODO exw hasei ti mpala me ta system.err help me
+            }
+
+        }else{
+            //the current broker is not responsible for the artist
+            try{
+                ObjectOutputStream clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
+                clientOut.writeObject(artistsToBrokers);
+                clientOut.flush();
+                closeConnection(clientConnx);
+            }catch(IOException e){
+                //TODO exw hasei ti mpala me ta system.err help me
+            }
         }
     }
 
@@ -398,7 +437,7 @@ public class Broker {
             else{
                 // in = new ObjectInputStream(conn.getInputStream());
                 String trackName = (String) in.readObject();
-                pull(request, trackName);
+                pull(conn, request, trackName);
             }
         }catch(IOException | ClassNotFoundException e){
             //TODO exw hasei ti mpala me ta system.err help me
