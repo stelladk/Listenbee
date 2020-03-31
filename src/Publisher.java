@@ -211,7 +211,6 @@ public class Publisher {
 
     /**
      * Close the connection established with the broker
-     * @param socket broker's socket
      */
     private void closeConnection (Socket socket){
         System.out.println("PUBLISHER: Close socket connection");
