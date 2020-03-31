@@ -23,12 +23,13 @@ public class Broker {
     private HashMap<String, String> artistsToPublishers; //artists assigned to publishers
     private HashMap<String, String> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
 
-    private ExecutorService threadPool = Executors.newCachedThreadPool();
+    private final ExecutorService threadPool;
 
     public Broker(String IP){
         System.out.println("BROKER: Construct broker");
         this.IP = IP;
         this.HASH_VALUE = Utilities.SHA1(IP+TO_PUB_PORT);
+        threadPool = Executors.newCachedThreadPool();
     }
 
     /**
@@ -381,7 +382,7 @@ public class Broker {
                         }
                     }
                 });
-                notify.start();
+                threadPool.execute(notify);
             }
         }
     }

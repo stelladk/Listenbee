@@ -3,6 +3,9 @@ import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javafx.util.*;
 
 import musicFile.MusicFile;
@@ -18,9 +21,12 @@ public class Publisher {
     private Map<String, ArrayList<MusicFile>> files;
     private Map<String, ArrayList<String>> brokers; //artists assigned to brokers IPs
 
+    private final ExecutorService threadPool;
+
     public Publisher(String IP){
         System.out.println("PUBLISHER: Construct publisher");
         this.IP = IP;
+        threadPool = Executors.newCachedThreadPool();
     }
 
     /**
@@ -89,7 +95,7 @@ public class Publisher {
                             }
                         }
                     });
-                    task.start();
+                    threadPool.execute(task);
                 } catch(IOException e) {
                     //TODO
                 }
@@ -170,7 +176,7 @@ public class Publisher {
                 
             }
         });
-        thread.start();
+        threadPool.execute(thread);
         return thread;
     }
 
@@ -232,7 +238,7 @@ public class Publisher {
                     }
                 }
             });
-            task.start();
+            threadPool.execute(task);
         }
     }
 
