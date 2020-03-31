@@ -5,6 +5,9 @@ import java.net.Socket;
 import java.util.*;
 import javafx.util.*;
 
+import musicFile.MusicFile;
+import musicFile.MusicFileHandler;
+
 public class Publisher {
     private static final int PORT = 2001;
     private final String IP;
@@ -235,7 +238,7 @@ public class Publisher {
 //    }
 
 //    //transfer data to broker on broker demand
-//    public void push(ArtistName name, MusicFile file){
+//    public void push(ArtistName name, handler.MusicFile file){
 //        //send file using different threads
 //        //each song raises a thread that raises mupliple threads
 //        //send all the songs with artistName as key

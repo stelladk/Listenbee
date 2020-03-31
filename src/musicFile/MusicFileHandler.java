@@ -1,3 +1,5 @@
+package musicFile;
+
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
@@ -23,7 +25,7 @@ public class MusicFileHandler {
         //get the directory
         File dir = new File("./res/dataset2/");
         if (!dir.exists()) {
-            System.err.println("ERROR: Directory doesn't exist");
+            System.err.println("HANDLER: READ: ERROR: Directory doesn't exist");
             return null;
         }
         //get all files in the directory
@@ -60,7 +62,7 @@ public class MusicFileHandler {
 
                     stream.close();
                 } catch (IOException | SAXException | TikaException e) {
-                    System.err.println("ERROR: Could not parse file");
+                    System.err.println("HANDLER: READ: ERROR: Could not parse file");
                     return null;
                 }
             }
@@ -77,7 +79,7 @@ public class MusicFileHandler {
     public static boolean write(MusicFile file) {
         //if the file is null then cancel the activity
         if (file == null) {
-            System.err.println("ERROR: Null object passed");
+            System.err.println("HANDLER: WRITE: ERROR: Null object passed");
             return  false;
         }
 
@@ -85,7 +87,7 @@ public class MusicFileHandler {
         File dir = new File("./res/Downloads/");
         if (!dir.exists()) {
            if (!dir.mkdir()) {
-               System.err.println("ERROR: Could not create directory");
+               System.err.println("HANDLER: WRITE: ERROR: Could not create directory");
                return false;
            }
         }
@@ -105,14 +107,14 @@ public class MusicFileHandler {
 
             return true;
         } catch (IOException e) {
-            System.out.println("ERROR: Could not write file to directory");
+            System.out.println("HANDLER: WRITE: ERROR: Could not write file to directory");
 
             try {
                 //close streams
                if (out != null) out.close();
                if (stream != null) stream.close();
             } catch (IOException ex) {
-                System.out.println("ERROR: Could not close streams");
+                System.out.println("HANDLER: WRITE: ERROR: Could not close streams");
             }
 
             return false;
