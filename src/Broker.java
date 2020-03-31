@@ -16,8 +16,8 @@ public class Broker {
     private ServerSocket toCliServer; //consumer server
 
     private ArrayList<String> brokersList; //available brokers
-    private static final ArrayList<Consumer> loggedinUsers = new ArrayList<>();
-    private static final ArrayList<Consumer> registeredUsers = new ArrayList<>();
+    private static final ArrayList<String> loggedinUsers = new ArrayList<>(); 
+    private static final ArrayList<Pair<String,BigInteger>> registeredUsers = new ArrayList<>(); //username and password for registered Users
     private static final ArrayList<String> registeredPublishers = new ArrayList<>();
 
     private HashMap<String, String> artistsToPublishers; //artists assigned to publishers
@@ -59,7 +59,7 @@ public class Broker {
 
     //send data to consumer on consumer demand
     //(PREVIOUS) String --> ArtistName
-    public void pull(String name){
+    public void pull(String artistName, String trackName){
         //request data from publisher using push method
         //find data in hashmap
         //send the entire list with astistName as key
@@ -192,10 +192,14 @@ public class Broker {
                             public void run() {
                                 boolean processed = false;
                                 String clientIP = connection.getInetAddress().getHostAddress();
+
+
+
+
                                 //search in logged-in users
-                                for(Consumer consumer: registeredUsers){
-                                    if(consumer.getIP().equals(clientIP)){
-                                        acceptConsumerConnection(connection, consumer);
+                                for(String consumerIP: loggedinUsers){
+                                    if(consumerIP.equals(clientIP)){
+                                        acceptConsumerConnection(connection, consumerIP);
                                         processed = true;
                                         break;
                                     }
@@ -398,34 +402,85 @@ public class Broker {
     }
 
     //TODO -------------------------------------- JAVADOC --------------------------------------
-    public void acceptConsumerConnection(Socket conn, Consumer consumer){
+    public void acceptConsumerConnection(Socket conn, String consumer){
         ObjectOutputStream out;
         ObjectInputStream in;
         print("Processing Consumer Connection");
+
+        try{
+            in = new ObjectInputStream(conn.getInputStream());
+            String request = (String) in.readObject();
+            if(request.equals("REGISTER")) registerUser(conn, consumer);
+            else if(request.equals("LOGIN")) loginUser(conn, consumer);
+            else if(request.equals("LOGOUT")) logoutUser(conn, consumer);
+            else{
+                // in = new ObjectInputStream(conn.getInputStream());
+                String trackName = (String) in.readObject();
+                pull(request, trackName);
+            }
+        }catch(IOException | ClassNotFoundException e){
+
+        }
     }
 
     //TODO -------------------------------------- JAVADOC --------------------------------------
-    private synchronized Consumer registerUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
-        ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
-        String username = (String) in.readObject();
-        String password = (String) in.readObject();
-        //TODO: handle passwords -> save in file
-        //hash password
-        Consumer consumer = new Consumer(clientIP);
-        registeredUsers.add(consumer);
-        return consumer;
+    private synchronized void registerUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
+        boolean verified = false;
+        while(!verified){
+            ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+            Pair<String,BigInteger> credentials = (Pair<String,BigInteger>) in.readObject();
+            //TODO: handle passwords -> save in file
+            // try{
+            //     //write to file
+            //     verified = true;
+            // }catch(IOException e){
+            //     System.err.println("EROOR: Couls not register user to file");
+            //     out.writeObject(verified);
+            //     out.flush();
+            // }
+            
+            registeredUsers.add(credentials);
+            verified = true;
+
+            out.writeObject(verified);
+            out.flush();
+        }
+        closeConnection(conn);
     }
 
     //TODO -------------------------------------- JAVADOC --------------------------------------
-    private synchronized Consumer loginUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
-        ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
-        String username = (String) in.readObject();
-        String password = (String) in.readObject();
-        //TODO: check with registedUsers
-        Consumer consumer = null;
-        //if not registered send message to register
-        loggedinUsers.add(consumer);
-        return consumer;
+    private synchronized void loginUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
+        while(true){
+            ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+            Pair<String,BigInteger> credentials = (Pair<String,BigInteger>) in.readObject();
+            //check if registered
+            boolean registered = false;
+            Pair<String,BigInteger> client = null;
+            for(Pair<String,BigInteger> consumer : registeredUsers){
+                if(consumer.getKey().equals(credentials.getKey())){
+                    registered = true;
+                    if(credentials.getValue().equals(consumer.getValue())){
+                        client = consumer;
+                    }
+                }
+            }
+            //send message to consumer
+            String message = "FALSE"; //wrong credentials
+            if(!registered){
+                message = "REGISTER"; //not registered
+                break;
+            }
+            else if(client != null) {
+                message = "VERIFIED"; //successful log-in
+                loggedinUsers.add(clientIP);
+                break;
+            }
+            ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+            out.writeObject(message);
+            out.flush();
+        }
+        closeConnection(conn);
     }
 
     /**
