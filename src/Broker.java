@@ -15,16 +15,18 @@ public class Broker {
     private ServerSocket toPubServer; //publisher and broker server
     private ServerSocket toCliServer; //consumer server
 
-    private List<Broker> brokersList; //available brokers
-    public static final List<Consumer> loggedinUsers = new ArrayList<>();
-    public static final List<Consumer> registeredUsers = new ArrayList<>();
-    public static final List<Publisher> registeredPublishers = new ArrayList<>();
-    private HashMap<String, Publisher> publishers; //artists assigned to publishers
-    private static HashMap<String, Broker> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
+    private ArrayList<Broker> brokersList; //available brokers
+    private static final ArrayList<Consumer> loggedinUsers = new ArrayList<>();
+    private static final ArrayList<Consumer> registeredUsers = new ArrayList<>();
+    private static final ArrayList<Publisher> registeredPublishers = new ArrayList<>();
 
-    ExecutorService threadPool = Executors.newCachedThreadPool();
+    private HashMap<String, Publisher> publishers; //artists assigned to publishers
+    private HashMap<String, Broker> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
+
+    private ExecutorService threadPool = Executors.newCachedThreadPool();
 
     public Broker(String IP){
+        System.out.println("BROKER: Construct broker");
         this.IP = IP;
         this.HASH_VALUE = Utilities.SHA1(IP+TO_PUB_PORT);
     }
@@ -35,11 +37,17 @@ public class Broker {
      * @param brokerIPs online broker IPs
      */
     public void init (List<String> brokerIPs){
+        System.out.println("BROKER: Initialize broker");
+
         acknowledgeServer(brokerIPs);
-        //TODO
     }
-    
+
+    /**
+     * Make broker online (await incoming connections)
+     */
     public void runServer(){
+        System.out.println("BROKER: Make broker online");
+
         toPubConnection();
         toCliConnection();
     }
@@ -96,11 +104,14 @@ public class Broker {
      * Create a thread to process each accepted connection
      */
     private void toPubConnection(){
+        System.out.println("BROKER: Make broker online for publishers/brokers");
+
         try {
             toPubServer = new ServerSocket(TO_PUB_PORT);
         }catch (IOException e) {
-            System.err.println("ERROR: Server could not go online");
+            System.err.println("BROKER: ERROR: Server could not go online for publishers/brokers");
         }
+
         //create a thread to await connections from publishers/brokers
         Thread task = new Thread(new Runnable(){
             @Override
@@ -108,7 +119,6 @@ public class Broker {
                 while (true){
                     Socket connection;
                     try {
-                        System.out.println("Waiting for publisher/broker");
                         connection = toPubServer.accept();
                     
                         //create thread to process connection
@@ -117,34 +127,21 @@ public class Broker {
                             public void run() {
 
                                 boolean proccessed = false;
+                                //get connected client IP address
                                 String clientIP = connection.getInetAddress().getHostAddress();
-                                for(Broker broker:brokersList){
-                                    if(broker.getIP().equals(clientIP)){
+                                //find if the IP is registered to a broker
+                                //TODO BETTER WAY (NEED TO CHANGE LIST<BROKER> --> LIST<STRING> W/O FOR-LOOP)
+                                for (Broker broker : brokersList){
+                                    if (broker.getIP().equals(clientIP)){
                                         //process connection from broker
-                                        try{
-                                            acceptBrokerConnection(connection, broker);
-                                        }catch(IOException e){
-                                            e.printStackTrace();
-                                        }
+                                        acceptBrokerConnection(connection, broker);
                                         proccessed = true;
                                         break;
                                     }
                                 }
-                                //process connection from publisher
+                                //if not then the IP is from publisher
                                 if(!proccessed){
-                                    try{
-                                        System.out.println("Got publisher request");
-                                        acceptPublisherConnection(connection);
-                                    }catch(IOException e){
-                                        e.printStackTrace();
-                                    }
-                                }
-        
-                                try{
-                                    print("Closing Inner Connection");
-                                    connection.close();
-                                }catch(IOException e){
-                                    e.printStackTrace();
+                                    acceptPublisherConnection(connection);
                                 }
                             }
                         });
@@ -173,18 +170,20 @@ public class Broker {
      * Create a thread to process each accepted connection
      */
     private void toCliConnection(){
+        System.out.println("BROKER: Make broker online for consumers");
+
         try {
             toCliServer = new ServerSocket(TO_CLI_PORT);
         }catch (IOException e) {
-            System.err.println("ERROR: Server could not go online");
-        } 
+            System.err.println("BROKER: ERROR: Server could not go online for consumers");
+        }
+
         //create a thread to await connections from consumers
         Thread task = new Thread(new Runnable(){
             @Override
             public void run() {
                 while (true){
                     try {
-                        System.out.println("Waiting for client");
                         Socket connection = toCliServer.accept();
 
                         //create thread to process connection
@@ -241,106 +240,193 @@ public class Broker {
     public void calculateKeys(){
 
     }
-    
-    //Sindeetai broker pairnei tous artists
-    public void acceptBrokerConnection(Socket conn, Broker broker) throws IOException{
+
+    /**
+     * TODO: send messages to check availability (ALL BROKERS INITIALIZED ARE ONLINE)
+     * Register all available brokers
+     * @param brokerIPs available broker IPs
+     */
+    private void acknowledgeServer(List<String> brokerIPs){
+        brokersList = new ArrayList<>();
+        brokersList.add(this); //add yourself
+        for (String IP : brokerIPs){
+            brokersList.add(new Broker(IP));
+        }
+    }
+
+    /**
+     * Connect with broker and fetch his artists
+     * @param connection socket for connection
+     * @param broker connected broker
+     */
+    private void acceptBrokerConnection(Socket connection, Broker broker){
+        System.out.println("BROKER: Accept broker connection");
+
         ObjectOutputStream out;
         ObjectInputStream in;
-        List<String> artists;
-        print("Processing Broker Connection");
+        ArrayList<String> artists;
 
-        //get artists from other broker
-        in = new ObjectInputStream(conn.getInputStream());
-        try{
-            artists = (List<String>) in.readObject();
-        }catch(ClassNotFoundException e){
-            e.printStackTrace();
+        try {
+            in = new ObjectInputStream(connection.getInputStream());
+            artists = (ArrayList<String>) in.readObject();
+            closeConnection(connection);
+        } catch (IOException e) {
+            System.err.println("BROKER: ERROR: ACCEPT BROKER CONNECTION: Could not read from stream");
+            closeConnection(connection);
+            return;
+        } catch (ClassNotFoundException e) {
+            System.err.println("BROKER: ERROR: ACCEPT BROKER CONNECTION: Could not cast to Object to List");
+            closeConnection(connection);
             return;
         }
 
         setOuterArtistSource(artists, broker);
     }
 
-    //koitaei an publisher registered lamvanei tragoudia an oxi stelnei hash
-    public void acceptPublisherConnection(Socket conn) throws IOException{
+    /**
+     * Write broker and its artists that is responsible for
+     */
+    private synchronized void setOuterArtistSource(List<String> artists, Broker broker){
+        for(String artist : artists){
+            artistsToBrokers.put(artist, broker);
+        }
+    }
+
+    /**
+     * If publisher is registered fetch songs
+     * Else send hash value
+     * @param connection socket for connection
+     */
+    public void acceptPublisherConnection(Socket connection){
+        System.out.println("BROKER: Accept publisher connection");
+
         ObjectOutputStream out;
         ObjectInputStream in;
-        print("Processing Publisher Connection");
+        String clientIP = connection.getInetAddress().getHostAddress();
 
-        String clientIP = conn.getInetAddress().getHostAddress();
 
+        // CASE 1
+        // Publisher is registered
+        //TODO MAYBE WE COULD DO IT BETTER W/O FOR-LOOP
         for(Publisher pub : registeredPublishers){
-            //Case 1 : Publisher is registered
-            if(pub.getIP().equals(clientIP)){ 
-                List<String> artists;
+            if (pub.getIP().equals(clientIP)){
+                ArrayList<String> artists;
 
                 //wait for artists
-                in = new ObjectInputStream(conn.getInputStream());
-                try{
-                    artists = (List<String>) in.readObject();
-                }catch(ClassNotFoundException e){
-                    e.printStackTrace();
-                    //notifyFailure();
+                try {
+                    in = new ObjectInputStream(connection.getInputStream());
+                    artists = (ArrayList<String>) in.readObject();
+                } catch (IOException e) {
+                   System.err.println("BROKER: ACCEPT PUBLISHER CONNECTION: Could not read from stream");
+                   return;
+                } catch (ClassNotFoundException e) {
+                    System.err.println("BROKER: ACCEPT PUBLISHER CONNECTION: Could not cast Object to List");
                     return;
                 }
-        
+
                 //save artists
                 setInnerArtistSource(artists, pub);
-                try{
-                    conn.close();
-                }catch(IOException e){
-                    e.printStackTrace();
-                }
-                
+
+                //close connection
+                closeConnection(connection);
+
                 //send info to other brokers
                 notifyBrokers(artists);
                 return;
             }
         }
-        
-        //Case 2 : Publisher is not registed
-        
-        //register publisher
+
+        // CASE 2
+        // Publisher is not registered
         registerPublisher(clientIP);
-        System.out.println("Accepted request from Publisher");
         //send broker hashes
-        ArrayList<Pair<String,BigInteger>> brokers = new ArrayList<>();
-        for(Broker broker : brokersList){
+        //TODO CAN BE DONE BETTER (GET PART INSTEAD CREATING NEW LIST)
+        //FIXME TO BE DELETED DUE TO CHANGES
+        ArrayList< Pair<String,BigInteger> > brokers = new ArrayList<>();
+        for (Broker broker : brokersList){
             brokers.add(new Pair<>(broker.getIP(), broker.getHash()));
         }
-        out = new ObjectOutputStream(conn.getOutputStream());
-        out.writeObject(brokers);
-        out.flush();
+
+        try {
+            out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject(brokers);
+            out.flush();
+
+            closeConnection(connection);
+        } catch (IOException e) {
+           System.out.println("BROKER: ACCEPT PUBLISHER CONNECTION: ERROR: Problem with output stream");
+           closeConnection(connection);
+        }
     }
-    
-    public void acceptConsumerConnection(Socket conn, Consumer consumer){
-        ObjectOutputStream out;
-        ObjectInputStream in;
-        print("Processing Consumer Connection");
-    }
-    
-    //save your artists
+
+
+    /**
+     * Write new artist in list
+     * Keep from which publisher the artist was fetched
+     */
     public synchronized void setInnerArtistSource(List<String> artists, Publisher publisher){
         for(String artist : artists){
             artistsToBrokers.put(artist, this);
             publishers.put(artist,publisher);
         }
     }
-    
-    //save other artists
-    private synchronized void setOuterArtistSource(List<String> artists, Broker broker){
-        for(String artist : artists){
-            artistsToBrokers.put(artist, broker);
+
+    /**
+     * Send this broke's artists to the other brokers
+     * @param artists cureent broker's artists
+     */
+    private void notifyBrokers(ArrayList<String> artists){
+        System.out.println("BROKER: Notify brokers");
+
+        for (Broker broker: brokersList){
+            if (!broker.equals(this)) { //if broker is not the current one
+                Thread notify = new Thread(new Runnable(){
+                    @Override
+                    public void run(){
+                        Socket socket;
+                        ObjectOutputStream out;
+                        while(true) {
+                            try{
+                                socket = new Socket(broker.getIP(), TO_PUB_PORT); //open connection
+
+                                //send current broker's artists to other brokers
+                                out = new ObjectOutputStream(socket.getOutputStream());
+                                out.writeObject(artists);
+                                out.flush();
+
+                                closeConnection(socket);
+                                break;
+                            }catch(IOException e){
+                                System.err.println("BROKER: NOTIFY BROKERS: ERROR: Problem notifying brokers");
+                            }
+                        }
+                    }
+                });
+                notify.start();
+            }
         }
     }
-    
-    //grafei publisher
+
+    /**
+     * TODO PUBLISHER OBJECT IS NOT THE SHAME WITH THE REAL ONE --> SHOULD WE KEEP A STRING ?
+     * FIXME
+     * Pass publisher in broker's registered publisher list
+     * @param clientIP publisher's IP address
+     */
     private synchronized Publisher registerPublisher(String clientIP){
-        Publisher publisher = new Publisher(clientIP); //make constructor
+        Publisher publisher = new Publisher(clientIP);
         registeredPublishers.add(publisher);
         return publisher;
     }
-    
+
+    //TODO -------------------------------------- JAVADOC --------------------------------------
+    public void acceptConsumerConnection(Socket conn, Consumer consumer){
+        ObjectOutputStream out;
+        ObjectInputStream in;
+        print("Processing Consumer Connection");
+    }
+
+    //TODO -------------------------------------- JAVADOC --------------------------------------
     private synchronized Consumer registerUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
         String username = (String) in.readObject();
@@ -351,7 +437,8 @@ public class Broker {
         registeredUsers.add(consumer);
         return consumer;
     }
-    
+
+    //TODO -------------------------------------- JAVADOC --------------------------------------
     private synchronized Consumer loginUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
         String username = (String) in.readObject();
@@ -363,42 +450,18 @@ public class Broker {
         return consumer;
     }
 
-    private void notifyBrokers(List<String> artists) throws IOException{
-        for(Broker broker: brokersList){
-            if(broker.equals(this)){
-                Thread notify = new Thread(new Runnable(){
-                    @Override
-                    public void run(){
-                        Socket socket;
-                        ObjectOutputStream out;
-                        while(true){
-                            try{
-                                socket = new Socket(broker.getIP(), TO_PUB_PORT); //wait for connection with broker
-                                out = new ObjectOutputStream(socket.getOutputStream());
-                                out.writeObject(artists);
-                                out.flush();
-                                socket.close();
-                            }catch(IOException e){
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                });
-                notify.start();
-            }
-        }
-    }
-
-    //TODO: send messages to check availability (ALL BROKERS INITIALIZED ARE ONLINE)
     /**
-     * Register all available brokers
-     * @param brokerIPs available broker IPs
+     * Close the connection established
      */
-    private void acknowledgeServer(List<String> brokerIPs){
-        brokersList = new ArrayList<>();
-        brokersList.add(this); //add yourself
-        for (String IP : brokerIPs){
-            brokersList.add(new Broker(IP));
+    private void closeConnection (Socket socket){
+        System.out.println("BROKER: Close socket connection");
+
+        if (socket != null){
+            try {
+                socket.close();
+            } catch (IOException e) {
+                System.err.println("BROKER: ERROR: Could not close socket connection");
+            }
         }
     }
 

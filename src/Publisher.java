@@ -5,7 +5,10 @@ import java.net.Socket;
 import java.util.*;
 import javafx.util.*;
 
-public class Publisher{
+import musicFile.MusicFile;
+import musicFile.MusicFileHandler;
+
+public class Publisher {
     private static final int PORT = 2001;
     private final String IP;
 
@@ -15,27 +18,29 @@ public class Publisher{
     private Map<String, List<String>> brokers; //artists assigned to brokers IPs
 
     public Publisher(String IP){
+        System.out.println("PUBLISHER: Construct publisher");
         this.IP = IP;
     }
 
     /**
      * Initialize publisher
      * load tracks, get all brokers, find with whom to connect and send them the artists
-     * @param brokerIP
-     * @param brokerPort
+     * @param brokerIP broker's IP address
+     * @param brokerPort broker's port number
      */
     public void init (String brokerIP, int brokerPort) {
+        System.out.println("PUBLISHER: Initialize publisher");
+
         //load the specified songs
-        System.out.println("Loading songs");
         files =  MusicFileHandler.read();
 
         Socket socket = null;
         try {
             //open connection with broker
             socket = new Socket(brokerIP, brokerPort);
-            
+
             //get all active brokers
-            ArrayList<Pair<String,BigInteger>> brokerList =  getBrokerList(socket);
+            ArrayList< Pair<String,BigInteger> > brokerList =  getBrokerList(socket);
             
             //close connection with broker
             closeConnection(socket);
@@ -43,10 +48,12 @@ public class Publisher{
             //find the brokers that are responsible for this publisher
             if (brokerList != null){
                 if (brokerList.isEmpty()) {
+                    System.err.println("PUBLISHER: ERROR: No brokers found for this publisher");
                     return;
                 }
                 assignArtistToBroker(brokerList);
             } else {
+                System.err.println("PUBLISHER: ERROR: No brokers initialized");
                 return;
             }
             
@@ -54,7 +61,7 @@ public class Publisher{
             //and send them publisher's artists
             informBrokers();
         } catch(IOException e){
-            System.err.println("ERROR: Could not initialize broker");
+            System.err.println("PUBLISHER: ERROR: Could not initialize broker");
         }
             
     }
@@ -64,6 +71,8 @@ public class Publisher{
      * Get the song, search for it and push it to broker
      */
     public void online(){
+        System.out.println("PUBLISHER: Make publisher online");
+
         try {
             //open server socket
             server = new ServerSocket(PORT);
@@ -97,20 +106,26 @@ public class Publisher{
                 }
             }
         } catch (IOException e) {
-            System.err.println("ERROR: Server could not go online");
+            System.err.println("PUBLISHER: ERROR: Server could not go online");
         } finally {
             try {
                 if (server != null) server.close();
             } catch (IOException e) {
-                System.err.println("ERROR: Server could not shut down");
+                System.err.println("PUBLISHER: ERROR: Server could not shut down");
             }
         }
     }
 
+    /**
+     * @return publisher's IP address
+     */
     public String getIP() {
         return IP;
     }
 
+    /**
+     * @return publisher's port number
+     */
     public static int getPORT() {
         return PORT;
     }
@@ -121,14 +136,16 @@ public class Publisher{
      * @return a list with all active brokers
      */
     private ArrayList<Pair<String,BigInteger>> getBrokerList(Socket socket) {
-        ArrayList<Pair<String,BigInteger>> brokers;
+        System.out.println("PUBLISHER: Fetching brokers");
+
+        ArrayList< Pair<String,BigInteger> > brokers;
         ObjectInputStream in = null;
         //open input stream with the broker to accept input
         try {
             in = new ObjectInputStream(socket.getInputStream());
             brokers = (ArrayList) in.readObject();
         } catch (ClassNotFoundException | IOException e) {
-            System.err.println("ERROR: Could not cast Object to List");
+            System.err.println("PUBLISHER: ERROR: Could not cast Object to List");
             return null;
         }
         return brokers;
@@ -139,10 +156,12 @@ public class Publisher{
      * hash(artist_name) < hash(broker_IP + broker_port)
      * @param brokerList list with active brokers
      */
-    private void assignArtistToBroker (ArrayList<Pair<String,BigInteger>> brokerList){
+    private void assignArtistToBroker (ArrayList< Pair<String,BigInteger> > brokerList){
+        System.out.println("PUBLISHER: Assign artists to responsible brokers");
+
         brokers = new HashMap<>();
         //find broker whose hash value is greater than the others
-        Pair<String,BigInteger> maxBroker = brokerList.get(brokerList.size()-1);
+        Pair<String,BigInteger> maxBroker = brokerList.get(brokerList.size() - 1);
         BigInteger maxBrokerHash = maxBroker.getValue();
 
         for (String artist : files.keySet()){
@@ -150,7 +169,7 @@ public class Publisher{
             //modulo with the maximum broker so that hash(artist_name) is in range [min_broker, max_broker]
             BigInteger hashArtist = Utilities.SHA1(artist).mod(maxBrokerHash);
 
-            for (Pair<String,BigInteger> broker : brokerList) {
+            for (Pair<String,BigInteger> broker : brokerList) { //for each broker IP address
                 if (hashArtist.compareTo(broker.getValue()) < 0){
                     if (!brokers.containsKey(broker.getKey())){
                         brokers.put(broker.getKey(), new ArrayList<>());
@@ -166,6 +185,8 @@ public class Publisher{
      * Connect with responsible brokers and send them publisher's artists
      */
     private void informBrokers(){
+        System.out.println("PUBLISHER: Inform brokers for their artists");
+
         for (String broker : brokers.keySet()){
             Thread task = new Thread(new Runnable() {
                 @Override
@@ -178,7 +199,7 @@ public class Publisher{
                         out.writeObject(brokers.get(broker));
                         out.flush();
                     } catch (IOException e){
-                        System.err.println("ERROR: Could not communicate artists to broker");
+                        System.err.println("PUBLISHER: ERROR: Could not communicate artists to broker");
                     } finally {
                         closeConnection(socket_conn);
                     }
@@ -190,19 +211,20 @@ public class Publisher{
 
     /**
      * Close the connection established with the broker
-     * @param socket broker's socket
      */
     private void closeConnection (Socket socket){
+        System.out.println("PUBLISHER: Close socket connection");
+
         if (socket != null){
             try {
                 socket.close();
             } catch (IOException e) {
-                System.err.println("ERROR: Could not close socket");
+                System.err.println("PUBLISHER: ERROR: Could not close socket connection");
             }
         }
     }
 
-//
+
 //    //find the right broker using getBrokerList
 //    public Broker hashTopic(ArtistName name){
 //        String hashValue = SHA1(name.artistName);
@@ -213,9 +235,9 @@ public class Publisher{
 //        }
 //        return null;
 //    }
-//
+
 //    //transfer data to broker on broker demand
-//    public void push(ArtistName name, MusicFile file){
+//    public void push(ArtistName name, handler.MusicFile file){
 //        //send file using different threads
 //        //each song raises a thread that raises mupliple threads
 //        //send all the songs with artistName as key
@@ -223,7 +245,7 @@ public class Publisher{
 //        //search hashmap to choose Broker
 //
 //    }
-//
+
 //    public void notifyFailure(Broker broker){
 //
 //    }
