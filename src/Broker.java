@@ -15,13 +15,13 @@ public class Broker {
     private ServerSocket toPubServer; //publisher and broker server
     private ServerSocket toCliServer; //consumer server
 
-    private List<Broker> brokersList; //available brokers
-    private static final List<Consumer> loggedinUsers = new ArrayList<>();
-    private static final List<Consumer> registeredUsers = new ArrayList<>();
-    private static final List<Publisher> registeredPublishers = new ArrayList<>();
+    private ArrayList<Broker> brokersList; //available brokers
+    private static final ArrayList<Consumer> loggedinUsers = new ArrayList<>();
+    private static final ArrayList<Consumer> registeredUsers = new ArrayList<>();
+    private static final ArrayList<Publisher> registeredPublishers = new ArrayList<>();
 
     private HashMap<String, Publisher> publishers; //artists assigned to publishers
-    private static HashMap<String, Broker> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
+    private HashMap<String, Broker> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -131,7 +131,6 @@ public class Broker {
                                 String clientIP = connection.getInetAddress().getHostAddress();
                                 //find if the IP is registered to a broker
                                 //TODO BETTER WAY (NEED TO CHANGE LIST<BROKER> --> LIST<STRING> W/O FOR-LOOP)
-                                //TODO SHOULD WE MAKE A DIFFERENT SOCKETSERVER FOR BROKERS
                                 for (Broker broker : brokersList){
                                     if (broker.getIP().equals(clientIP)){
                                         //process connection from broker
@@ -144,10 +143,6 @@ public class Broker {
                                 if(!proccessed){
                                     acceptPublisherConnection(connection);
                                 }
-
-                                //close connection
-                                //TODO SHOULD WE DO IT HERE OR IN THE CALLED METHODS ?
-                                closeConnection(connection);
                             }
                         });
                         threadPool.execute(processTask);
@@ -269,23 +264,28 @@ public class Broker {
 
         ObjectOutputStream out;
         ObjectInputStream in;
-        List<String> artists;
+        ArrayList<String> artists;
 
         try {
             in = new ObjectInputStream(connection.getInputStream());
-            artists = (List<String>) in.readObject();
+            artists = (ArrayList<String>) in.readObject();
+            closeConnection(connection);
         } catch (IOException e) {
             System.err.println("BROKER: ERROR: ACCEPT BROKER CONNECTION: Could not read from stream");
+            closeConnection(connection);
             return;
         } catch (ClassNotFoundException e) {
             System.err.println("BROKER: ERROR: ACCEPT BROKER CONNECTION: Could not cast to Object to List");
+            closeConnection(connection);
             return;
         }
 
         setOuterArtistSource(artists, broker);
     }
 
-    //TODO -------------------------------------- QUESTION --------------------------------------
+    /**
+     * Write broker and its artists that is responsible for
+     */
     private synchronized void setOuterArtistSource(List<String> artists, Broker broker){
         for(String artist : artists){
             artistsToBrokers.put(artist, broker);
@@ -310,12 +310,12 @@ public class Broker {
         //TODO MAYBE WE COULD DO IT BETTER W/O FOR-LOOP
         for(Publisher pub : registeredPublishers){
             if (pub.getIP().equals(clientIP)){
-                List<String> artists;
+                ArrayList<String> artists;
 
                 //wait for artists
                 try {
                     in = new ObjectInputStream(connection.getInputStream());
-                    artists = (List<String>) in.readObject();
+                    artists = (ArrayList<String>) in.readObject();
                 } catch (IOException e) {
                    System.err.println("BROKER: ACCEPT PUBLISHER CONNECTION: Could not read from stream");
                    return;
@@ -328,7 +328,7 @@ public class Broker {
                 setInnerArtistSource(artists, pub);
 
                 //close connection
-                closeConnection(connection); //TODO SHOULD WE DO IT IN TO_PUB_CONNECTION
+                closeConnection(connection);
 
                 //send info to other brokers
                 notifyBrokers(artists);
@@ -341,6 +341,7 @@ public class Broker {
         registerPublisher(clientIP);
         //send broker hashes
         //TODO CAN BE DONE BETTER (GET PART INSTEAD CREATING NEW LIST)
+        //FIXME TO BE DELETED DUE TO CHANGES
         ArrayList< Pair<String,BigInteger> > brokers = new ArrayList<>();
         for (Broker broker : brokersList){
             brokers.add(new Pair<>(broker.getIP(), broker.getHash()));
@@ -350,12 +351,19 @@ public class Broker {
             out = new ObjectOutputStream(connection.getOutputStream());
             out.writeObject(brokers);
             out.flush();
+
+            closeConnection(connection);
         } catch (IOException e) {
            System.out.println("BROKER: ACCEPT PUBLISHER CONNECTION: ERROR: Problem with output stream");
+           closeConnection(connection);
         }
     }
 
-    //TODO -------------------------------------- QUESTION --------------------------------------
+
+    /**
+     * Write new artist in list
+     * Keep from which publisher the artist was fetched
+     */
     public synchronized void setInnerArtistSource(List<String> artists, Publisher publisher){
         for(String artist : artists){
             artistsToBrokers.put(artist, this);
@@ -363,12 +371,15 @@ public class Broker {
         }
     }
 
-    //TODO -------------------------------------- QUESTION --------------------------------------
-    private void notifyBrokers(List<String> artists){
+    /**
+     * Send this broke's artists to the other brokers
+     * @param artists cureent broker's artists
+     */
+    private void notifyBrokers(ArrayList<String> artists){
         System.out.println("BROKER: Notify brokers");
 
         for (Broker broker: brokersList){
-            if (broker.equals(this)) {
+            if (!broker.equals(this)) { //if broker is not the current one
                 Thread notify = new Thread(new Runnable(){
                     @Override
                     public void run(){
@@ -376,13 +387,15 @@ public class Broker {
                         ObjectOutputStream out;
                         while(true) {
                             try{
-                                socket = new Socket(broker.getIP(), TO_PUB_PORT); //wait for connection with broker
+                                socket = new Socket(broker.getIP(), TO_PUB_PORT); //open connection
 
+                                //send current broker's artists to other brokers
                                 out = new ObjectOutputStream(socket.getOutputStream());
                                 out.writeObject(artists);
                                 out.flush();
 
                                 closeConnection(socket);
+                                break;
                             }catch(IOException e){
                                 System.err.println("BROKER: NOTIFY BROKERS: ERROR: Problem notifying brokers");
                             }
@@ -396,6 +409,7 @@ public class Broker {
 
     /**
      * TODO PUBLISHER OBJECT IS NOT THE SHAME WITH THE REAL ONE --> SHOULD WE KEEP A STRING ?
+     * FIXME
      * Pass publisher in broker's registered publisher list
      * @param clientIP publisher's IP address
      */
