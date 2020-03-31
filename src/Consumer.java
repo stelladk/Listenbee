@@ -17,6 +17,9 @@ public class Consumer{
     public String server_IP;
 
     private HashMap<String, Broker> brokers; //brokers with artists
+    private static String OUT = "LOGGED_OUT";
+    private static String IN = "LOGGED_IN";
+    private String STATE = OUT;
 
     public Consumer(String server_IP){
         this.server_IP = server_IP;
@@ -25,7 +28,7 @@ public class Consumer{
     public void loginUser(){
         Socket conn = null;
         try{
-            conn = new Socket(server_IP, Broker.getToCliPort());
+            conn = new Socket(server_IP, PORT);
             while(true){
                 //send credentials
                 System.out.println("Please log in");
@@ -41,6 +44,7 @@ public class Consumer{
                     registerUser();
                     break;
                 }else if(message.equals("VERIFIED")){
+                    STATE = IN;
                     break;
                 }else if(message.equals("FALSE")){
                     System.out.println("Could not login try again");
@@ -59,7 +63,7 @@ public class Consumer{
     private void registerUser(){
         Socket conn = null;
         try{
-            conn = new Socket(server_IP, Broker.getToCliPort());
+            conn = new Socket(server_IP, PORT);
             ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
             out.writeObject("REGISTER");
             out.flush();
@@ -83,27 +87,28 @@ public class Consumer{
     }
 
     public void logoutUser(){
-        Socket conn = null;
-        try{
-            while(true){
-                conn = new Socket(server_IP, Broker.getToCliPort());
-                //send log-out message
-                ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
-                out.writeObject("OUT");
-                out.flush();
+        STATE = OUT;
+        // Socket conn = null;
+        // try{
+        //     while(true){
+        //         conn = new Socket(server_IP, PORT);
+        //         //send log-out message
+        //         ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+        //         out.writeObject("OUT");
+        //         out.flush();
     
-                //wait for confirmation
-                ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
-                boolean confirmed = (boolean) in.readObject();
-                closeConnection(conn);
-                if(confirmed){
-                    break;
-                }
-            }
-        }catch(IOException | ClassNotFoundException e){
-            System.err.println("REGISTRATION ERROR: Could not connect to server");
-        }
-        closeConnection(conn);
+        //         //wait for confirmation
+        //         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+        //         boolean confirmed = (boolean) in.readObject();
+        //         closeConnection(conn);
+        //         if(confirmed){
+        //             break;
+        //         }
+        //     }
+        // }catch(IOException | ClassNotFoundException e){
+        //     System.err.println("REGISTRATION ERROR: Could not connect to server");
+        // }
+        // closeConnection(conn);
     }
 
     public void disconnect(Broker broker, String artistName){
@@ -112,9 +117,11 @@ public class Consumer{
 
     //request data from broke using method pull
     public void playData(String artistName, MusicFile files) throws IOException{
-        //find valid broker using hashmap
-        Broker broker = brokers.get(artistName);
-        //register(broker, artistName);
+        if(isLoggedIn()){
+            //find valid broker using hashmap
+            Broker broker = brokers.get(artistName);
+            //register(broker, artistName);
+        }
     }
 
     //{ListOfBrokers {IP,Port} , < BrokerId, ArtistName>}.
@@ -129,6 +136,10 @@ public class Consumer{
         }catch(UnknownHostException e){
             return null;
         }
+    }
+
+    public boolean isLoggedIn(){
+        return STATE.equals(IN);
     }
 
     private synchronized Pair<String,BigInteger> getCredentials(){

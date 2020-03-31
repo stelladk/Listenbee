@@ -16,7 +16,7 @@ public class Broker {
     private ServerSocket toCliServer; //consumer server
 
     private ArrayList<String> brokersList; //available brokers
-    private static final ArrayList<String> loggedinUsers = new ArrayList<>(); 
+    //private static final ArrayList<String> loggedinUsers = new ArrayList<>(); 
     private static final ArrayList<Pair<String,BigInteger>> registeredUsers = new ArrayList<>(); //username and password for registered Users
     private static final ArrayList<String> registeredPublishers = new ArrayList<>();
 
@@ -63,6 +63,10 @@ public class Broker {
         //request data from publisher using push method
         //find data in hashmap
         //send the entire list with astistName as key
+
+        try{
+            Socket connection = new Socket()
+        }
     }
 
     //(PREVIOUS) String --> ArtistName
@@ -190,30 +194,9 @@ public class Broker {
                         Thread processTask = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                boolean processed = false;
                                 String clientIP = connection.getInetAddress().getHostAddress();
 
-
-
-
-                                //search in logged-in users
-                                for(String consumerIP: loggedinUsers){
-                                    if(consumerIP.equals(clientIP)){
-                                        acceptConsumerConnection(connection, consumerIP);
-                                        processed = true;
-                                        break;
-                                    }
-                                }
-        
-                                if(!processed){
-                                    try{
-                                        loginUser(connection, clientIP);
-                                    }catch(IOException e){
-                                        e.printStackTrace();
-                                    }catch(ClassNotFoundException e){
-                                        e.printStackTrace();
-                                    }
-                                }
+                                acceptConsumerConnection(connection, clientIP);
         
                                 try{
                                     connection.close();
@@ -403,7 +386,6 @@ public class Broker {
 
     //TODO -------------------------------------- JAVADOC --------------------------------------
     public void acceptConsumerConnection(Socket conn, String consumer){
-        ObjectOutputStream out;
         ObjectInputStream in;
         print("Processing Consumer Connection");
 
@@ -412,7 +394,7 @@ public class Broker {
             String request = (String) in.readObject();
             if(request.equals("REGISTER")) registerUser(conn, consumer);
             else if(request.equals("LOGIN")) loginUser(conn, consumer);
-            else if(request.equals("LOGOUT")) logoutUser(conn, consumer);
+            //else if(request.equals("LOGOUT")) logoutUser(conn, consumer);
             else{
                 // in = new ObjectInputStream(conn.getInputStream());
                 String trackName = (String) in.readObject();
@@ -474,7 +456,7 @@ public class Broker {
             }
             else if(client != null) {
                 message = "VERIFIED"; //successful log-in
-                loggedinUsers.add(clientIP);
+                //loggedinUsers.add(clientIP);
                 break;
             }
             ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
@@ -484,25 +466,25 @@ public class Broker {
         closeConnection(conn);
     }
 
-    private synchronized void logoutUser(Socket conn, String clientIP){
-        boolean verified = false;
-        for(int i = 0; i < loggedinUsers.size(); ++i){
-            if(loggedinUsers.get(i).equals(clientIP)){
-                loggedinUsers.remove(i);
-                verified = true;
-                break;
-            }
-        }
-        //send message to consumer
-        try{
-            ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
-            out.writeObject(verified);
-            out.flush();
-        }catch(IOException e){
-            //TODO exw hasei ti mpala me ta system.err help me
-        }
-        closeConnection(conn);
-    }
+    // private synchronized void logoutUser(Socket conn, String clientIP){
+    //     boolean verified = false;
+    //     for(int i = 0; i < loggedinUsers.size(); ++i){
+    //         if(loggedinUsers.get(i).equals(clientIP)){
+    //             loggedinUsers.remove(i);
+    //             verified = true;
+    //             break;
+    //         }
+    //     }
+    //     //send message to consumer
+    //     try{
+    //         ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+    //         out.writeObject(verified);
+    //         out.flush();
+    //     }catch(IOException e){
+    //         //TODO exw hasei ti mpala me ta system.err help me
+    //     }
+    //     closeConnection(conn);
+    // }
 
     /**
      * Close the connection established
