@@ -38,8 +38,7 @@ public class Broker {
      */
     public void init (List<String> brokerIPs){
         System.out.println("BROKER: Initialize broker");
-
-        acknowledgeServer(brokerIPs);
+        //TODO: Read registeredUsers
     }
 
     /**
@@ -236,18 +235,6 @@ public class Broker {
         // }
     }
 
-    /**
-     * TODO: send messages to check availability (ALL BROKERS INITIALIZED ARE ONLINE)
-     * Register all available brokers
-     * @param brokerIPs available broker IPs
-     */
-    private void acknowledgeServer(List<String> brokerIPs){
-        brokersList = new ArrayList<>();
-        brokersList.add(getIP()); //add yourself
-        for (String IP : brokerIPs){
-            brokersList.add(IP);
-        }
-    }
 
     /**
      * Connect with broker and fetch his artists
@@ -281,7 +268,7 @@ public class Broker {
     /**
      * Write broker and its artists that is responsible for
      */
-    private synchronized void setOuterArtistSource(List<String> artists, String broker){
+    private synchronized void setOuterArtistSource(ArrayList<String> artists, String broker){
         for(String artist : artists){
             artistsToBrokers.put(artist, broker);
         }
@@ -355,7 +342,7 @@ public class Broker {
      * Write new artist in list
      * Keep from which publisher the artist was fetched
      */
-    public synchronized void setInnerArtistSource(List<String> artists, String publisher){
+    public synchronized void setInnerArtistSource(ArrayList<String> artists, String publisher){
         for(String artist : artists){
             artistsToBrokers.put(artist, getIP());
             artistsToPublishers.put(artist,publisher);

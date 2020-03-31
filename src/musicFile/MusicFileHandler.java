@@ -21,7 +21,7 @@ public class MusicFileHandler {
      * Reads music files into a Map, with artist as the key and artist's songs as values
      * @return a Map with the artists and their songs
      */
-    public static Map<String, List<MusicFile>> read(){
+    public static Map<String, ArrayList<MusicFile>> read(){
         //get the directory
         File dir = new File("./res/dataset2/");
         if (!dir.exists()) {
@@ -31,7 +31,7 @@ public class MusicFileHandler {
         //get all files in the directory
         File[] files = dir.listFiles();
 
-        Map<String, List<MusicFile>> songs = new HashMap<>();
+        Map<String, ArrayList<MusicFile>> songs = new HashMap<>();
         if (files != null){
             for (File file : files) {
                 try {

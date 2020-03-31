@@ -15,8 +15,8 @@ public class Publisher {
     private ServerSocket server;
 
     private ArrayList<Pair<String,BigInteger>> brokerList; //active brokers
-    private Map<String, List<MusicFile>> files;
-    private Map<String, List<String>> brokers; //artists assigned to brokers IPs
+    private Map<String, ArrayList<MusicFile>> files;
+    private Map<String, ArrayList<String>> brokers; //artists assigned to brokers IPs
 
     public Publisher(String IP){
         System.out.println("PUBLISHER: Construct publisher");
