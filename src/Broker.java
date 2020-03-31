@@ -15,13 +15,13 @@ public class Broker {
     private ServerSocket toPubServer; //publisher and broker server
     private ServerSocket toCliServer; //consumer server
 
-    private ArrayList<Broker> brokersList; //available brokers
+    private ArrayList<String> brokersList; //available brokers
     private static final ArrayList<Consumer> loggedinUsers = new ArrayList<>();
     private static final ArrayList<Consumer> registeredUsers = new ArrayList<>();
-    private static final ArrayList<Publisher> registeredPublishers = new ArrayList<>();
+    private static final ArrayList<String> registeredPublishers = new ArrayList<>();
 
-    private HashMap<String, Publisher> publishers; //artists assigned to publishers
-    private HashMap<String, Broker> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
+    private HashMap<String, String> artistsToPublishers; //artists assigned to publishers
+    private HashMap<String, String> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -66,7 +66,7 @@ public class Broker {
     }
 
     //(PREVIOUS) String --> ArtistName
-    public HashMap<String, Broker> getBrokers(){
+    public HashMap<String, String> getBrokers(){
         return artistsToBrokers;
     }
 
@@ -131,10 +131,10 @@ public class Broker {
                                 String clientIP = connection.getInetAddress().getHostAddress();
                                 //find if the IP is registered to a broker
                                 //TODO BETTER WAY (NEED TO CHANGE LIST<BROKER> --> LIST<STRING> W/O FOR-LOOP)
-                                for (Broker broker : brokersList){
-                                    if (broker.getIP().equals(clientIP)){
+                                for (String brokerIP : brokersList){
+                                    if (brokerIP.equals(clientIP)){
                                         //process connection from broker
-                                        acceptBrokerConnection(connection, broker);
+                                        acceptBrokerConnection(connection, brokerIP);
                                         proccessed = true;
                                         break;
                                     }
@@ -243,9 +243,9 @@ public class Broker {
      */
     private void acknowledgeServer(List<String> brokerIPs){
         brokersList = new ArrayList<>();
-        brokersList.add(this); //add yourself
+        brokersList.add(getIP()); //add yourself
         for (String IP : brokerIPs){
-            brokersList.add(new Broker(IP));
+            brokersList.add(IP);
         }
     }
 
@@ -254,7 +254,7 @@ public class Broker {
      * @param connection socket for connection
      * @param broker connected broker
      */
-    private void acceptBrokerConnection(Socket connection, Broker broker){
+    private void acceptBrokerConnection(Socket connection, String brokerIP){
         System.out.println("BROKER: Accept broker connection");
 
         ObjectOutputStream out;
@@ -275,13 +275,13 @@ public class Broker {
             return;
         }
 
-        setOuterArtistSource(artists, broker);
+        setOuterArtistSource(artists, brokerIP);
     }
 
     /**
      * Write broker and its artists that is responsible for
      */
-    private synchronized void setOuterArtistSource(List<String> artists, Broker broker){
+    private synchronized void setOuterArtistSource(List<String> artists, String broker){
         for(String artist : artists){
             artistsToBrokers.put(artist, broker);
         }
@@ -303,8 +303,8 @@ public class Broker {
         // CASE 1
         // Publisher is registered
         //TODO MAYBE WE COULD DO IT BETTER W/O FOR-LOOP
-        for(Publisher pub : registeredPublishers){
-            if (pub.getIP().equals(clientIP)){
+        for(String pubIP : registeredPublishers){
+            if (pubIP.equals(clientIP)){
                 ArrayList<String> artists;
 
                 //wait for artists
@@ -320,7 +320,7 @@ public class Broker {
                 }
 
                 //save artists
-                setInnerArtistSource(artists, pub);
+                setInnerArtistSource(artists, pubIP);
 
                 //close connection
                 closeConnection(connection);
@@ -337,14 +337,15 @@ public class Broker {
         //send broker hashes
         //TODO CAN BE DONE BETTER (GET PART INSTEAD CREATING NEW LIST)
         //FIXME TO BE DELETED DUE TO CHANGES
-        ArrayList< Pair<String,BigInteger> > brokers = new ArrayList<>();
-        for (Broker broker : brokersList){
-            brokers.add(new Pair<>(broker.getIP(), broker.getHash()));
-        }
+
+        // ArrayList< Pair<String,BigInteger> > brokers = new ArrayList<>();
+        // for (Broker broker : brokersList){
+        //     brokers.add(new Pair<>(broker.getIP(), broker.getHash()));
+        // }
 
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
-            out.writeObject(brokers);
+            // out.writeObject(brokers);
             out.flush();
 
             closeConnection(connection);
@@ -359,10 +360,10 @@ public class Broker {
      * Write new artist in list
      * Keep from which publisher the artist was fetched
      */
-    public synchronized void setInnerArtistSource(List<String> artists, Publisher publisher){
+    public synchronized void setInnerArtistSource(List<String> artists, String publisher){
         for(String artist : artists){
-            artistsToBrokers.put(artist, this);
-            publishers.put(artist,publisher);
+            artistsToBrokers.put(artist, getIP());
+            artistsToPublishers.put(artist,publisher);
         }
     }
 
@@ -373,8 +374,8 @@ public class Broker {
     private void notifyBrokers(ArrayList<String> artists){
         System.out.println("BROKER: Notify brokers");
 
-        for (Broker broker: brokersList){
-            if (!broker.equals(this)) { //if broker is not the current one
+        for (String broker: brokersList){
+            if (!broker.equals(getIP())) { //if broker is not the current one
                 Thread notify = new Thread(new Runnable(){
                     @Override
                     public void run(){
@@ -382,7 +383,7 @@ public class Broker {
                         ObjectOutputStream out;
                         while(true) {
                             try{
-                                socket = new Socket(broker.getIP(), TO_PUB_PORT); //open connection
+                                socket = new Socket(broker, TO_PUB_PORT); //open connection
 
                                 //send current broker's artists to other brokers
                                 out = new ObjectOutputStream(socket.getOutputStream());
@@ -408,10 +409,8 @@ public class Broker {
      * Pass publisher in broker's registered publisher list
      * @param clientIP publisher's IP address
      */
-    private synchronized Publisher registerPublisher(String clientIP){
-        Publisher publisher = new Publisher(clientIP);
-        registeredPublishers.add(publisher);
-        return publisher;
+    private synchronized void registerPublisher(String clientIP){
+        registeredPublishers.add(clientIP);
     }
 
     //TODO -------------------------------------- JAVADOC --------------------------------------
