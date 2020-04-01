@@ -69,44 +69,55 @@ public class Publisher {
         try {
             //open server socket
             server = new ServerSocket(PORT);
-
-            //await for connections
-            while (true) {
-                try {
-                    Socket connection = server.accept();
-
-                    //for each connection create a new thread
-                    Thread task = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
-                                /* TODO
-                                 *get input from broker (song etc artist asked for)
-                                 *search for them
-                                 *send them back using push (overload this method for different cases)
-                                */
-                            }catch (IOException e){
-                                //TODO
-                            }finally {
-                                closeConnection(connection);
-                            }
-                        }
-                    });
-                    threadPool.execute(task);
-                } catch(IOException e) {
-                    //TODO
-                }
-            }
         } catch (IOException e) {
             System.err.println("PUBLISHER: ERROR: Server could not go online");
-        } finally {
-            try {
-                if (server != null) server.close();
-            } catch (IOException e) {
-                System.err.println("PUBLISHER: ERROR: Server could not shut down");
-            }
+            //TODO return statement (maybe)
         }
+
+            //create a thread to await connections from brokers
+            Thread task = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (true) {
+                        Socket connection;
+                        try {
+                            connection = server.accept();
+
+                            //for each connection create a new thread
+                            Thread processTask = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        //get <title, artist> from broker
+                                        ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
+                                        Pair<String, String> song = (Pair<String, String>) in.readObject();
+
+                                        //send the music file to broker
+                                        push(song.getKey(), song.getValue(), connection);
+                                    }catch (IOException e){
+                                        System.err.println("PUBLISHER: ONLINE: ERROR: Could not read from stream");
+                                    } catch (ClassNotFoundException e) {
+                                        System.err.println("PUBLISHER: ONLINE: ERROR: Could not cast Object to Pair");
+                                    } finally {
+                                        closeConnection(connection);
+                                    }
+                                }
+                            });
+                            threadPool.execute(processTask);
+                        } catch(IOException e) {
+                            System.err.println("PUBLISHER: ONLINE: ERROR: Could not accept connection");
+                        }
+                    }
+                }
+            });
+            threadPool.execute(task);
+//        }finally {
+//            try {
+//                if (server != null) server.close();
+//            } catch (IOException e) {
+//                System.err.println("PUBLISHER: ERROR: Server could not shut down");
+//            }
+//        }
     }
 
     /**
@@ -243,8 +254,73 @@ public class Publisher {
         }
     }
 
-    private void push(){
+    /**
+     * Find the song through the artist
+     * Break the music file into chunks and send them to broker
+     * If a problem occurs (ex. song doesn't exist notify about failure via sending null
+     * @param title song title
+     * @param artist artist name
+     * @param connection open connection with broker
+     */
+    private void push (String title, String artist, Socket connection){
+        System.out.println("PUBLISHER: Push song to broker");
 
+        //if artist doesn't exist notify about failure
+        if (!files.containsKey(artist)){
+            System.out.println("PUBLISHER: No such artist exists");
+            notifyFailure(connection);
+            return;
+        }
+
+        boolean found = false;
+        ArrayList<MusicFile> chunks = null;
+
+        //search for the song and fetch the music file
+        for (MusicFile song : files.get(artist)){
+            if (song.getTrackName().equals(title)){
+                found = true;
+
+                //split the song into chunks
+                chunks = MusicFileHandler.split(song);
+
+                if (chunks == null) {
+                    System.out.println("PUBLISHER: Song could not be broker to chunks");
+                    notifyFailure(connection);
+                    return;
+                }
+            }
+        }
+
+        //if song doesn't exist notify about failure
+        if (!found) {
+            System.out.println("PUBLISHER: No such song exists");
+            notifyFailure(connection);
+            return;
+        }
+
+        //send music file to broker
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject(chunks);
+        } catch (IOException e) {
+            System.out.println("PUBLISHER: ERROR: PUSH: Could not send file chunks");
+        }
+    }
+
+    /**
+     * When a file with specific metadata doesn't exist send null
+     * @param connection open connection with broker
+     */
+    private void notifyFailure(Socket connection){
+        System.out.println("PUBLISHER: Notify that song doesn't exist");
+
+        ObjectOutputStream out;
+        try {
+            out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject(null);
+        } catch (IOException e) {
+            System.out.println("PUBLISHER: ERROR: PUSH: Could not send file chunks");
+        }
     }
 
     /**
@@ -273,19 +349,4 @@ public class Publisher {
 //        }
 //        return null;
 //    }
-
-//    //transfer data to broker on broker demand
-//    public void push(ArtistName name, handler.MusicFile file){
-//        //send file using different threads
-//        //each song raises a thread that raises mupliple threads
-//        //send all the songs with artistName as key
-//
-//        //search hashmap to choose Broker
-//
-//    }
-
-//    public void notifyFailure(Broker broker){
-//
-//    }
-
 }

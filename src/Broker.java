@@ -153,6 +153,7 @@ public class Broker {
             toPubServer = new ServerSocket(TO_PUB_PORT);
         }catch (IOException e) {
             System.err.println("BROKER: ERROR: Server could not go online for publishers/brokers");
+            //TODO return statement (maybe)
         }
 
         //create a thread to await connections from publishers/brokers
