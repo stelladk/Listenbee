@@ -10,8 +10,8 @@ import org.xml.sax.SAXException;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MusicFileHandler {
@@ -80,8 +80,10 @@ public class MusicFileHandler {
         //if the file is null then cancel the activity
         if (file == null) {
             System.err.println("HANDLER: WRITE: ERROR: Null object passed");
-            return  false;
+            return false;
         }
+
+        //TODO CHECK MORE FOR NULL
 
         //create directory if it doesn't exist
         File dir = new File("./res/Downloads/");
@@ -119,5 +121,45 @@ public class MusicFileHandler {
 
             return false;
         }
+    }
+
+    /**
+     * Splits a file into chunks of 512KB size
+     * 512KB = 524288 bytes
+     * @param file music file
+     * @return a list with file chunks
+     */
+    public static ArrayList<MusicFile> split (MusicFile file) {
+        //if the file is null then cancel the activity
+        if (file == null) {
+            System.err.println("HANDLER: WRITE: ERROR: Null object passed");
+            return null;
+        }
+
+        final byte[] songBytes = file.getFileBytes();
+
+        //if file doesn't contain a byte array
+        if ((songBytes == null) || (songBytes.length == 0)){
+            System.err.println("HANDLER: SPLIT: ERROR: File without byte array");
+            return null;
+        }
+
+        int chunkSize = 524288; //512KB
+        ArrayList<MusicFile> chunks = new ArrayList<>();
+
+        int start = 0;
+        while (start < songBytes.length){
+            chunks.add(new MusicFile(
+                            file.getTrackName(),
+                            file.getArtistName(),
+                            file.getAlbumInfo(),
+                            file.getGenre(),
+                            Arrays.copyOfRange(songBytes, start, Math.min(start + chunkSize, songBytes.length)) //if end index is greater than the array length then use the array length
+                    )
+            );
+            start += chunkSize;
+        }
+
+        return chunks;
     }
 }
