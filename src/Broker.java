@@ -73,10 +73,7 @@ public class Broker {
 
                 //send request for music file
                 ObjectOutputStream pubOut = new ObjectOutputStream(PubConnx.getOutputStream());
-                // pubOut.writeObject(artistName);
-                // pubOut.flush();
-                //TODO: check if artist name is needed
-                pubOut.writeObject(trackName);
+                pubOut.writeObject(new Pair<String,String>(artistName,trackName));
                 pubOut.flush();
 
                 //get files from publisher
@@ -170,7 +167,6 @@ public class Broker {
                             @Override
                             public void run() {
 
-                                boolean proccessed = false;
                                 //get connected client IP address
                                 String clientIP = connection.getInetAddress().getHostAddress();
 
@@ -179,14 +175,13 @@ public class Broker {
                                 if (brokersList.contains(clientIP)){
                                     //process connection from broker
                                     acceptBrokerConnection(connection, clientIP);
-                                    proccessed = true;
+                                    return;
                                 }
 
                                 // CASE 2
                                 // IP belongs to publisher
-                                if(!proccessed){
-                                    acceptPublisherConnection(connection);
-                                }
+                                acceptPublisherConnection(connection);
+                                
                             }
                         });
                         threadPool.execute(processTask);

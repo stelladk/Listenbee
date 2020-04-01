@@ -284,7 +284,7 @@ public class Publisher {
                 chunks = MusicFileHandler.split(song);
 
                 if (chunks == null) {
-                    System.out.println("PUBLISHER: Song could not be broker to chunks");
+                    System.out.println("PUBLISHER: Song could not be broken to chunks");
                     notifyFailure(connection);
                     return;
                 }
