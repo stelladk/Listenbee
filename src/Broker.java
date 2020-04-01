@@ -17,9 +17,9 @@ public class Broker {
     private ServerSocket toCliServer; //consumer server
 
     private ArrayList<String> brokersList; //available brokers
-    //private static final ArrayList<String> loggedinUsers = new ArrayList<>(); 
-    private static final ArrayList<Pair<String,BigInteger>> registeredUsers = new ArrayList<>(); //username and password for registered Users
     private static final ArrayList<String> registeredPublishers = new ArrayList<>();
+    private static final ArrayList<Pair<String,BigInteger>> registeredUsers = new ArrayList<>(); //username and password for registered Users
+    //private static final ArrayList<String> loggedinUsers = new ArrayList<>(); 
 
     private HashMap<String, String> artistsToPublishers; //artists assigned to publishers
     private HashMap<String, String> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
@@ -172,17 +172,17 @@ public class Broker {
                                 boolean proccessed = false;
                                 //get connected client IP address
                                 String clientIP = connection.getInetAddress().getHostAddress();
-                                //find if the IP is registered to a broker
-                                //TODO BETTER WAY (NEED TO CHANGE LIST<BROKER> --> LIST<STRING> W/O FOR-LOOP)
-                                for (String brokerIP : brokersList){
-                                    if (brokerIP.equals(clientIP)){
-                                        //process connection from broker
-                                        acceptBrokerConnection(connection, brokerIP);
-                                        proccessed = true;
-                                        break;
-                                    }
+
+                                // CASE 1
+                                // IP belongs to broker
+                                if (brokersList.contains(clientIP)){
+                                    //process connection from broker
+                                    acceptBrokerConnection(connection, clientIP);
+                                    proccessed = true;
                                 }
-                                //if not then the IP is from publisher
+
+                                // CASE 2
+                                // IP belongs to publisher
                                 if(!proccessed){
                                     acceptPublisherConnection(connection);
                                 }
@@ -266,7 +266,7 @@ public class Broker {
     /**
      * Connect with broker and fetch his artists
      * @param connection socket for connection
-     * @param broker connected broker
+     * @param brokerIP connected broker
      */
     private void acceptBrokerConnection(Socket connection, String brokerIP){
         System.out.println("BROKER: Accept broker connection");
@@ -313,43 +313,38 @@ public class Broker {
         ObjectInputStream in;
         String clientIP = connection.getInetAddress().getHostAddress();
 
-
         // CASE 1
         // Publisher is registered
-        //TODO MAYBE WE COULD DO IT BETTER W/O FOR-LOOP
-        for(String pubIP : registeredPublishers){
-            if (pubIP.equals(clientIP)){
-                ArrayList<String> artists;
+        if (registeredPublishers.contains(clientIP)){
+            ArrayList<String> artists;
 
-                //wait for artists
-                try {
-                    in = new ObjectInputStream(connection.getInputStream());
-                    artists = (ArrayList<String>) in.readObject();
-                } catch (IOException e) {
-                   System.err.println("BROKER: ACCEPT PUBLISHER CONNECTION: Could not read from stream");
-                   return;
-                } catch (ClassNotFoundException e) {
-                    System.err.println("BROKER: ACCEPT PUBLISHER CONNECTION: Could not cast Object to List");
-                    return;
-                }
-
-                //save artists
-                setInnerArtistSource(artists, pubIP);
-
-                //close connection
-                closeConnection(connection);
-
-                //send info to other brokers
-                notifyBrokers(artists);
+            //wait for artists
+            try {
+                in = new ObjectInputStream(connection.getInputStream());
+                artists = (ArrayList<String>) in.readObject();
+            } catch (IOException e) {
+                System.err.println("BROKER: ACCEPT PUBLISHER CONNECTION: Could not read from stream");
+                return;
+            } catch (ClassNotFoundException e) {
+                System.err.println("BROKER: ACCEPT PUBLISHER CONNECTION: Could not cast Object to List");
                 return;
             }
+
+            //save artists
+            setInnerArtistSource(artists, clientIP);
+
+            //close connection
+            closeConnection(connection);
+
+            //send info to other brokers
+            notifyBrokers(artists);
+            return;
         }
 
         // CASE 2
         // Publisher is not registered
         registerPublisher(clientIP);
         //send broker hashes
-        //TODO CAN BE DONE BETTER (GET PART INSTEAD CREATING NEW LIST)
         
         //send your hash code
         try {
@@ -414,8 +409,6 @@ public class Broker {
     }
 
     /**
-     * TODO PUBLISHER OBJECT IS NOT THE SHAME WITH THE REAL ONE --> SHOULD WE KEEP A STRING ?
-     * FIXME
      * Pass publisher in broker's registered publisher list
      * @param clientIP publisher's IP address
      */
