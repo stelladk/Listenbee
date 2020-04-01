@@ -84,7 +84,7 @@ public class Publisher {
                                 /* TODO
                                  *get input from broker (song etc artist asked for)
                                  *search for them
-                                 *send them back using push
+                                 *send them back using push (overload this method for different cases)
                                 */
                             }catch (IOException e){
                                 //TODO
@@ -241,6 +241,10 @@ public class Publisher {
             });
             threadPool.execute(task);
         }
+    }
+
+    private void push(){
+
     }
 
     /**
