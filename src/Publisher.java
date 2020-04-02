@@ -299,11 +299,19 @@ public class Publisher {
         }
 
         //send music file to broker
+        ObjectOutputStream out;
         try {
-            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
-            out.writeObject(chunks);
+            out = new ObjectOutputStream(connection.getOutputStream());
+
+            for(MusicFile chunk : chunks){
+                out.writeObject(chunk);
+                out.flush();
+            }
+
+            chunks.clear(); //clear chunk list
         } catch (IOException e) {
             System.out.println("PUBLISHER: ERROR: PUSH: Could not send file chunks");
+            chunks.clear(); //clear chunk list
         }
     }
 

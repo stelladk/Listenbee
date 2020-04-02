@@ -125,7 +125,7 @@ public class MusicFileHandler {
 
     /**
      * Splits a file into chunks of 512KB size
-     * 512KB = 524288 bytes
+     * 512KB = 512000 bytes
      * @param file music file
      * @return a list with file chunks
      */
@@ -144,7 +144,7 @@ public class MusicFileHandler {
             return null;
         }
 
-        int chunkSize = 524288; //512KB
+        int chunkSize = 512000; //512KB
         ArrayList<MusicFile> chunks = new ArrayList<>();
 
         int start = 0;
