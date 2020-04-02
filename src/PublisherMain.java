@@ -1,6 +1,7 @@
 import java.util.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.regex.Pattern;
 
 public class PublisherMain {
 
@@ -21,7 +22,7 @@ public class PublisherMain {
         }
 
         //initialize broker
-        Publisher pub = new Publisher(IP);
+        Publisher pub = new Publisher(IP,"^[[a-jA-J] | [0-9]].*");
         List<String> serverIPs = new ArrayList<>();
         serverIPs.add("127.0.0.1");
         pub.init(serverIPs);

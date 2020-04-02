@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import javafx.util.*;
 
 import musicFile.MusicFile;
@@ -13,6 +14,7 @@ import musicFile.MusicFileHandler;
 public class Publisher {
     private static final int PORT = 2001;
     private final String IP;
+    private final String RANGE; //range of artists
 
     private ServerSocket server;
 
@@ -22,9 +24,10 @@ public class Publisher {
 
     private final ExecutorService threadPool;
 
-    public Publisher(String IP){
+    public Publisher(String IP, String RANGE){
         System.out.println("PUBLISHER: Construct publisher");
         this.IP = IP;
+        this.RANGE = RANGE;
         threadPool = Executors.newCachedThreadPool();
     }
 
@@ -37,7 +40,7 @@ public class Publisher {
         System.out.println("PUBLISHER: Initialize publisher");
 
         //load the specified songs
-        files =  MusicFileHandler.read();
+        files =  MusicFileHandler.read(RANGE);
 
         //get all active brokers
         getBrokerList(brokerIPs);

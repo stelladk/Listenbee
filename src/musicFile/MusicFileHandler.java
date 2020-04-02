@@ -17,13 +17,12 @@ import java.util.Map;
 public class MusicFileHandler {
 
     /**
-     * TODO keep specific files according to publisher's interests
      * Reads music files into a Map, with artist as the key and artist's songs as values
      * @return a Map with the artists and their songs
      */
-    public static Map<String, ArrayList<MusicFile>> read(){
+    public static Map<String, ArrayList<MusicFile>> read(String range){
         //get the directory
-        File dir = new File("./res/dataset2/");
+        File dir = new File("./res/dataset1/");
         if (!dir.exists()) {
             System.err.println("HANDLER: READ: ERROR: Directory doesn't exist");
             return null;
@@ -47,18 +46,27 @@ public class MusicFileHandler {
                     String title = metadata.get("title");
                     String artist = metadata.get("xmpDM:artist");
 
+                    if (artist == null){
+                        stream.close();
+                        continue;
+                    }
+
+                    //if artist name not in range continue to next file
+                    if (!artist.matches(range)) {
+                        stream.close();
+                        continue;
+                    }
+
                     //if title is null then get it from file signature
-                    if (title == null) {
+                    if (title == null || title.isEmpty()) {
                         title = file.getName().substring(0, file.getName().indexOf('.'));
                         metadata.set("title", title);
                     }
 
-                    if (artist != null){
-                        if (!songs.containsKey(artist)){ //if artist doesn't exist make a new record
-                            songs.put(artist, new ArrayList<MusicFile>());
-                        }
-                        songs.get(artist).add(new MusicFile(title, artist, metadata.get("xmpDM:album"), metadata.get("xmpDM:genre"), Files.readAllBytes(file.toPath())));
+                    if (!songs.containsKey(artist)){ //if artist doesn't exist make a new record
+                        songs.put(artist, new ArrayList<MusicFile>());
                     }
+                    songs.get(artist).add(new MusicFile(title, artist, metadata.get("xmpDM:album"), metadata.get("xmpDM:genre"), Files.readAllBytes(file.toPath())));
 
                     stream.close();
                 } catch (IOException | SAXException | TikaException e) {
