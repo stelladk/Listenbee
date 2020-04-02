@@ -25,7 +25,7 @@ public class Publisher {
     private final ExecutorService threadPool;
 
     public Publisher(String IP, String RANGE){
-        System.out.println("PUBLISHER: Construct publisher");
+        print("PUBLISHER: Construct publisher");
         this.IP = IP;
         this.RANGE = RANGE;
         threadPool = Executors.newCachedThreadPool();
@@ -37,7 +37,7 @@ public class Publisher {
      * @param brokerIPs broker's IP address
      */
     public boolean init (List<String> brokerIPs) {
-        System.out.println("PUBLISHER: Initialize publisher");
+        print("PUBLISHER: Initialize publisher");
 
         //load the specified songs
         files =  MusicFileHandler.read(RANGE);
@@ -72,7 +72,7 @@ public class Publisher {
      * Get the song, search for it and push it to broker
      */
     public void online(){
-        System.out.println("PUBLISHER: Make publisher online");
+        print("PUBLISHER: Make publisher online");
 
         try {
             //open server socket
@@ -147,7 +147,7 @@ public class Publisher {
      * @param serverIPs brokers' IP addresses
      */
     private void getBrokerList(List<String> serverIPs) {
-        System.out.println("PUBLISHER: Fetching brokers");
+        print("PUBLISHER: Fetching brokers");
 
         brokerList = new ArrayList<>();
         ArrayList<Thread> threads = new ArrayList<>();
@@ -211,7 +211,7 @@ public class Publisher {
      * @param brokerList list with active brokers
      */
     private void assignArtistToBroker (ArrayList< Pair<String,BigInteger> > brokerList){
-        System.out.println("PUBLISHER: Assign artists to responsible brokers");
+        print("PUBLISHER: Assign artists to responsible brokers");
 
         brokers = new HashMap<>();
         //find broker whose hash value is greater than the others
@@ -239,7 +239,7 @@ public class Publisher {
      * Connect with responsible brokers and send them publisher's artists
      */
     private void informBrokers(){
-        System.out.println("PUBLISHER: Inform brokers for their artists");
+        print("PUBLISHER: Inform brokers for their artists");
 
         for (String broker : brokers.keySet()){
             Thread task = new Thread(new Runnable() {
@@ -272,11 +272,11 @@ public class Publisher {
      * @param connection open connection with broker
      */
     private void push (String title, String artist, Socket connection){
-        System.out.println("PUBLISHER: Push song to broker");
+        print("PUBLISHER: Push song to broker");
 
         //if artist doesn't exist notify about failure
         if (!files.containsKey(artist)){
-            System.out.println("PUBLISHER: No such artist exists");
+            print("PUBLISHER: No such artist exists");
             notifyFailure(connection);
             return;
         }
@@ -293,7 +293,7 @@ public class Publisher {
                 chunks = MusicFileHandler.split(song);
 
                 if (chunks == null) {
-                    System.out.println("PUBLISHER: Song could not be broken to chunks");
+                    print("PUBLISHER: Song could not be broken to chunks");
                     notifyFailure(connection);
                     return;
                 }
@@ -302,7 +302,7 @@ public class Publisher {
 
         //if song doesn't exist notify about failure
         if (!found) {
-            System.out.println("PUBLISHER: No such song exists");
+            print("PUBLISHER: No such song exists");
             notifyFailure(connection);
             return;
         }
@@ -318,7 +318,7 @@ public class Publisher {
 
             chunks.clear(); //clear chunk list
         } catch (IOException e) {
-            System.out.println("PUBLISHER: ERROR: PUSH: Could not send file chunks");
+            print("PUBLISHER: ERROR: PUSH: Could not send file chunks");
             chunks.clear(); //clear chunk list
         }
     }
@@ -328,7 +328,7 @@ public class Publisher {
      * @param connection open connection with broker
      */
     private void notifyFailure(Socket connection){
-        System.out.println("PUBLISHER: Notify that song doesn't exist");
+        print("PUBLISHER: Notify that song doesn't exist");
 
         ObjectOutputStream out;
         try {
@@ -336,7 +336,7 @@ public class Publisher {
             out.writeObject(null);
             out.flush();
         } catch (IOException e) {
-            System.out.println("PUBLISHER: ERROR: PUSH: Could not send file chunks");
+            print("PUBLISHER: ERROR: PUSH: Could not send file chunks");
         }
     }
 
@@ -344,7 +344,7 @@ public class Publisher {
      * Close the connection established with the broker
      */
     private void closeConnection (Socket socket){
-        System.out.println("PUBLISHER: Close socket connection");
+        print("PUBLISHER: Close socket connection");
 
         if (socket != null){
             try {
@@ -355,6 +355,9 @@ public class Publisher {
         }
     }
 
+    public synchronized void print(String str){
+        System.out.println(str);
+    }
 
 //    //find the right broker using getBrokerList
 //    public Broker hashTopic(ArtistName name){

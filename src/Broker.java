@@ -27,7 +27,7 @@ public class Broker {
     private final ExecutorService threadPool;
 
     public Broker(String IP){
-        System.out.println("BROKER: Construct broker");
+        print("BROKER: Construct broker");
         this.IP = IP;
         this.HASH_VALUE = Utilities.SHA1(IP+TO_PUB_PORT);
         threadPool = Executors.newCachedThreadPool();
@@ -39,7 +39,7 @@ public class Broker {
      * @param brokerIPs online broker IPs
      */
     public void init (List<String> brokerIPs){
-        System.out.println("BROKER: Initialize broker");
+        print("BROKER: Initialize broker");
         //TODO: Read registeredUsers
     }
 
@@ -47,7 +47,7 @@ public class Broker {
      * Make broker online (await incoming connections)
      */
     public void runServer(){
-        System.out.println("BROKER: Make broker online");
+        print("BROKER: Make broker online");
 
         toPubConnection();
         toCliConnection();
@@ -144,7 +144,7 @@ public class Broker {
      * Create a thread to process each accepted connection
      */
     private void toPubConnection(){
-        System.out.println("BROKER: Make broker online for publishers/brokers");
+        print("BROKER: Make broker online for publishers/brokers");
 
         try {
             toPubServer = new ServerSocket(TO_PUB_PORT);
@@ -209,7 +209,7 @@ public class Broker {
      * Create a thread to process each accepted connection
      */
     private void toCliConnection(){
-        System.out.println("BROKER: Make broker online for consumers");
+        print("BROKER: Make broker online for consumers");
 
         try {
             toCliServer = new ServerSocket(TO_CLI_PORT);
@@ -265,7 +265,7 @@ public class Broker {
      * @param brokerIP connected broker
      */
     private void acceptBrokerConnection(Socket connection, String brokerIP){
-        System.out.println("BROKER: Accept broker connection");
+        print("BROKER: Accept broker connection");
 
         ObjectOutputStream out;
         ObjectInputStream in;
@@ -303,7 +303,7 @@ public class Broker {
      * @param connection socket for connection
      */
     public void acceptPublisherConnection(Socket connection){
-        System.out.println("BROKER: Accept publisher connection");
+        print("BROKER: Accept publisher connection");
 
         ObjectOutputStream out;
         ObjectInputStream in;
@@ -350,7 +350,7 @@ public class Broker {
 
             closeConnection(connection);
         } catch (IOException e) {
-           System.out.println("BROKER: ACCEPT PUBLISHER CONNECTION: ERROR: Problem with output stream");
+           print("BROKER: ACCEPT PUBLISHER CONNECTION: ERROR: Problem with output stream");
            closeConnection(connection);
         }
     }
@@ -372,7 +372,7 @@ public class Broker {
      * @param artists cureent broker's artists
      */
     private void notifyBrokers(ArrayList<String> artists){
-        System.out.println("BROKER: Notify brokers");
+        print("BROKER: Notify brokers");
 
         for (String broker: brokersList){
             if (!broker.equals(getIP())) { //if broker is not the current one
@@ -518,7 +518,7 @@ public class Broker {
      * Close the connection established
      */
     private void closeConnection (Socket socket){
-        System.out.println("BROKER: Close socket connection");
+        print("BROKER: Close socket connection");
 
         if (socket != null){
             try {

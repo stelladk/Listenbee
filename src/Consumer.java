@@ -31,7 +31,7 @@ public class Consumer{
             conn = new Socket(server_IP, PORT);
             while(true){
                 //send credentials
-                System.out.println("Please log in");
+                print("Please log in");
                 ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
                 out.writeObject(getCredentials());
                 out.flush();
@@ -47,7 +47,7 @@ public class Consumer{
                     STATE = IN;
                     break;
                 }else if(message.equals("FALSE")){
-                    System.out.println("Could not login try again");
+                    print("Could not login try again");
                 }
             }
         }catch(IOException | ClassNotFoundException e){
@@ -69,7 +69,7 @@ public class Consumer{
             out.flush();
             while(true){
                 //send credentials
-                System.out.println("Please register");
+                print("Please register");
                 out = new ObjectOutputStream(conn.getOutputStream());
                 out.writeObject(getCredentials());
                 out.flush();
@@ -78,7 +78,7 @@ public class Consumer{
                 ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
                 boolean confirmed = (boolean) in.readObject();
                 if(confirmed) break;
-                System.out.println("Could not register try again");
+                print("Could not register try again");
             }
         }catch(IOException | ClassNotFoundException e){
             System.err.println("REGISTRATION ERROR: Could not connect to server");
@@ -146,9 +146,9 @@ public class Consumer{
         try{
             InputStreamReader input = new InputStreamReader(System.in);
             BufferedReader buffer = new BufferedReader(input);
-            System.out.println("Username: ");
+            print("Username: ");
             String user = buffer.readLine();
-            System.out.println("Password: ");
+            print("Password: ");
             return new Pair<>(user, Utilities.SHA1(buffer.readLine()));
         }catch(IOException e){
             System.err.println("ERROR: Could not read credentials");
@@ -160,7 +160,7 @@ public class Consumer{
      * Close the connection established with the broker
      */
     private void closeConnection (Socket socket){
-        System.out.println("CONSUMER: Close socket connection");
+        print("CONSUMER: Close socket connection");
 
         if (socket != null){
             try {
@@ -169,5 +169,9 @@ public class Consumer{
                 System.err.println("CONSUMER: ERROR: Could not close socket connection");
             }
         }
+    }
+    
+    public synchronized void print(String str){
+        System.out.println(str);
     }
 }
