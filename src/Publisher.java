@@ -36,11 +36,15 @@ public class Publisher {
      * load tracks, get all brokers, find with whom to connect and send them the artists
      * @param brokerIPs broker's IP address
      */
-    public void init (List<String> brokerIPs) {
+    public boolean init (List<String> brokerIPs) {
         System.out.println("PUBLISHER: Initialize publisher");
 
         //load the specified songs
         files =  MusicFileHandler.read(RANGE);
+        if (files == null || files.isEmpty()){
+            System.err.println("PUBLISHER: ERROR: No available songs");
+            return false;
+        }
 
         //get all active brokers
         getBrokerList(brokerIPs);
@@ -49,17 +53,18 @@ public class Publisher {
         if (brokerList != null){
             if (brokerList.isEmpty()) {
                 System.err.println("PUBLISHER: ERROR: No brokers found for this publisher");
-                return;
+                return false;
             }
             assignArtistToBroker(brokerList);
         } else {
             System.err.println("PUBLISHER: ERROR: No brokers initialized");
-            return;
+            return false;
         }
         
         //connect with responsible brokers
         //and send them publisher's artists
         informBrokers();
+        return true;
     }
 
     /**
@@ -191,7 +196,8 @@ public class Publisher {
                 }
             }
         });
-        threadPool.execute(thread);
+        //threadPool.execute(thread);
+        thread.start();
         return thread;
     }
 
@@ -302,9 +308,8 @@ public class Publisher {
         }
 
         //send music file to broker
-        ObjectOutputStream out;
         try {
-            out = new ObjectOutputStream(connection.getOutputStream());
+            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
 
             for(MusicFile chunk : chunks){
                 out.writeObject(chunk);
@@ -329,6 +334,7 @@ public class Publisher {
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
             out.writeObject(null);
+            out.flush();
         } catch (IOException e) {
             System.out.println("PUBLISHER: ERROR: PUSH: Could not send file chunks");
         }
