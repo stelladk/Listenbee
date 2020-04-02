@@ -1,11 +1,6 @@
 package musicFile;
 
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.mp3.Mp3Parser;
-import org.apache.tika.sax.BodyContentHandler;
-import org.xml.sax.SAXException;
+import com.mpatric.mp3agic.*;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -21,6 +16,8 @@ public class MusicFileHandler {
      * @return a Map with the artists and their songs
      */
     public static Map<String, ArrayList<MusicFile>> read(String range){
+        System.out.println("HANDLER: Reading music files");
+
         //get the directory
         File dir = new File("./res/dataset1/");
         if (!dir.exists()) {
@@ -34,42 +31,40 @@ public class MusicFileHandler {
         if (files != null){
             for (File file : files) {
                 try {
-                    BodyContentHandler handler = new BodyContentHandler();
-                    Metadata metadata = new Metadata();
                     FileInputStream stream = new FileInputStream(file);
-                    ParseContext context = new ParseContext();
+                    Mp3File mp3 = new Mp3File(file);
 
-                    //parse the mp3 file
-                    Mp3Parser Mp3Parser = new  Mp3Parser();
-                    Mp3Parser.parse(stream, handler, metadata, context);
+                    if (mp3.hasId3v2Tag()) {
+                        ID3v2 tag = mp3.getId3v2Tag();
 
-                    String title = metadata.get("title");
-                    String artist = metadata.get("xmpDM:artist");
+                        String artist = tag.getArtist();
+                        if (artist == null){
+                            stream.close();
+                            continue;
+                        }
 
-                    if (artist == null){
+                        //if artist name not in range continue to next file
+                        if (!artist.matches(range)) {
+                            stream.close();
+                            continue;
+                        }
+
+
+                        //if title is null then get it from file signature
+                        String title = tag.getTitle();
+                        if (title == null || title.isEmpty()) {
+                            title = file.getName().substring(0, file.getName().indexOf('.'));
+                            tag.setTitle(title);
+                        }
+
+                        if (!songs.containsKey(artist)){ //if artist doesn't exist make a new record
+                            songs.put(artist, new ArrayList<MusicFile>());
+                        }
+                        songs.get(artist).add(new MusicFile(title, artist, tag.getAlbum(), tag.getGenreDescription(), Files.readAllBytes(file.toPath())));
+
                         stream.close();
-                        continue;
                     }
-
-                    //if artist name not in range continue to next file
-                    if (!artist.matches(range)) {
-                        stream.close();
-                        continue;
-                    }
-
-                    //if title is null then get it from file signature
-                    if (title == null || title.isEmpty()) {
-                        title = file.getName().substring(0, file.getName().indexOf('.'));
-                        metadata.set("title", title);
-                    }
-
-                    if (!songs.containsKey(artist)){ //if artist doesn't exist make a new record
-                        songs.put(artist, new ArrayList<MusicFile>());
-                    }
-                    songs.get(artist).add(new MusicFile(title, artist, metadata.get("xmpDM:album"), metadata.get("xmpDM:genre"), Files.readAllBytes(file.toPath())));
-
-                    stream.close();
-                } catch (IOException | SAXException | TikaException e) {
+                } catch (IOException | UnsupportedTagException | InvalidDataException e) {
                     System.err.println("HANDLER: READ: ERROR: Could not parse file");
                     return null;
                 }
@@ -79,12 +74,13 @@ public class MusicFileHandler {
     }
 
     /**
-     * FIXME when file is saved the properties (title, genre, image) aren't saved
      * Save a song to Downloads directory
      * @param file the music file
      * @return true if the song was saved to directory
      */
     public static boolean write(MusicFile file) {
+        System.out.println("HANDLER: Writing music file");
+
         //if the file is null then cancel the activity
         if (file == null) {
             System.err.println("HANDLER: WRITE: ERROR: Null object passed");
@@ -108,28 +104,24 @@ public class MusicFileHandler {
         //create file
         File savedFile = new File(dir, file.getTrackName() + ".mp3");
 
-        FileOutputStream stream = null;
-        ObjectOutputStream out = null;
-        try{
-            stream = new FileOutputStream(savedFile);
-            out = new ObjectOutputStream(stream);
-            out.writeObject(file);
+        try {
+            //save file
+            Mp3File mp3 = new Mp3File("./res/dataset1/" + file.getTrackName() + ".mp3");
+            ID3v2 tag = new ID3v24Tag();
+            mp3.setId3v2Tag(tag);
 
-            out.close();
-            stream.close();
+            //set tags
+            tag.setTitle(file.getTrackName());
+            tag.setArtist(file.getArtistName());
+            if (file.getAlbumInfo() != null) tag.setAlbum(file.getAlbumInfo());
+            if (file.getGenre() != null) tag.setGenreDescription(file.getGenre());
+
+            //save mp3 file
+            mp3.save(savedFile.toString());
 
             return true;
-        } catch (IOException e) {
+        } catch (IOException | UnsupportedTagException | InvalidDataException | NotSupportedException e) {
             System.out.println("HANDLER: WRITE: ERROR: Could not write file to directory");
-
-            try {
-                //close streams
-               if (out != null) out.close();
-               if (stream != null) stream.close();
-            } catch (IOException ex) {
-                System.out.println("HANDLER: WRITE: ERROR: Could not close streams");
-            }
-
             return false;
         }
     }
@@ -141,6 +133,8 @@ public class MusicFileHandler {
      * @return a list with file chunks
      */
     public static ArrayList<MusicFile> split (MusicFile file) {
+        System.out.println("HANDLER: Splitting music file");
+
         //if the file is null then cancel the activity
         if (file == null) {
             System.err.println("HANDLER: WRITE: ERROR: Null object passed");
