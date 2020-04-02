@@ -91,7 +91,10 @@ public class MusicFileHandler {
             return false;
         }
 
-        //TODO CHECK MORE FOR NULL
+        if (file.getTrackName() == null || file.getArtistName() == null){
+            System.err.println("HANDLER: WRITE: ERROR: Null metadata in file");
+            return false;
+        }
 
         //create directory if it doesn't exist
         File dir = new File("./res/Downloads/");
