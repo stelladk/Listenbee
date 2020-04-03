@@ -16,7 +16,7 @@ public class Consumer{
     public static final int PORT = 2000;
     public String server_IP;
 
-    private HashMap<String, Broker> brokers; //brokers with artists
+    private HashMap<String, String> artists = null; //artists assigned to brokers
     private static String OUT = "LOGGED_OUT";
     private static String IN = "LOGGED_IN";
     private String STATE = OUT;
@@ -55,10 +55,6 @@ public class Consumer{
         }
         closeConnection(conn);
     }
-
-    // public void register(Broker broker, String artistName) throws IOException{
-    //     //Socket conn = new Socket(server_IP, PORT);
-    // }
 
     private void registerUser(){
         Socket conn = null;
@@ -111,25 +107,56 @@ public class Consumer{
         // closeConnection(conn);
     }
 
-    public void disconnect(Broker broker, String artistName){
-
-    }
-
-    //request data from broke using method pull
-    public void playData(String artistName, MusicFile files) throws IOException{
+    //request data from broker using method pull
+    public void playData(String artistName, String trackName) throws IOException{
         if(isLoggedIn()){
-            //find valid broker using hashmap
-            Broker broker = brokers.get(artistName);
-            //register(broker, artistName);
+            try{
+                if(artists == null | artists.isEmpty()){
+                    //CASE 1: ask your main server for song
+                    //make connection with server
+                    Socket conn = new Socket(server_IP, PORT);
+
+                    //request song
+                    ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+                    out.writeObject(new Pair<String,String>(artistName, trackName));
+                    out.flush();
+                    
+                    ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+                    String message = (String) in.readObject();
+                    if(message.equals("ACCEPT")){
+                        receiveData(in);
+                        closeConnection(conn);
+                        return;
+                    }else if(message.equals("DECLINE")){
+                        getBrokers(in);
+                    }
+                    closeConnection(conn);
+                }
+                //CASE 2: check with artists list to choose the right server
+                String brokerIP = artists.get(artistName);
+                Socket conn = new Socket(brokerIP, PORT);
+
+                //request song
+                ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+                out.writeObject(new Pair<String,String>(artistName, trackName));
+                out.flush();
+
+                ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+                String message = (String) in.readObject();
+                if(message.equals("ACCEPT")){
+                    receiveData(in);
+                }else{
+                    System.err.println("INCONSISTENCY IN BROKERS");
+                }
+                closeConnection(conn);
+
+            }catch(IOException | ClassNotFoundException e){
+                //TODO
+            }
+            
         }
     }
-
-    //{ListOfBrokers {IP,Port} , < BrokerId, ArtistName>}.
-    //get brokers and their assigned artists
-    public void getBrokers(){
-
-    }
-
+    
     public String getIP(){
         try{
             return InetAddress.getLocalHost().getHostAddress();
@@ -137,9 +164,27 @@ public class Consumer{
             return null;
         }
     }
-
+    
     public boolean isLoggedIn(){
         return STATE.equals(IN);
+    }
+
+    private void receiveData(ObjectInputStream in) throws IOException, ClassNotFoundException{
+        ArrayList<MusicFile> song = new ArrayList<>();
+        MusicFile file;
+        while((file = (MusicFile) in.readObject()) != null){
+            song.add(file);
+        }
+    }
+    
+    //get brokers and their assigned artists
+    private void getBrokers(ObjectInputStream in) throws IOException, ClassNotFoundException{
+        HashMap<String, String> artists = (HashMap) in.readObject();
+        if(artists != null){
+            this.artists = artists;
+            return;
+        }
+        throw new ClassNotFoundException();
     }
 
     private synchronized Pair<String,BigInteger> getCredentials(){

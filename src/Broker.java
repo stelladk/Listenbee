@@ -69,6 +69,11 @@ public class Broker {
         if(broker.equals(getIP())){ //the current broker is responsible for the artist
             String publisher = artistsToPublishers.get(artistName);
             try{
+                //inform consumer that you will send files
+                ObjectOutputStream clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
+                clientOut.writeObject("ACCEPT");
+                clientOut.flush();
+
                 Socket PubConnx = new Socket(publisher, Publisher.getPORT());
 
                 //send request for music file
@@ -77,7 +82,6 @@ public class Broker {
                 pubOut.flush();
 
                 //get files from publisher
-                ObjectOutputStream clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
                 ObjectInputStream pubIn = new ObjectInputStream(PubConnx.getInputStream());
                 MusicFile file;
                 while((file = (MusicFile) pubIn.readObject()) != null){
@@ -85,6 +89,8 @@ public class Broker {
                     clientOut.writeObject(file);
                     clientOut.flush();
                 }
+                clientOut.writeObject(null);
+                clientOut.flush();
                 closeConnection(PubConnx);
                 closeConnection(clientConnx);
 
@@ -95,7 +101,11 @@ public class Broker {
         }else{
             //the current broker is not responsible for the artist
             try{
+                //inform consumer that you will send hashmap
                 ObjectOutputStream clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
+                clientOut.writeObject("DECLINE");
+                clientOut.flush();
+
                 clientOut.writeObject(artistsToBrokers);
                 clientOut.flush();
                 closeConnection(clientConnx);
@@ -423,10 +433,10 @@ public class Broker {
             if(request.equals("REGISTER")) registerUser(conn, consumer);
             else if(request.equals("LOGIN")) loginUser(conn, consumer);
             //else if(request.equals("LOGOUT")) logoutUser(conn, consumer);
-            else{
+            else if(request.equals("PULL")){
                 // in = new ObjectInputStream(conn.getInputStream());
-                String trackName = (String) in.readObject();
-                pull(conn, request, trackName);
+                Pair<String,String> song = (Pair) in.readObject();
+                pull(conn, song.getKey(), song.getValue());
             }
         }catch(IOException | ClassNotFoundException e){
             //TODO exw hasei ti mpala me ta system.err help me
