@@ -93,7 +93,7 @@ public class MusicFileHandler {
         }
 
         //create directory if it doesn't exist
-        File dir = new File("./res/Downloads/");
+        File dir = new File("./res/Download/");
         if (!dir.exists()) {
            if (!dir.mkdir()) {
                System.err.println("HANDLER: WRITE: ERROR: Could not create directory");
@@ -105,6 +105,8 @@ public class MusicFileHandler {
         File savedFile = new File(dir, file.getTrackName() + ".mp3");
 
         try {
+            //TODO PROBLEM HERE SAVED READ SONG INSTEAD MUSIC FILE
+
             //save file
             Mp3File mp3 = new Mp3File("./res/dataset1/" + file.getTrackName() + ".mp3");
             ID3v2 tag = new ID3v24Tag();
@@ -124,6 +126,59 @@ public class MusicFileHandler {
             System.out.println("HANDLER: WRITE: ERROR: Could not write file to directory");
             return false;
         }
+    }
+
+    /**
+     * Save song chunks to Stream directory
+     * @param chunks music file chunks
+     * @return true if the chunks were saved to directory
+     */
+    public static boolean write(ArrayList<MusicFile> chunks) {
+        System.out.println("HANDLER: Writing chunks");
+
+        //if the chunk list is null then cancel the activity
+        if (chunks == null || chunks.isEmpty()) {
+            System.err.println("HANDLER: WRITE CHUNKS: ERROR: Null object passed");
+            return false;
+        }
+
+        //create directory if it doesn't exist
+        File dir = new File("./res/Stream/");
+        if (!dir.exists()) {
+            if (!dir.mkdir()) {
+                System.err.println("HANDLER: WRITE CHUNKS: ERROR: Could not create directory");
+                return false;
+            }
+        }
+
+        String title = chunks.get(0).getTrackName().substring(chunks.get(0).getTrackName().indexOf(" ") + 1);
+
+        for (MusicFile chunk : chunks){
+            //create file
+            File savedFile = new File(dir, chunk.getTrackName() + ".mp3");
+
+            try {
+                //TODO PROBLEM HERE SAVED READ SONG INSTEAD MUSIC FILE
+
+                //save file
+                Mp3File mp3 = new Mp3File("./res/dataset1/" + title + ".mp3");
+                ID3v2 tag = new ID3v24Tag();
+                mp3.setId3v2Tag(tag);
+
+                //set tags
+                tag.setTitle(title);
+                tag.setArtist(chunk.getArtistName());
+                if (chunk.getAlbumInfo() != null) tag.setAlbum(chunk.getAlbumInfo());
+                if (chunk.getGenre() != null) tag.setGenreDescription(chunk.getGenre());
+
+                //save mp3 file
+                mp3.save(savedFile.toString());
+            } catch (IOException | UnsupportedTagException | InvalidDataException | NotSupportedException e) {
+                System.out.println("HANDLER: WRITE CHUNK: ERROR: Could not write file to directory");
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -153,18 +208,68 @@ public class MusicFileHandler {
         ArrayList<MusicFile> chunks = new ArrayList<>();
 
         int start = 0;
+        int serial = 0;
         while (start < songBytes.length){
             chunks.add(new MusicFile(
-                            file.getTrackName(),
+                    serial + " " + file.getTrackName(),
                             file.getArtistName(),
                             file.getAlbumInfo(),
                             file.getGenre(),
-                            Arrays.copyOfRange(songBytes, start, Math.min(start + chunkSize, songBytes.length)) //if end index is greater than the array length then use the array length
+                            Arrays.copyOfRange(songBytes, start, Math.min(start + chunkSize, songBytes.length)), //if end index is greater than the array length then use the array length
+                            serial
                     )
             );
             start += chunkSize;
+            ++serial;
         }
 
         return chunks;
+    }
+
+    /**
+     * Merge the file chunks into one file
+     * @param chunks file chunks
+     * @return merged file
+     */
+    public static MusicFile merge (ArrayList<MusicFile> chunks){
+        System.out.println("HANDLER: Merging music file chunks");
+
+        //if the file is null then cancel the activity
+        if (chunks == null || chunks.size() == 0) {
+            System.err.println("HANDLER: MERGE: ERROR: No chunks where passed");
+            return null;
+        }
+
+        if (chunks.size() == 1) { //if list contains one chunk only
+            //write correct title
+            chunks.get(0).setTrackName(chunks.get(0).getTrackName().substring(chunks.get(0).getTrackName().indexOf(" ") + 1));
+            return chunks.get(0);
+        }
+
+        //get metadata
+        String title = chunks.get(0).getTrackName().substring(chunks.get(0).getTrackName().indexOf(" ") + 1);
+        String artist = chunks.get(0).getArtistName();
+        String album = chunks.get(0).getAlbumInfo();
+        String genre = chunks.get(0).getGenre();
+
+        //get bytes from chunks
+        //TODO CHECK SERIAL NUMBER ORDER compareTo
+        ArrayList<Byte> temp = new ArrayList<>();
+        for (MusicFile chunk : chunks){
+            if (chunk != null){
+                for (byte b : chunk.getFileBytes()){
+                    temp.add(b);
+                }
+            }
+        }
+
+        //transfer them to an array
+        byte[] bytes = new byte[temp.size()];
+        for (int i = 0; i < temp.size(); i++) bytes[i] = temp.get(i);
+
+        //clear the list
+        temp.clear();
+
+        return new MusicFile(title, artist, album, genre, bytes);
     }
 }

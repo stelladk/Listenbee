@@ -1,10 +1,8 @@
 package musicFile;
 
 import java.io.Serializable;
-import java.util.Comparator;
 
 public class MusicFile implements Serializable {
-    //private static final long serialVersionUID = 2741844127133820194L;
     private String trackName;
     private String artistName;
     private String albumInfo;
@@ -12,16 +10,17 @@ public class MusicFile implements Serializable {
     private byte[] fileBytes;
     private int serial = 0; //serial number for chunks
 
-    public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] fileBytes, int serial) {
-        this(trackName, artistName, albumInfo, genre, fileBytes);
-    }
-
     public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] fileBytes) {
         this.trackName = trackName;
         this.artistName = artistName;
         this.albumInfo = albumInfo;
         this.genre = genre;
         this.fileBytes = fileBytes;
+    }
+
+    public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] fileBytes, int serial) {
+        this(trackName, artistName, albumInfo, genre, fileBytes);
+        this.serial = serial;
     }
 
     //Accessors
@@ -47,6 +46,27 @@ public class MusicFile implements Serializable {
 
     public int getSerial(){
         return serial;
+    }
+
+    //Mutator
+    public void setTrackName(String trackName) {
+        this.trackName = trackName;
+    }
+
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
+    }
+
+    public void setAlbumInfo(String albumInfo) {
+        this.albumInfo = albumInfo;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public void setFileBytes(byte[] fileBytes) {
+        this.fileBytes = fileBytes;
     }
 
     public int compareTo(MusicFile b){
