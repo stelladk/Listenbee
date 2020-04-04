@@ -1,11 +1,12 @@
 package musicFile;
 
 import com.mpatric.mp3agic.*;
-import javafx.util.Pair;
 
 import java.io.*;
-import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class MusicFileHandler {
@@ -30,7 +31,6 @@ public class MusicFileHandler {
         if (files != null){
             for (File file : files) {
                 try {
-                    FileInputStream stream = new FileInputStream(file);
                     Mp3File mp3 = new Mp3File(file);
 
                     if (mp3.hasId3v2Tag()) {
@@ -38,16 +38,13 @@ public class MusicFileHandler {
 
                         String artist = tag.getArtist();
                         if (artist == null){
-                            stream.close();
                             continue;
                         }
 
                         //if artist name not in range continue to next file
                         if (!artist.matches(range)) {
-                            stream.close();
                             continue;
                         }
-
 
                         //if title is null then get it from file signature
                         String title = tag.getTitle();
@@ -59,9 +56,16 @@ public class MusicFileHandler {
                         if (!songs.containsKey(artist)){ //if artist doesn't exist make a new record
                             songs.put(artist, new ArrayList<MusicFile>());
                         }
-                        songs.get(artist).add(new MusicFile(title, artist, tag.getAlbum(), tag.getGenreDescription(), Files.readAllBytes(file.toPath())));
+                        //get all the file bytes
+                        byte[] allBytes = Files.readAllBytes(file.toPath());
+                        //clear the bytes from metadata bytes
+                        int offset = mp3.getStartOffset(); // position of song data
+                        byte[] bytes = new byte[allBytes.length - offset];
+                        for (int i = offset, j = 0; i < allBytes.length; i++, j++) {
+                            bytes[j] = allBytes[i];
+                        }
 
-                        stream.close();
+                        songs.get(artist).add(new MusicFile(title, artist, tag.getAlbum(), tag.getGenreDescription(), bytes));
                     }
                 } catch (IOException | UnsupportedTagException | InvalidDataException e) {
                     System.err.println("HANDLER: READ: ERROR: Could not parse file");
@@ -104,24 +108,29 @@ public class MusicFileHandler {
         File savedFile = new File(dir, file.getTrackName() + ".mp3");
 
         try {
-            //TODO PROBLEM HERE SAVED READ SONG INSTEAD MUSIC FILE
+            ByteBuffer buffer = ByteBuffer.wrap(file.getFileBytes());
+            WritableByteChannel channel = Files.newByteChannel(savedFile.toPath(), EnumSet.of(StandardOpenOption.CREATE, StandardOpenOption.APPEND));
+            channel.write(buffer);
 
-            //save file
-            Mp3File mp3 = new Mp3File("./res/dataset1/" + file.getTrackName() + ".mp3");
-            ID3v2 tag = new ID3v24Tag();
-            mp3.setId3v2Tag(tag);
+//            //save file
+//            Mp3File mp3 = new Mp3File("./res/dataset1/" + file.getTrackName() + ".mp3");
+//            ID3v2 tag = new ID3v24Tag();
+//            mp3.setId3v2Tag(tag);
+//
+//            //set tags
+//            tag.setTitle(file.getTrackName());
+//            tag.setArtist(file.getArtistName());
+//            if (file.getAlbumInfo() != null) tag.setAlbum(file.getAlbumInfo());
+//            if (file.getGenre() != null) tag.setGenreDescription(file.getGenre());
+//
+//            //save mp3 file
+//            mp3.save(savedFile.toString());
 
-            //set tags
-            tag.setTitle(file.getTrackName());
-            tag.setArtist(file.getArtistName());
-            if (file.getAlbumInfo() != null) tag.setAlbum(file.getAlbumInfo());
-            if (file.getGenre() != null) tag.setGenreDescription(file.getGenre());
-
-            //save mp3 file
-            mp3.save(savedFile.toString());
+            channel.close();
+            buffer.clear();
 
             return true;
-        } catch (IOException | UnsupportedTagException | InvalidDataException | NotSupportedException e) {
+        } catch (IOException e) {
             System.out.println("HANDLER: WRITE: ERROR: Could not write file to directory");
             return false;
         }
@@ -158,21 +167,26 @@ public class MusicFileHandler {
 
             try {
                 //TODO PROBLEM HERE SAVED READ SONG INSTEAD MUSIC FILE
+                //TODO CLOSE CHANNEL
+
+                ByteBuffer buffer = ByteBuffer.wrap(chunk.getFileBytes());
+                WritableByteChannel channel = Files.newByteChannel(savedFile.toPath(), EnumSet.of(StandardOpenOption.CREATE, StandardOpenOption.APPEND));
+                channel.write(buffer);
 
                 //save file
-                Mp3File mp3 = new Mp3File("./res/dataset1/" + title + ".mp3");
-                ID3v2 tag = new ID3v24Tag();
-                mp3.setId3v2Tag(tag);
-
-                //set tags
-                tag.setTitle(title);
-                tag.setArtist(chunk.getArtistName());
-                if (chunk.getAlbumInfo() != null) tag.setAlbum(chunk.getAlbumInfo());
-                if (chunk.getGenre() != null) tag.setGenreDescription(chunk.getGenre());
-
-                //save mp3 file
-                mp3.save(savedFile.toString());
-            } catch (IOException | UnsupportedTagException | InvalidDataException | NotSupportedException e) {
+//                Mp3File mp3 = new Mp3File("./res/dataset1/" + title + ".mp3");
+//                ID3v2 tag = new ID3v24Tag();
+//                mp3.setId3v2Tag(tag);
+//
+//                //set tags
+//                tag.setTitle(title);
+//                tag.setArtist(chunk.getArtistName());
+//                if (chunk.getAlbumInfo() != null) tag.setAlbum(chunk.getAlbumInfo());
+//                if (chunk.getGenre() != null) tag.setGenreDescription(chunk.getGenre());
+//
+//                //save mp3 file
+//                mp3.save(savedFile.toString()); | UnsupportedTagException | InvalidDataException | NotSupportedException
+            } catch (IOException e) {
                 System.out.println("HANDLER: WRITE CHUNK: ERROR: Could not write file to directory");
                 return false;
             }
