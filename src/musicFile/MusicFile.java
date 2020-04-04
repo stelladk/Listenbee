@@ -70,6 +70,6 @@ public class MusicFile implements Serializable {
     }
 
     public int compareTo(MusicFile b){
-        return (this.getSerial() < b.getSerial())? -1 : 0;
+        return Integer.compare(this.getSerial(), b.getSerial());
     }
 }

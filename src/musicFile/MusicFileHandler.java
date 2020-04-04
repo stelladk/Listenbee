@@ -1,13 +1,12 @@
 package musicFile;
 
 import com.mpatric.mp3agic.*;
+import javafx.util.Pair;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MusicFileHandler {
 
@@ -246,6 +245,14 @@ public class MusicFileHandler {
             return chunks.get(0);
         }
 
+        //sort chunks according to serial number
+        chunks.sort(new Comparator<MusicFile>() {
+            @Override
+            public int compare(MusicFile a, MusicFile b) {
+                return a.compareTo(b);
+            }
+        });
+
         //get metadata
         String title = chunks.get(0).getTrackName().substring(chunks.get(0).getTrackName().indexOf(" ") + 1);
         String artist = chunks.get(0).getArtistName();
@@ -253,7 +260,6 @@ public class MusicFileHandler {
         String genre = chunks.get(0).getGenre();
 
         //get bytes from chunks
-        //TODO CHECK SERIAL NUMBER ORDER compareTo
         ArrayList<Byte> temp = new ArrayList<>();
         for (MusicFile chunk : chunks){
             if (chunk != null){
