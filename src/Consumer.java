@@ -1,9 +1,10 @@
 import musicFile.MusicFile;
 
 import java.util.*;
-
 import javafx.util.Pair;
+import musicFile.MusicFileHandler;
 
+import javax.rmi.CORBA.Util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,77 +13,114 @@ import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.net.*;
 
-public class Consumer{
-    public static final int PORT = 2000;
-    public String server_IP;
+public class Consumer {
 
-    private HashMap<String, String> artists = null; //artists assigned to brokers
+    private final int PORT;
+    private final String IP;
+    private final String SERVER_IP;
+
+    private String STATE;
     private static String OUT = "LOGGED_OUT";
     private static String IN = "LOGGED_IN";
-    private String STATE = OUT;
 
-    public Consumer(String server_IP){
-        this.server_IP = server_IP;
+    private HashMap<String, String> artists = null; //artists assigned to brokers
+
+    public Consumer(String IP, String SERVER_IP, int PORT) {
+        Utilities.print("CONSUMER: Create consumer");
+        this.IP = IP;
+        this.SERVER_IP = SERVER_IP;
+        this.PORT = PORT;
+        STATE = OUT;
+
     }
 
-    public void loginUser(){
-        Socket conn = null;
-        try{
-            conn = new Socket(server_IP, PORT);
-            while(true){
-                //send credentials
-                print("Please log in");
-                ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
-                out.writeObject(getCredentials());
-                out.flush();
-    
-                //wait for confirmation
-                ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
-                String message = (String) in.readObject();
-                if(message.equals("REGISTER")) {
-                    closeConnection(conn);
-                    registerUser();
-                    break;
-                }else if(message.equals("VERIFIED")){
-                    STATE = IN;
-                    break;
-                }else if(message.equals("FALSE")){
-                    print("Could not login try again");
-                }
-            }
-        }catch(IOException | ClassNotFoundException e){
-            System.err.println("LOGIN ERROR: Could not connect to server");
-        }
-        closeConnection(conn);
-    }
+    /**
+     * Register user to responsible broker
+     */
+    public void registerUser(Pair<String, BigInteger> credentials) {
+        Utilities.print("CONSUMER: Register user");
 
-    private void registerUser(){
-        Socket conn = null;
-        try{
-            conn = new Socket(server_IP, PORT);
-            ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+        Socket connection = null;
+        try {
+            //open connection
+            connection = new Socket(SERVER_IP, PORT);
+
+            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
             out.writeObject("REGISTER");
             out.flush();
+
+            //send credentials to responsible broker
+            out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject(credentials);
+            out.flush();
+
+            //wait for confirmation
+            ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
+            boolean confirmed = (boolean) in.readObject();
+            //user registration was successful
+            if (confirmed) {
+                STATE = IN;
+                return;
+            }
+            //user registration was unsuccessful
+            Utilities.printError("CONSUMER: REGISTER: ERROR: Could not register, try again");
+        } catch(IOException e) {
+            Utilities.printError("CONSUMER: REGISTER: ERROR: Could not get streams");
+        } catch (ClassNotFoundException e){
+            Utilities.printError("CONSUMER: REGISTER: ERROR: Could not cast Object to boolean");
+        }
+        closeConnection(connection);
+    }
+
+    /**
+     * User enters credentials
+     * Search whether user is registered or not
+     * If user is registered login else register him
+     */
+    public void loginUser(Pair<String, BigInteger> credentials) {
+        Utilities.print("CONSUMER: Log in user");
+
+        Socket connection = null;
+        try {
+            connection = new Socket(SERVER_IP, PORT);
             while(true){
-                //send credentials
-                print("Please register");
-                out = new ObjectOutputStream(conn.getOutputStream());
-                out.writeObject(getCredentials());
+                //get credentials from user and send them to responsible broker
+                ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+                out.writeObject(credentials);
                 out.flush();
     
                 //wait for confirmation
-                ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
-                boolean confirmed = (boolean) in.readObject();
-                if(confirmed) break;
-                print("Could not register try again");
+                ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
+                String message = (String) in.readObject();
+                switch (message){
+                    //user hasn't been registered
+                    case "REGISTER":
+                        closeConnection(connection);
+                        registerUser(credentials);
+                        break;
+                    //user has been registered
+                    case "VERIFIED":
+                        STATE = IN;
+                        break;
+                    //user registered but wrong credentials
+                    case "FALSE":
+                        Utilities.printError("CONSUMER: LOGIN: ERROR: Could not login try again");
+                }
             }
-        }catch(IOException | ClassNotFoundException e){
-            System.err.println("REGISTRATION ERROR: Could not connect to server");
+        } catch(IOException e){
+            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not get streams");
+        }catch(ClassNotFoundException e){
+            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not cast Object to String");
         }
-        closeConnection(conn);
+        closeConnection(connection);
     }
 
-    public void logoutUser(){
+    /**
+     * Logout user
+     */
+    public void logoutUser() {
+        Utilities.print("CONSUMER: Log out user");
+
         STATE = OUT;
         // Socket conn = null;
         // try{
@@ -92,7 +130,7 @@ public class Consumer{
         //         ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
         //         out.writeObject("OUT");
         //         out.flush();
-    
+
         //         //wait for confirmation
         //         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
         //         boolean confirmed = (boolean) in.readObject();
@@ -107,116 +145,138 @@ public class Consumer{
         // closeConnection(conn);
     }
 
-    //request data from broker using method pull
-    public void playData(String artistName, String trackName) throws IOException{
-        if(isLoggedIn()){
-            try{
-                if(artists == null | artists.isEmpty()){
-                    //CASE 1: ask your main server for song
-                    //make connection with server
-                    Socket conn = new Socket(server_IP, PORT);
 
-                    //request song
-                    ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
-                    out.writeObject(new Pair<String,String>(artistName, trackName));
-                    out.flush();
-                    
-                    ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
-                    String message = (String) in.readObject();
-                    if(message.equals("ACCEPT")){
-                        receiveData(in);
-                        closeConnection(conn);
-                        return;
-                    }else if(message.equals("DECLINE")){
-                        getBrokers(in);
-                    }
-                    closeConnection(conn);
-                }
-                //CASE 2: check with artists list to choose the right server
-                String brokerIP = artists.get(artistName);
-                Socket conn = new Socket(brokerIP, PORT);
+    /**
+     * Request song from main broker
+     * If song is in main broker it is received
+     * Else broker sends a list of other brokers which will be queried
+     * @param track song's title
+     * @param artist song's artist
+     */
+    public void playData (String track, String artist, String mode) {
+        Utilities.print("CONSUMER: Song request");
+
+        try {
+            //CASE 1
+            //consumer hasn't asked for a song yet
+            //ask your main broker for song
+            if (artists == null || artists.isEmpty()){
+                //open connection
+                Socket connection = new Socket(SERVER_IP, PORT);
 
                 //request song
-                ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
-                out.writeObject(new Pair<String,String>(artistName, trackName));
+                ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+                out.writeObject(new Pair<>(track, artist));
                 out.flush();
 
-                ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+                //get answer from broker
+                ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
                 String message = (String) in.readObject();
-                if(message.equals("ACCEPT")){
-                    receiveData(in);
-                }else{
-                    System.err.println("INCONSISTENCY IN BROKERS");
+                switch (message){
+                    //broker has the song --> send it
+                    case "ACCEPT":
+                        receiveData(in, mode);
+                        closeConnection(connection);
+                        return;
+                    //broker doesn't have the song --> send other brokers
+                    case "DECLINE":
+                        getBrokers(in);
                 }
-                closeConnection(conn);
-
-            }catch(IOException | ClassNotFoundException e){
-                //TODO
+                closeConnection(connection);
             }
-            
+
+            //CASE 2
+            //check the artists list to choose the right broker
+            String brokerIP = artists.get(artist);
+            Socket connection = new Socket(brokerIP, PORT);
+
+            //request song
+            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject(new Pair<>(track, artist));
+            out.flush();
+
+            //get answer from broker
+            ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
+            String message = (String) in.readObject();
+            switch (message) {
+                case "ACCEPT":
+                    receiveData(in, mode);
+                    break;
+                default:
+                    Utilities.printError("CONSUMER: PLAY: ERROR: INCONSISTENCY IN BROKERS");
+            }
+            closeConnection(connection);
+        } catch(IOException e){
+            Utilities.printError("CONSUMER: PLAY: ERROR: Could not get streams");
+        } catch (ClassNotFoundException e){
+            Utilities.printError("CONSUMER: PLAY: ERROR: Could not cast Object to String");
         }
     }
-    
+
+    /**
+     * @return consumer IP address
+     */
     public String getIP(){
-        try{
-            return InetAddress.getLocalHost().getHostAddress();
-        }catch(UnknownHostException e){
-            return null;
-        }
+        return IP;
     }
-    
+
+    /**
+     * @return true if user is logged in, else return false
+     */
     public boolean isLoggedIn(){
         return STATE.equals(IN);
     }
 
-    private void receiveData(ObjectInputStream in) throws IOException, ClassNotFoundException{
-        ArrayList<MusicFile> song = new ArrayList<>();
+    private void receiveData (ObjectInputStream in, String mode) {
+        ArrayList<MusicFile> chunks = new ArrayList<>();
         MusicFile file;
-        while((file = (MusicFile) in.readObject()) != null){
-            song.add(file);
+        try {
+            //TODO FIND SOLUTION FOR MULTIPLE SONGS
+            //get chunks from stream
+            while ((file = (MusicFile) in.readObject()) != null){
+                chunks.add(file);
+            }
+
+            //TODO MODE CHECK
+
+            //TODO DO NOT MERGE DIFFERENT SONGS
+        } catch (IOException e) {
+            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not get streams");
+        } catch (ClassNotFoundException e) {
+            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not cast Object to String");
         }
-    }
-    
-    //get brokers and their assigned artists
-    private void getBrokers(ObjectInputStream in) throws IOException, ClassNotFoundException{
-        HashMap<String, String> artists = (HashMap) in.readObject();
-        if(artists != null){
-            this.artists = artists;
-            return;
-        }
-        throw new ClassNotFoundException();
     }
 
-    private synchronized Pair<String,BigInteger> getCredentials(){
-        try{
-            InputStreamReader input = new InputStreamReader(System.in);
-            BufferedReader buffer = new BufferedReader(input);
-            print("Username: ");
-            String user = buffer.readLine();
-            print("Password: ");
-            return new Pair<>(user, Utilities.SHA1(buffer.readLine()));
-        }catch(IOException e){
-            System.err.println("ERROR: Could not read credentials");
-            return null;
+    /**
+     * Get brokers and their artists
+     * @param in socket input stream
+     */
+    private void getBrokers (ObjectInputStream in) {
+        try {
+            artists = (HashMap) in.readObject();
+        } catch (IOException e) {
+            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not get streams");
+        } catch (ClassNotFoundException e) {
+            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not cast Object to String");
         }
-    }    
-    
+    }
+
+    private void requestSong(){
+
+    }
+
     /**
      * Close the connection established with the broker
      */
     private void closeConnection (Socket socket){
-        print("CONSUMER: Close socket connection");
+        Utilities.print("CONSUMER: Close socket connection");
 
         if (socket != null){
             try {
                 socket.close();
             } catch (IOException e) {
-                System.err.println("CONSUMER: ERROR: Could not close socket connection");
+                Utilities.printError("PUBLISHER: ERROR: Could not close socket connection");
             }
         }
-    }
-    
-    public synchronized void print(String str){
-        System.out.println(str);
     }
 }
