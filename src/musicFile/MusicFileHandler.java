@@ -58,14 +58,14 @@ public class MusicFileHandler {
                         }
                         //get all the file bytes
                         byte[] allBytes = Files.readAllBytes(file.toPath());
-                        //clear the bytes from metadata bytes
-                        int offset = mp3.getStartOffset(); // position of song data
-                        byte[] bytes = new byte[allBytes.length - offset];
-                        for (int i = offset, j = 0; i < allBytes.length; i++, j++) {
-                            bytes[j] = allBytes[i];
-                        }
+                        //position of song data
+                        int offset = mp3.getStartOffset();
+                        //array of metadata
+                        byte[] metadata = Arrays.copyOfRange(allBytes, 0, offset);
+                        //array without metadata
+                        byte[] bytes = Arrays.copyOfRange(allBytes, offset, allBytes.length);
 
-                        songs.get(artist).add(new MusicFile(title, artist, tag.getAlbum(), tag.getGenreDescription(), bytes));
+                        songs.get(artist).add(new MusicFile(title, artist, tag.getAlbum(), tag.getGenreDescription(), metadata, bytes));
                     }
                 } catch (IOException | UnsupportedTagException | InvalidDataException e) {
                     System.err.println("HANDLER: READ: ERROR: Could not parse file");
@@ -108,23 +108,16 @@ public class MusicFileHandler {
         File savedFile = new File(dir, file.getTrackName() + ".mp3");
 
         try {
-            ByteBuffer buffer = ByteBuffer.wrap(file.getFileBytes());
+            byte[] allBytes = new byte[file.getMetadata().length + file.getFileBytes().length];
+            //insert metadata
+            for (int i = 0; i < file.getMetadata().length; i++) allBytes[i] = file.getMetadata()[i];
+            //insert rest of data
+            for (int i = file.getMetadata().length, j = 0; i < allBytes.length; i++, j++) allBytes[i] = file.getFileBytes()[j];
+
+            ByteBuffer buffer = ByteBuffer.wrap(allBytes);
+
             WritableByteChannel channel = Files.newByteChannel(savedFile.toPath(), EnumSet.of(StandardOpenOption.CREATE, StandardOpenOption.APPEND));
             channel.write(buffer);
-
-//            //save file
-//            Mp3File mp3 = new Mp3File("./res/dataset1/" + file.getTrackName() + ".mp3");
-//            ID3v2 tag = new ID3v24Tag();
-//            mp3.setId3v2Tag(tag);
-//
-//            //set tags
-//            tag.setTitle(file.getTrackName());
-//            tag.setArtist(file.getArtistName());
-//            if (file.getAlbumInfo() != null) tag.setAlbum(file.getAlbumInfo());
-//            if (file.getGenre() != null) tag.setGenreDescription(file.getGenre());
-//
-//            //save mp3 file
-//            mp3.save(savedFile.toString());
 
             channel.close();
             buffer.clear();
@@ -166,26 +159,13 @@ public class MusicFileHandler {
             File savedFile = new File(dir, chunk.getTrackName() + ".mp3");
 
             try {
-                //TODO PROBLEM HERE SAVED READ SONG INSTEAD MUSIC FILE
-                //TODO CLOSE CHANNEL
-
                 ByteBuffer buffer = ByteBuffer.wrap(chunk.getFileBytes());
+
                 WritableByteChannel channel = Files.newByteChannel(savedFile.toPath(), EnumSet.of(StandardOpenOption.CREATE, StandardOpenOption.APPEND));
                 channel.write(buffer);
 
-                //save file
-//                Mp3File mp3 = new Mp3File("./res/dataset1/" + title + ".mp3");
-//                ID3v2 tag = new ID3v24Tag();
-//                mp3.setId3v2Tag(tag);
-//
-//                //set tags
-//                tag.setTitle(title);
-//                tag.setArtist(chunk.getArtistName());
-//                if (chunk.getAlbumInfo() != null) tag.setAlbum(chunk.getAlbumInfo());
-//                if (chunk.getGenre() != null) tag.setGenreDescription(chunk.getGenre());
-//
-//                //save mp3 file
-//                mp3.save(savedFile.toString()); | UnsupportedTagException | InvalidDataException | NotSupportedException
+                channel.close();
+                buffer.clear();
             } catch (IOException e) {
                 System.out.println("HANDLER: WRITE CHUNK: ERROR: Could not write file to directory");
                 return false;
@@ -228,6 +208,7 @@ public class MusicFileHandler {
                             file.getArtistName(),
                             file.getAlbumInfo(),
                             file.getGenre(),
+                            file.getMetadata(),
                             Arrays.copyOfRange(songBytes, start, Math.min(start + chunkSize, songBytes.length)), //if end index is greater than the array length then use the array length
                             serial
                     )
@@ -272,6 +253,7 @@ public class MusicFileHandler {
         String artist = chunks.get(0).getArtistName();
         String album = chunks.get(0).getAlbumInfo();
         String genre = chunks.get(0).getGenre();
+        byte[] metadata = chunks.get(0).getMetadata();
 
         //get bytes from chunks
         ArrayList<Byte> temp = new ArrayList<>();
@@ -290,6 +272,6 @@ public class MusicFileHandler {
         //clear the list
         temp.clear();
 
-        return new MusicFile(title, artist, album, genre, bytes);
+        return new MusicFile(title, artist, album, genre, metadata, bytes);
     }
 }

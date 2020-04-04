@@ -7,19 +7,21 @@ public class MusicFile implements Serializable {
     private String artistName;
     private String albumInfo;
     private String genre;
+    private byte[] metadata;
     private byte[] fileBytes;
     private int serial = 0; //serial number for chunks
 
-    public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] fileBytes) {
+    public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] metadata, byte[] fileBytes) {
         this.trackName = trackName;
         this.artistName = artistName;
         this.albumInfo = albumInfo;
         this.genre = genre;
+        this.metadata = metadata;
         this.fileBytes = fileBytes;
     }
 
-    public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] fileBytes, int serial) {
-        this(trackName, artistName, albumInfo, genre, fileBytes);
+    public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] metadata, byte[] fileBytes, int serial) {
+        this(trackName, artistName, albumInfo, genre, metadata, fileBytes);
         this.serial = serial;
     }
 
@@ -38,6 +40,10 @@ public class MusicFile implements Serializable {
 
     public String getGenre() {
         return genre;
+    }
+
+    public byte[] getMetadata() {
+        return metadata;
     }
 
     public byte[] getFileBytes() {
@@ -63,6 +69,10 @@ public class MusicFile implements Serializable {
 
     public void setGenre(String genre) {
         this.genre = genre;
+    }
+
+    public void setMetadata(byte[] metadata) {
+        this.metadata = metadata;
     }
 
     public void setFileBytes(byte[] fileBytes) {
