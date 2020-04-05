@@ -28,12 +28,9 @@ public class BrokerMain {
             return;
         }
 
-        //initialize broker
         Broker broker = new Broker(IP);
         broker.init(brokerIPs);
-        System.out.println("Initialise server");
         broker.runServer();
-        System.out.println("Run server");
 
     }
 

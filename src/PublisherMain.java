@@ -20,7 +20,7 @@ public class PublisherMain {
             return;
         }
 
-        Publisher pub = new Publisher(IP,"^[[a-jA-J] | [0-9]].*");
+        Publisher pub = new Publisher(IP,"^[[a-jA-J] | [0-9]].*"); //TODO PUBLISHER 2 --> ^[k-zK-Z].*
         List<String> serverIPs = new ArrayList<>(Arrays.asList(args));
         if (pub.init(serverIPs)){
             pub.online();

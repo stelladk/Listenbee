@@ -124,7 +124,6 @@ public class Consumer {
      */
     public void logoutUser() {
         Utilities.print("CONSUMER: Log out user");
-
         STATE = OUT;
     }
 
@@ -253,7 +252,7 @@ public class Consumer {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not get streams");
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not cast Object to String");
+            Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not cast Object to MusicFile");
         }
     }
 
@@ -267,7 +266,7 @@ public class Consumer {
         } catch (IOException e) {
             Utilities.printError("CONSUMER: LOGIN: ERROR: Could not get streams");
         } catch (ClassNotFoundException e) {
-            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not cast Object to String");
+            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not cast Object to HashMap");
         }
     }
 

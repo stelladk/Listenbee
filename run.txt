@@ -1,11 +1,8 @@
-*in the same folder
-javac -cp "tika-app-1.24.jar;" *.java
-java -cp .;tika-app-1.24.jar; Main
+javac BrokerMain.java
+java BrokerMain
 
-*in lib folder
-javac -cp "../lib/tika-app-1.24.jar;" *.java
-java -cp .;../lib/tika-app-1.24.jar; Main 
+javac PublisherMain.java
+java PublisherMain 127.0.0.1
 
-*not in folder
-javac -cp "../tika-app-1.24.jar;" *.java
-java -cp .;../tika-app-1.24.jar; Main
+javac ConsumerMain.java
+java ConsumerMain 127.0.0.1
