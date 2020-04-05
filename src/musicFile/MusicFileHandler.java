@@ -15,7 +15,7 @@ public class MusicFileHandler {
      * Reads music files into a Map, with artist as the key and artist's songs as values
      * @return a Map with the artists and their songs
      */
-    public static Map<String, ArrayList<MusicFile>> read(String range){
+    public static Map<String, ArrayList<MusicFile>> read(String range) {
         System.out.println("HANDLER: Reading music files");
 
         //get the directory
