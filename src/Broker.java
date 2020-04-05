@@ -83,11 +83,18 @@ public class Broker {
 
                 //get files from publisher
                 ObjectInputStream pubIn = new ObjectInputStream(PubConnx.getInputStream());
+                int counter = 0;
                 MusicFile file;
-                while((file = (MusicFile) pubIn.readObject()) != null){
-                    //send files back to consumer
-                    clientOut.writeObject(file);
+                while(counter < 2){
+                    while((file = (MusicFile) pubIn.readObject()) != null){
+                        //send files back to consumer
+                        clientOut.writeObject(file);
+                        clientOut.flush();
+                        counter = 0;
+                    }
+                    clientOut.writeObject(null);
                     clientOut.flush();
+                    ++counter;
                 }
                 clientOut.writeObject(null);
                 clientOut.flush();
