@@ -105,23 +105,26 @@ public class Broker {
                 int counter = 0;
                 MusicFile file;
                 while(counter < 2){
-                    while((file = (MusicFile) pubIn.readObject()) != null){
-                        //send files back to consumer
-                        clientOut.writeObject(file);
-                        clientOut.flush();
-                        Utilities.print("got chunk");
-                        counter = 0;
+                    try{
+                        while((file = (MusicFile) pubIn.readObject()) != null){
+                            //send files back to consumer
+                            clientOut.writeObject(file);
+                            clientOut.flush();
+                            Utilities.print("got chunk");
+                            counter = 0;
+                        }
+                    }catch(EOFException e){
+                        // clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
+                        // clientOut.writeObject(null);
+                        // clientOut.flush();
+                        Utilities.print("eof");
+                        ++counter;
                     }
-                    clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
-                    clientOut.writeObject(null);
-                    clientOut.flush();
-                    Utilities.print("null");
-                    ++counter;
                 }
-                clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
-                clientOut.writeObject(null);
-                clientOut.flush();
-                Utilities.print("null");
+                // clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
+                // clientOut.writeObject(null);
+                // clientOut.flush();
+                Utilities.print("eof final");
                 closeConnection(PubConnx);
                 // closeConnection(clientConnx);
 
@@ -506,39 +509,36 @@ public class Broker {
 
     //TODO -------------------------------------- JAVADOC --------------------------------------
     private synchronized void loginUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
-        while(true){
-            ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
-            Pair<String,BigInteger> credentials = (Pair<String,BigInteger>) in.readObject();
-            //check if registered
-            boolean registered = false;
-            Pair<String,BigInteger> client = null;
-            for(Pair<String,BigInteger> consumer : registeredUsers){
-                if(consumer.getKey().equals(credentials.getKey())){
-                    registered = true;
-                    if(credentials.getValue().equals(consumer.getValue())){
-                        client = consumer;
-                    }
+        ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+        Pair<String,BigInteger> credentials = (Pair<String,BigInteger>) in.readObject();
+        //check if registered
+        boolean registered = false;
+        Pair<String,BigInteger> client = null;
+        for(Pair<String,BigInteger> consumer : registeredUsers){
+            if(consumer.getKey().equals(credentials.getKey())){
+                registered = true;
+                if(credentials.getValue().equals(consumer.getValue())){
+                    client = consumer;
                 }
             }
-            //send message to consumer
-            ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
-            String message = "FALSE"; //wrong credentials
-            if(!registered){
-                message = "REGISTER"; //not registered
-                out.writeObject(message);
-                out.flush();
-                break;
-            }
-            else if(client != null) {
-                message = "VERIFIED"; //successful log-in
-                out.writeObject(message);
-                out.flush();
-                //loggedinUsers.add(clientIP);
-                break;
-            }
+        }
+        //send message to consumer
+        ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+        String message = "FALSE"; //wrong credentials
+        if(!registered){
+            message = "REGISTER"; //not registered
             out.writeObject(message);
             out.flush();
         }
+        else if(client != null) {
+            message = "VERIFIED"; //successful log-in
+            out.writeObject(message);
+            out.flush();
+            //loggedinUsers.add(clientIP);
+        }
+        out.writeObject(message);
+        out.flush();
+        
         closeConnection(conn);
     }
 

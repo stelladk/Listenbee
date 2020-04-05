@@ -317,12 +317,13 @@ public class Publisher {
 
         //if song doesn't exist OR user searched for artist return all songs
         if (!found) {
+            Utilities.print("Song not found");
             chunks = new ArrayList<>();
             for (MusicFile song : files.get(artist)) {
                 chunks.addAll(MusicFileHandler.split(song));
-                chunks.add(null); //end of chunks of specific song
+                // chunks.add(null); //end of chunks of specific song
             }
-            chunks.add(null); //end of all chunks
+            // chunks.add(null); //end of all chunks
         }
 
         //send music file to broker

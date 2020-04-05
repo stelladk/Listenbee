@@ -4,6 +4,7 @@ import java.util.*;
 import javafx.util.Pair;
 import musicFile.MusicFileHandler;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -254,14 +255,26 @@ public class Consumer {
         int counter = 0; //when counter == 2 then end of all file chunks
         try {
             while (counter < 2) {
-                //get chunks from stream
-                while ((file = (MusicFile) in.readObject()) != null){
-                    chunks.add(file);
-                    Utilities.print("Got chunk");
-                    counter = 0;
+                try{
+                    while(true){
+                        file = (MusicFile) in.readObject();
+                        chunks.add(file);
+                        Utilities.print("Got chunk");
+                        counter = 0;
+                    }
+                }catch(EOFException e){
+                    ++counter;
+                    Utilities.print("EOF");
                 }
-                ++counter;
-
+                if(counter >= 2) break;
+                //get chunks from stream
+                // while ((file = (MusicFile) in.readObject()) != null){
+                //     chunks.add(file);
+                //     Utilities.print("Got chunk");
+                //     counter = 0;
+                // }
+                // ++counter;
+                
                 if (mode.equals("ONLINE")) { //save music file chunks
                     Utilities.print("online");
                     MusicFileHandler.write(chunks);
@@ -269,9 +282,10 @@ public class Consumer {
                     MusicFile merged = MusicFileHandler.merge(chunks);
                     MusicFileHandler.write(merged);
                 }
-
+                
                 chunks.clear();
             }
+            Utilities.print("EOF final");
         } catch (IOException e) {
             Utilities.printError("CONSUMER: RCVD: ERROR: Could not get streams");
             e.printStackTrace();
