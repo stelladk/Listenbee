@@ -287,7 +287,10 @@ public class Publisher {
         ArrayList<MusicFile> chunks = null;
 
         //search for the song and fetch the music file
-        for (MusicFile song : files.get(artist)){
+        for (MusicFile song : files.get(artist)) {
+            //song title was null user might be searching for artist
+            if (title == null) break;
+
             if (song.getTrackName().equals(title)){
                 found = true;
 
@@ -302,24 +305,24 @@ public class Publisher {
             }
         }
 
-        //if song doesn't exist notify about failure
+        //if song doesn't exist OR user searched for artist return all songs
         if (!found) {
-            Utilities.printError("PUBLISHER: ERROR: No such song exists");
-            notifyFailure(connection);
-            return;
+            chunks = new ArrayList<>();
+            for (MusicFile song : files.get(artist)) {
+                chunks.addAll(MusicFileHandler.split(song));
+                chunks.add(null); //end of chunks of specific song
+            }
+            chunks.add(null); //end of all chunks
         }
 
         //send music file to broker
         try {
             ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
 
-            for(MusicFile chunk : chunks){
+            for (MusicFile chunk : chunks){
                 out.writeObject(chunk);
                 out.flush();
             }
-            //indicate end of chunks
-            out.writeObject(null);
-            out.flush();
 
             chunks.clear(); //clear chunk list
         } catch (IOException e) {
@@ -338,6 +341,8 @@ public class Publisher {
         ObjectOutputStream out;
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject(null);
+            out.flush();
             out.writeObject(null);
             out.flush();
         } catch (IOException e) {
