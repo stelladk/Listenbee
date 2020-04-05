@@ -14,13 +14,13 @@ import musicFile.MusicFileHandler;
 public class Publisher {
     private static final int PORT = 2001;
     private final String IP;
-    private final String RANGE; //range of artists
+    private final String RANGE; //range of artists (regex expression)
 
     private ServerSocket server;
 
     private ArrayList< Pair<String,BigInteger> > brokerList; //active brokers
     private Map<String, ArrayList<MusicFile>> files;
-    private Map<String, ArrayList<String>> brokers; //artists assigned to brokers IPs
+    private Map<String, ArrayList<String>> brokers; //brokers (IP addresses) and their artists
 
     private final ExecutorService threadPool;
 
@@ -71,7 +71,7 @@ public class Publisher {
      * Make publisher online (await incoming connections)
      * Get the song, search for it and push it to broker
      */
-    public void online(){
+    public void online() {
         Utilities.print("PUBLISHER: Make publisher online");
 
         try {
@@ -79,53 +79,50 @@ public class Publisher {
             server = new ServerSocket(PORT);
         } catch (IOException e) {
             Utilities.printError("PUBLISHER: ERROR: Server could not go online");
-            //TODO return statement (maybe)
+            try {
+                if (server != null) server.close();
+            } catch (IOException ex) {
+                Utilities.printError("PUBLISHER: ERROR: Server could not shut down");
+            }
         }
 
-            //create a thread to await connections from brokers
-            Thread task = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true) {
-                        Socket connection;
-                        try {
-                            connection = server.accept();
+        //create a thread to await connections from brokers
+        Thread task = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    Socket connection;
+                    try {
+                        connection = server.accept();
 
-                            //for each connection create a new thread
-                            Thread processTask = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        //get <title, artist> from broker
-                                        ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
-                                        Pair<String, String> song = (Pair<String, String>) in.readObject();
+                        //for each connection create a new thread
+                        Thread processTask = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    //get <title, artist> from broker
+                                    ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
+                                    Pair<String, String> song = (Pair<String, String>) in.readObject();
 
-                                        //send the music file to broker
-                                        push(song.getKey(), song.getValue(), connection);
-                                    }catch (IOException e){
-                                        Utilities.printError("PUBLISHER: ONLINE: ERROR: Could not read from stream");
-                                    } catch (ClassNotFoundException e) {
-                                        Utilities.printError("PUBLISHER: ONLINE: ERROR: Could not cast Object to Pair");
-                                    } finally {
-                                        closeConnection(connection);
-                                    }
+                                    //send the music file to broker
+                                    push(song.getKey(), song.getValue(), connection);
+                                }catch (IOException e){
+                                    Utilities.printError("PUBLISHER: ONLINE: ERROR: Could not read from stream");
+                                } catch (ClassNotFoundException e) {
+                                    Utilities.printError("PUBLISHER: ONLINE: ERROR: Could not cast Object to Pair");
+                                } finally {
+                                    closeConnection(connection);
                                 }
-                            });
-                            threadPool.execute(processTask);
-                        } catch(IOException e) {
-                            Utilities.printError("PUBLISHER: ONLINE: ERROR: Could not accept connection");
-                        }
+                            }
+                        });
+                        threadPool.execute(processTask);
+                    } catch(IOException e) {
+                        Utilities.printError("PUBLISHER: ONLINE: ERROR: Could not accept connection");
                     }
                 }
-            });
-            threadPool.execute(task);
-//        }finally {
-//            try {
-//                if (server != null) server.close();
-//            } catch (IOException e) {
-//                System.err.println("PUBLISHER: ERROR: Server could not shut down");
-//            }
-//        }
+            }
+        });
+        threadPool.execute(task);
     }
 
     /**
@@ -152,15 +149,15 @@ public class Publisher {
         brokerList = new ArrayList<>();
         ArrayList<Thread> threads = new ArrayList<>();
 
-        for(String IP: serverIPs){
+        for (String IP: serverIPs) {
             threads.add(getServerHash(IP));
         }
 
         //before you continue wait for all threads to end
-        for(Thread t : threads){
+        for (Thread t : threads) {
             try {
                 t.join();
-            }catch(InterruptedException e){
+            } catch(InterruptedException e) {
                 Utilities.printError("PUBLISHER: ERROR: Thread Interrupted");
             }
         }
@@ -177,7 +174,7 @@ public class Publisher {
      * Connect with broker and get its hash value
      * @param serverIP broker's IP address
      */
-    private Thread getServerHash(String serverIP){
+    private Thread getServerHash(String serverIP) {
         Utilities.print("PUBLISHER: Get server hash value");
 
         Thread thread = new Thread(new Runnable(){
@@ -193,12 +190,11 @@ public class Publisher {
                     in = new ObjectInputStream(connection.getInputStream());
                     hashValue = (BigInteger) in.readObject();
                     updateBrokerList(serverIP, hashValue);
-                }catch(IOException | ClassNotFoundException e){
+                } catch(IOException | ClassNotFoundException e) {
                     Utilities.printError("PUBLISHER: ERROR: Could not get hash of server " + serverIP);
                 }
             }
         });
-        //threadPool.execute(thread);
         thread.start();
         return thread;
     }
@@ -212,7 +208,7 @@ public class Publisher {
      * hash(artist_name) < hash(broker_IP + broker_port)
      * @param brokerList list with active brokers
      */
-    private void assignArtistToBroker (ArrayList< Pair<String,BigInteger> > brokerList){
+    private void assignArtistToBroker (ArrayList< Pair<String,BigInteger> > brokerList) {
         Utilities.print("PUBLISHER: Assign artists to responsible brokers");
 
         brokers = new HashMap<>();
@@ -240,7 +236,7 @@ public class Publisher {
     /**
      * Connect with responsible brokers and send them publisher's artists
      */
-    private void informBrokers(){
+    private void informBrokers() {
         Utilities.print("PUBLISHER: Inform brokers for their artists");
 
         for (String broker : brokers.keySet()){
@@ -252,6 +248,7 @@ public class Publisher {
                         socket_conn = new Socket(broker, Broker.getToPubPort());
 
                         ObjectOutputStream out = new ObjectOutputStream(socket_conn.getOutputStream());
+                        //send to responsible brokers their artists
                         out.writeObject(brokers.get(broker));
                         out.flush();
                     } catch (IOException e){
@@ -273,7 +270,7 @@ public class Publisher {
      * @param artist artist name
      * @param connection open connection with broker
      */
-    private void push (String title, String artist, Socket connection){
+    private void push (String title, String artist, Socket connection) {
         Utilities.print("PUBLISHER: Push song to broker");
 
         //if artist doesn't exist notify about failure
@@ -310,9 +307,7 @@ public class Publisher {
             chunks = new ArrayList<>();
             for (MusicFile song : files.get(artist)) {
                 chunks.addAll(MusicFileHandler.split(song));
-                // chunks.add(null); //end of chunks of specific song
             }
-            // chunks.add(null); //end of all chunks
         }
 
         //send music file to broker
@@ -335,7 +330,7 @@ public class Publisher {
      * When a file with specific metadata doesn't exist send null
      * @param connection open connection with broker
      */
-    private void notifyFailure(Socket connection){
+    private void notifyFailure(Socket connection) {
         Utilities.print("PUBLISHER: Notify that song doesn't exist");
 
         ObjectOutputStream out;
@@ -353,7 +348,7 @@ public class Publisher {
     /**
      * Close the connection established with the broker
      */
-    private void closeConnection (Socket socket){
+    private void closeConnection (Socket socket) {
         Utilities.print("PUBLISHER: Close socket connection");
 
         if (socket != null){

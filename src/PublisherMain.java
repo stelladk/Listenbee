@@ -20,10 +20,8 @@ public class PublisherMain {
             return;
         }
 
-        //initialize broker
         Publisher pub = new Publisher(IP,"^[[a-jA-J] | [0-9]].*");
-        List<String> serverIPs = new ArrayList<>();
-        serverIPs.add("127.0.0.1");
+        List<String> serverIPs = new ArrayList<>(Arrays.asList(args));
         if (pub.init(serverIPs)){
             pub.online();
         }
