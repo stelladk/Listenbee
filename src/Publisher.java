@@ -278,7 +278,7 @@ public class Publisher {
 
         //if artist doesn't exist notify about failure
         if (!files.containsKey(artist)){
-            Utilities.printError("PUBLISHER: ERROR: No such artist exists");
+            Utilities.printError("PUBLISHER: ERROR: No such artist exists"+artist);
             notifyFailure(connection);
             return;
         }
@@ -310,9 +310,9 @@ public class Publisher {
             chunks = new ArrayList<>();
             for (MusicFile song : files.get(artist)) {
                 chunks.addAll(MusicFileHandler.split(song));
-                chunks.add(null); //end of chunks of specific song
+                // chunks.add(null); //end of chunks of specific song
             }
-            chunks.add(null); //end of all chunks
+            // chunks.add(null); //end of all chunks
         }
 
         //send music file to broker

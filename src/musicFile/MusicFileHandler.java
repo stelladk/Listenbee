@@ -19,7 +19,7 @@ public class MusicFileHandler {
         System.out.println("HANDLER: Reading music files");
 
         //get the directory
-        File dir = new File("./res/dataset1/");
+        File dir = new File("../res/dataset1/");
         if (!dir.exists()) {
             System.err.println("HANDLER: READ: ERROR: Directory doesn't exist");
             return null;
@@ -60,10 +60,11 @@ public class MusicFileHandler {
                         byte[] allBytes = Files.readAllBytes(file.toPath());
                         //position of song data
                         int offset = mp3.getStartOffset();
+                        int end = mp3.getEndOffset();
                         //array of metadata
                         byte[] metadata = Arrays.copyOfRange(allBytes, 0, offset);
                         //array without metadata
-                        byte[] bytes = Arrays.copyOfRange(allBytes, offset, allBytes.length);
+                        byte[] bytes = Arrays.copyOfRange(allBytes, offset, end-1);
 
                         songs.get(artist).add(new MusicFile(title, artist, tag.getAlbum(), tag.getGenreDescription(), metadata, bytes));
                     }
@@ -96,7 +97,7 @@ public class MusicFileHandler {
         }
 
         //create directory if it doesn't exist
-        File dir = new File("./res/Download/");
+        File dir = new File("../res/Download/");
         if (!dir.exists()) {
            if (!dir.mkdir()) {
                System.err.println("HANDLER: WRITE: ERROR: Could not create directory");
@@ -144,7 +145,7 @@ public class MusicFileHandler {
         }
 
         //create directory if it doesn't exist
-        File dir = new File("./res/Stream/");
+        File dir = new File("../res/Stream/");
         if (!dir.exists()) {
             if (!dir.mkdir()) {
                 System.err.println("HANDLER: WRITE CHUNKS: ERROR: Could not create directory");

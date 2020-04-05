@@ -4,6 +4,7 @@ import java.util.*;
 import javafx.util.Pair;
 import musicFile.MusicFileHandler;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -80,24 +81,35 @@ public class Consumer {
         Socket connection = null;
         try {
             connection = new Socket(SERVER_IP, PORT);
-            while(true){
+            boolean processed = false;
+            while(!processed){
                 //get credentials from user and send them to responsible broker
                 ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+                out.writeObject("LOGIN");
+                out.flush(); 
+                Utilities.print("send log in ");
+
+                out = new ObjectOutputStream(connection.getOutputStream());
                 out.writeObject(credentials);
                 out.flush();
+                Utilities.print("send creds");
     
                 //wait for confirmation
                 ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
                 String message = (String) in.readObject();
+                Utilities.print("read msg ");
                 switch (message){
                     //user hasn't been registered
                     case "REGISTER":
                         closeConnection(connection);
                         registerUser(credentials);
+                        processed = true;
                         break;
                     //user has been registered
                     case "VERIFIED":
                         STATE = IN;
+                        Utilities.print("success ");
+                        processed = true;
                         break;
                     //user registered but wrong credentials
                     case "FALSE":
@@ -162,6 +174,8 @@ public class Consumer {
 
                 //request song
                 ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+                out.writeObject("PULL");
+                out.flush();
                 out.writeObject(new Pair<>(track, artist));
                 out.flush();
 
@@ -184,10 +198,15 @@ public class Consumer {
             //CASE 2
             //check the artists list to choose the right broker
             String brokerIP = artists.get(artist);
+            if(brokerIP == null){
+                Utilities.printError("Artist doesn't exist");
+            }
             Socket connection = new Socket(brokerIP, PORT);
 
             //request song
             ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject("PULL");
+            out.flush();
             out.writeObject(new Pair<>(track, artist));
             out.flush();
 
@@ -236,26 +255,41 @@ public class Consumer {
         int counter = 0; //when counter == 2 then end of all file chunks
         try {
             while (counter < 2) {
-                //get chunks from stream
-                while ((file = (MusicFile) in.readObject()) != null){
-                    chunks.add(file);
-                    counter = 0;
+                try{
+                    while(true){
+                        file = (MusicFile) in.readObject();
+                        chunks.add(file);
+                        Utilities.print("Got chunk");
+                        counter = 0;
+                    }
+                }catch(EOFException e){
+                    ++counter;
+                    Utilities.print("EOF");
                 }
-                ++counter;
-
+                if(counter >= 2) break;
+                //get chunks from stream
+                // while ((file = (MusicFile) in.readObject()) != null){
+                //     chunks.add(file);
+                //     Utilities.print("Got chunk");
+                //     counter = 0;
+                // }
+                // ++counter;
+                
                 if (mode.equals("ONLINE")) { //save music file chunks
                     MusicFileHandler.write(chunks);
                 } else if (mode.equals("OFFLINE")) { //merge chunks and save the music file
                     MusicFile merged = MusicFileHandler.merge(chunks);
                     MusicFileHandler.write(merged);
                 }
-
+                
                 chunks.clear();
             }
+            Utilities.print("EOF final");
         } catch (IOException e) {
-            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not get streams");
+            Utilities.printError("CONSUMER: RCVD: ERROR: Could not get streams");
+            e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not cast Object to String");
+            Utilities.printError("CONSUMER: RCVD: ERROR: Could not cast Object to String");
         }
     }
 

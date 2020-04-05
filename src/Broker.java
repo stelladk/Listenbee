@@ -22,7 +22,7 @@ public class Broker {
     //private static final ArrayList<String> loggedinUsers = new ArrayList<>(); 
 
     private HashMap<String, String> artistsToPublishers; //artists assigned to publishers
-    private HashMap<String, String> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
+    private HashMap<String, String> artistsToBrokers; //artists assigned to brokers
 
     private final ExecutorService threadPool;
 
@@ -30,6 +30,8 @@ public class Broker {
         print("BROKER: Construct broker");
         this.IP = IP;
         this.HASH_VALUE = Utilities.SHA1(IP+TO_PUB_PORT);
+        artistsToPublishers = new HashMap<>();
+        artistsToBrokers = new HashMap<>();
         threadPool = Executors.newCachedThreadPool();
     }
 
@@ -38,8 +40,9 @@ public class Broker {
      * register all available brokers
      * @param brokerIPs online broker IPs
      */
-    public void init (List<String> brokerIPs){
+    public void init (ArrayList<String> brokerIPs){
         print("BROKER: Initialize broker");
+        brokersList = brokerIPs;
         //TODO: Read registeredUsers
     }
 
@@ -60,53 +63,10 @@ public class Broker {
 
     //send data to consumer on consumer demand
     //(PREVIOUS) String --> ArtistName
-    public void pull(Socket clientConnx, String artistName, String trackName){
-        //request data from publisher using push method
-        //find data in hashmap
-        //send the entire list with astistName as key
+    public void pull(Socket clientConnx, String trackName, String artistName){
 
         String broker = artistsToBrokers.get(artistName);
-        if(broker.equals(getIP())){ //the current broker is responsible for the artist
-            String publisher = artistsToPublishers.get(artistName);
-            try{
-                //inform consumer that you will send files
-                ObjectOutputStream clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
-                clientOut.writeObject("ACCEPT");
-                clientOut.flush();
-
-                Socket PubConnx = new Socket(publisher, Publisher.getPORT());
-
-                //send request for music file
-                ObjectOutputStream pubOut = new ObjectOutputStream(PubConnx.getOutputStream());
-                pubOut.writeObject(new Pair<String,String>(artistName,trackName));
-                pubOut.flush();
-
-                //get files from publisher
-                ObjectInputStream pubIn = new ObjectInputStream(PubConnx.getInputStream());
-                int counter = 0;
-                MusicFile file;
-                while(counter < 2){
-                    while((file = (MusicFile) pubIn.readObject()) != null){
-                        //send files back to consumer
-                        clientOut.writeObject(file);
-                        clientOut.flush();
-                        counter = 0;
-                    }
-                    clientOut.writeObject(null);
-                    clientOut.flush();
-                    ++counter;
-                }
-                clientOut.writeObject(null);
-                clientOut.flush();
-                closeConnection(PubConnx);
-                closeConnection(clientConnx);
-
-            }catch(IOException | ClassNotFoundException e){
-                //TODO exw hasei ti mpala me ta system.err help me
-            }
-
-        }else{
-            //the current broker is not responsible for the artist
+        if(broker == null){ //artist doesn't exist
             try{
                 //inform consumer that you will send hashmap
                 ObjectOutputStream clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
@@ -119,7 +79,61 @@ public class Broker {
             }catch(IOException e){
                 //TODO exw hasei ti mpala me ta system.err help me
             }
+        }else if(broker.equals(getIP())){ //the current broker is responsible for the artist
+            String publisher = artistsToPublishers.get(artistName);
+            try{
+                //inform consumer that you will send files
+                ObjectOutputStream clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
+                clientOut.writeObject("ACCEPT");
+                clientOut.flush();
+
+                Socket PubConnx = new Socket(publisher, Publisher.getPORT());
+
+                //send request for music file
+                ObjectOutputStream pubOut = new ObjectOutputStream(PubConnx.getOutputStream());
+                pubOut.writeObject(new Pair<String,String>(trackName,artistName));
+                pubOut.flush();
+
+                //get files from publisher
+                ObjectInputStream pubIn = new ObjectInputStream(PubConnx.getInputStream());
+                int counter = 0;
+                MusicFile file;
+                while(counter < 2){
+                    try{
+                        while((file = (MusicFile) pubIn.readObject()) != null){
+                            //send files back to consumer
+                            clientOut.writeObject(file);
+                            clientOut.flush();
+                            counter = 0;
+                        }
+                    }catch(EOFException e){
+                        ++counter;
+                    }
+                }
+                closeConnection(PubConnx);
+                // closeConnection(clientConnx);
+
+            }catch(IOException | ClassNotFoundException e){
+                //TODO exw hasei ti mpala me ta system.err help me
+                e.printStackTrace();
+            }
+
+        }else{
+            //the current broker is not responsible for the artist
+            try{
+                //inform consumer that you will send hashmap
+                ObjectOutputStream clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
+                clientOut.writeObject("DECLINE");
+                clientOut.flush();
+
+                clientOut.writeObject(artistsToBrokers);
+                clientOut.flush();
+                // closeConnection(clientConnx);
+            }catch(IOException e){
+                //TODO exw hasei ti mpala me ta system.err help me
+            }
         }
+        closeConnection(clientConnx);
     }
 
     //(PREVIOUS) String --> ArtistName
@@ -479,35 +493,36 @@ public class Broker {
 
     //TODO -------------------------------------- JAVADOC --------------------------------------
     private synchronized void loginUser(Socket conn, String clientIP) throws IOException, ClassNotFoundException{
-        while(true){
-            ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
-            Pair<String,BigInteger> credentials = (Pair<String,BigInteger>) in.readObject();
-            //check if registered
-            boolean registered = false;
-            Pair<String,BigInteger> client = null;
-            for(Pair<String,BigInteger> consumer : registeredUsers){
-                if(consumer.getKey().equals(credentials.getKey())){
-                    registered = true;
-                    if(credentials.getValue().equals(consumer.getValue())){
-                        client = consumer;
-                    }
+        ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+        Pair<String,BigInteger> credentials = (Pair<String,BigInteger>) in.readObject();
+        //check if registered
+        boolean registered = false;
+        Pair<String,BigInteger> client = null;
+        for(Pair<String,BigInteger> consumer : registeredUsers){
+            if(consumer.getKey().equals(credentials.getKey())){
+                registered = true;
+                if(credentials.getValue().equals(consumer.getValue())){
+                    client = consumer;
                 }
             }
-            //send message to consumer
-            String message = "FALSE"; //wrong credentials
-            if(!registered){
-                message = "REGISTER"; //not registered
-                break;
-            }
-            else if(client != null) {
-                message = "VERIFIED"; //successful log-in
-                //loggedinUsers.add(clientIP);
-                break;
-            }
-            ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+        }
+        //send message to consumer
+        ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
+        String message = "FALSE"; //wrong credentials
+        if(!registered){
+            message = "REGISTER"; //not registered
             out.writeObject(message);
             out.flush();
         }
+        else if(client != null) {
+            message = "VERIFIED"; //successful log-in
+            out.writeObject(message);
+            out.flush();
+            //loggedinUsers.add(clientIP);
+        }
+        out.writeObject(message);
+        out.flush();
+        
         closeConnection(conn);
     }
 
