@@ -4,10 +4,7 @@ import java.util.*;
 import javafx.util.Pair;
 import musicFile.MusicFileHandler;
 
-import javax.rmi.CORBA.Util;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
@@ -145,7 +142,6 @@ public class Consumer {
         // closeConnection(conn);
     }
 
-
     /**
      * Request song from main broker
      * If song is in main broker it is received
@@ -227,19 +223,35 @@ public class Consumer {
         return STATE.equals(IN);
     }
 
+    /**
+     * Get file chunks from stream
+     * If online mode is chosen then save each chunk
+     * If offline mode is chosen the merge the chunks and save the music file
+     * @param in input stream
+     * @param mode online or offline
+     */
     private void receiveData (ObjectInputStream in, String mode) {
         ArrayList<MusicFile> chunks = new ArrayList<>();
         MusicFile file;
+        int counter = 0; //when counter == 2 then end of all file chunks
         try {
-            //TODO FIND SOLUTION FOR MULTIPLE SONGS
-            //get chunks from stream
-            while ((file = (MusicFile) in.readObject()) != null){
-                chunks.add(file);
+            while (counter < 2) {
+                //get chunks from stream
+                while ((file = (MusicFile) in.readObject()) != null){
+                    chunks.add(file);
+                    counter = 0;
+                }
+                ++counter;
+
+                if (mode.equals("ONLINE")) { //save music file chunks
+                    MusicFileHandler.write(chunks);
+                } else if (mode.equals("OFFLINE")) { //merge chunks and save the music file
+                    MusicFile merged = MusicFileHandler.merge(chunks);
+                    MusicFileHandler.write(merged);
+                }
+
+                chunks.clear();
             }
-
-            //TODO MODE CHECK
-
-            //TODO DO NOT MERGE DIFFERENT SONGS
         } catch (IOException e) {
             Utilities.printError("CONSUMER: LOGIN: ERROR: Could not get streams");
         } catch (ClassNotFoundException e) {
@@ -259,10 +271,6 @@ public class Consumer {
         } catch (ClassNotFoundException e) {
             Utilities.printError("CONSUMER: LOGIN: ERROR: Could not cast Object to String");
         }
-    }
-
-    private void requestSong(){
-
     }
 
     /**

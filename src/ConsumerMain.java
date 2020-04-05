@@ -119,6 +119,10 @@ public class ConsumerMain {
             return new Pair<>(username, password);
     }
 
+    /**
+     * Print activity menus
+     * @return user's choice
+     */
     private static int menu(int choice) {
         if (choice == 0) {
             System.out.println("---------- MENU ----------");
