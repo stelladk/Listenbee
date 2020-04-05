@@ -3,12 +3,10 @@ import musicFile.MusicFile;
 import java.util.*;
 import javafx.util.Pair;
 import musicFile.MusicFileHandler;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Console;
 import java.math.BigInteger;
 import java.net.*;
 
@@ -22,7 +20,7 @@ public class Consumer {
     private static String OUT = "LOGGED_OUT";
     private static String IN = "LOGGED_IN";
 
-    private HashMap<String, String> artists = null; //artists assigned to brokers
+    private HashMap<String, String> artists = null; //artists assigned to brokers (IP addresses)
 
     public Consumer(String IP, String SERVER_IP, int PORT) {
         Utilities.print("CONSUMER: Create consumer");
@@ -30,7 +28,6 @@ public class Consumer {
         this.SERVER_IP = SERVER_IP;
         this.PORT = PORT;
         STATE = OUT;
-
     }
 
     /**
@@ -175,7 +172,7 @@ public class Consumer {
             //CASE 2
             //check the artists list to choose the right broker
             String brokerIP = artists.get(artist);
-            if(brokerIP == null){
+            if (brokerIP == null) {
                 Utilities.printError("Artist doesn't exist");
             }
             Socket connection = new Socket(brokerIP, PORT);
@@ -232,25 +229,16 @@ public class Consumer {
         int counter = 0; //when counter == 2 then end of all file chunks
         try {
             while (counter < 2) {
-                try{
-                    while(true){
+                try {
+                    while (true) {
                         file = (MusicFile) in.readObject();
                         chunks.add(file);
-                        Utilities.print("Got chunk");
                         counter = 0;
                     }
                 }catch(EOFException e){
                     ++counter;
-                    Utilities.print("EOF");
                 }
-                if(counter >= 2) break;
-                //get chunks from stream
-                // while ((file = (MusicFile) in.readObject()) != null){
-                //     chunks.add(file);
-                //     Utilities.print("Got chunk");
-                //     counter = 0;
-                // }
-                // ++counter;
+                if (counter >= 2) break;
                 
                 if (mode.equals("ONLINE")) { //save music file chunks
                     MusicFileHandler.write(chunks);
@@ -261,12 +249,11 @@ public class Consumer {
                 
                 chunks.clear();
             }
-            Utilities.print("EOF final");
         } catch (IOException e) {
-            Utilities.printError("CONSUMER: RCVD: ERROR: Could not get streams");
+            Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not get streams");
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            Utilities.printError("CONSUMER: RCVD: ERROR: Could not cast Object to String");
+            Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not cast Object to String");
         }
     }
 
@@ -287,7 +274,7 @@ public class Consumer {
     /**
      * Close the connection established with the broker
      */
-    private void closeConnection (Socket socket){
+    private void closeConnection (Socket socket) {
         Utilities.print("CONSUMER: Close socket connection");
 
         if (socket != null){

@@ -1,5 +1,4 @@
 import javafx.util.Pair;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,7 +29,7 @@ public class ConsumerMain {
             return;
         }
 
-        Consumer consumer = new Consumer(IP, "127.0.0.1", 2000);
+        Consumer consumer = new Consumer(IP, args[0], Broker.getToCliPort());
 
         reader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -75,19 +74,19 @@ public class ConsumerMain {
                         switch (input) {
                             //online
                             case 1:
-                                System.out.println("Title: ");
+                                System.out.print("Title: ");
                                 title = input();
-                                System.out.println("Artist: ");
+                                System.out.print("Artist: ");
                                 artist = input();
-                                consumer.playData(title.trim(), artist.trim(), "ONLINE");
+                                consumer.playData(title, artist, "ONLINE");
                                 break;
                             //offline
                             case 2:
-                                System.out.println("Title: ");
+                                System.out.print("Title: ");
                                 title = input();
-                                System.out.println("Artist: ");
+                                System.out.print("Artist: ");
                                 artist = input();
-                                consumer.playData(title.trim(), artist.trim(), "OFFLINE");
+                                consumer.playData(title, artist, "OFFLINE");
                                 break;
                             //default
                             default:
@@ -111,10 +110,10 @@ public class ConsumerMain {
      * @return username and password the user gave
      */
     private static Pair<String, BigInteger> getCredentials() {
-            System.out.println("Username: ");
+            System.out.print("Username: ");
             String username = input();
 
-            System.out.println("Password: ");
+            System.out.print("Password: ");
             BigInteger password = inputPass();
 
             return new Pair<>(username, password);
@@ -130,20 +129,26 @@ public class ConsumerMain {
             System.out.println("1\tSign Up");
             System.out.println("2\tLog in");
             System.out.println("0\tExit");
+            System.out.println("--------------------------");
 
+            System.out.print("Enter: ");
             String userInput = input();
             return userInput != null ? Integer.parseInt(userInput) : 0;
         } else if (choice == 1) {
             System.out.println("---------- MENU ----------");
             System.out.println("1\tSearch for song/artist");
             System.out.println("0\tLog out");
+            System.out.println("--------------------------");
 
+            System.out.print("Enter: ");
             String userInput = input();
             return userInput != null ? Integer.parseInt(userInput) : 0;
         } else {
             System.out.println("1\tListen online");
             System.out.println("2\tListen offline");
+            System.out.println("--------------------------");
 
+            System.out.print("Enter: ");
             String userInput = input();
             return userInput != null ? Integer.parseInt(userInput) : 0;
         }
@@ -161,12 +166,17 @@ public class ConsumerMain {
         }
     }
 
+    /**
+     * @return hashed user password
+     */
     private static BigInteger inputPass(){
-        Console cons;
-        char[] passwd = null;
-        if ((cons = System.console()) != null && (passwd = cons.readPassword("%s", "")) != null) {
-            java.util.Arrays.fill(passwd, '*');
+        Console console;
+        char[] password = null;
+
+        if ((console = System.console()) != null && (password = console.readPassword("%s", "")) != null) {
+            java.util.Arrays.fill(password, '*');
         }
-        return Utilities.SHA1(String.valueOf(passwd));
+
+        return Utilities.SHA1(String.valueOf(password));
     }
 }
