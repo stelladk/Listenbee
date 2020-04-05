@@ -22,7 +22,7 @@ public class Broker {
     //private static final ArrayList<String> loggedinUsers = new ArrayList<>(); 
 
     private HashMap<String, String> artistsToPublishers; //artists assigned to publishers
-    private HashMap<String, String> artistsToBrokers = new HashMap<>(); //artists assigned to brokers
+    private HashMap<String, String> artistsToBrokers; //artists assigned to brokers
 
     private final ExecutorService threadPool;
 
@@ -63,10 +63,13 @@ public class Broker {
 
     //send data to consumer on consumer demand
     //(PREVIOUS) String --> ArtistName
-    public void pull(Socket clientConnx, String artistName, String trackName){
+    public void pull(Socket clientConnx, String trackName, String artistName){
         //request data from publisher using push method
         //find data in hashmap
         //send the entire list with astistName as key
+        for(String art:artistsToBrokers.keySet()){
+            Utilities.print(art);
+        }
 
         String broker = artistsToBrokers.get(artistName);
         if(broker == null){ //artist doesn't exist
@@ -94,7 +97,7 @@ public class Broker {
 
                 //send request for music file
                 ObjectOutputStream pubOut = new ObjectOutputStream(PubConnx.getOutputStream());
-                pubOut.writeObject(new Pair<String,String>(artistName,trackName));
+                pubOut.writeObject(new Pair<String,String>(trackName,artistName));
                 pubOut.flush();
 
                 //get files from publisher
@@ -106,19 +109,25 @@ public class Broker {
                         //send files back to consumer
                         clientOut.writeObject(file);
                         clientOut.flush();
+                        Utilities.print("got chunk");
                         counter = 0;
                     }
+                    clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
                     clientOut.writeObject(null);
                     clientOut.flush();
+                    Utilities.print("null");
                     ++counter;
                 }
+                clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
                 clientOut.writeObject(null);
                 clientOut.flush();
+                Utilities.print("null");
                 closeConnection(PubConnx);
-                closeConnection(clientConnx);
+                // closeConnection(clientConnx);
 
             }catch(IOException | ClassNotFoundException e){
                 //TODO exw hasei ti mpala me ta system.err help me
+                e.printStackTrace();
             }
 
         }else{
@@ -131,11 +140,12 @@ public class Broker {
 
                 clientOut.writeObject(artistsToBrokers);
                 clientOut.flush();
-                closeConnection(clientConnx);
+                // closeConnection(clientConnx);
             }catch(IOException e){
                 //TODO exw hasei ti mpala me ta system.err help me
             }
         }
+        closeConnection(clientConnx);
     }
 
     //(PREVIOUS) String --> ArtistName
@@ -395,6 +405,7 @@ public class Broker {
      */
     public synchronized void setInnerArtistSource(ArrayList<String> artists, String publisher){
         for(String artist : artists){
+            Utilities.print("set "+artist);
             artistsToBrokers.put(artist, getIP());
             artistsToPublishers.put(artist,publisher);
         }

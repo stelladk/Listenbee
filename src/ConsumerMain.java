@@ -78,7 +78,7 @@ public class ConsumerMain {
                                 title = input();
                                 System.out.println("Artist: ");
                                 artist = input();
-                                consumer.playData(title, artist, "ONLINE");
+                                consumer.playData(title.trim(), artist.trim(), "ONLINE");
                                 break;
                             //offline
                             case 2:
@@ -86,7 +86,7 @@ public class ConsumerMain {
                                 title = input();
                                 System.out.println("Artist: ");
                                 artist = input();
-                                consumer.playData(title, artist, "OFFLINE");
+                                consumer.playData(title.trim(), artist.trim(), "OFFLINE");
                                 break;
                             //default
                             default:

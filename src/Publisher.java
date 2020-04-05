@@ -2,7 +2,6 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.KeyStore.Entry;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -65,6 +64,12 @@ public class Publisher {
             return false;
         }
         
+        for(String ip : brokers.keySet()){
+            Utilities.print("Broker "+ ip+"");
+            for(String art:brokers.get(ip)){
+                Utilities.print(art);
+            }
+        }
         //connect with responsible brokers
         //and send them publisher's artists
         informBrokers();
@@ -235,6 +240,7 @@ public class Publisher {
                         brokers.put(broker.getKey(), new ArrayList<>());
                     }
                     brokers.get(broker.getKey()).add(artist);
+                    Utilities.print("Got responsible broker");//TODO
                     break;
                 }
             }
@@ -282,7 +288,7 @@ public class Publisher {
 
         //if artist doesn't exist notify about failure
         if (!files.containsKey(artist)){
-            Utilities.printError("PUBLISHER: ERROR: No such artist exists");
+            Utilities.printError("PUBLISHER: ERROR: No such artist exists"+artist);
             notifyFailure(connection);
             return;
         }

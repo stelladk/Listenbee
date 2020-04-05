@@ -257,11 +257,13 @@ public class Consumer {
                 //get chunks from stream
                 while ((file = (MusicFile) in.readObject()) != null){
                     chunks.add(file);
+                    Utilities.print("Got chunk");
                     counter = 0;
                 }
                 ++counter;
 
                 if (mode.equals("ONLINE")) { //save music file chunks
+                    Utilities.print("online");
                     MusicFileHandler.write(chunks);
                 } else if (mode.equals("OFFLINE")) { //merge chunks and save the music file
                     MusicFile merged = MusicFileHandler.merge(chunks);
@@ -271,9 +273,10 @@ public class Consumer {
                 chunks.clear();
             }
         } catch (IOException e) {
-            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not get streams");
+            Utilities.printError("CONSUMER: RCVD: ERROR: Could not get streams");
+            e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            Utilities.printError("CONSUMER: LOGIN: ERROR: Could not cast Object to String");
+            Utilities.printError("CONSUMER: RCVD: ERROR: Could not cast Object to String");
         }
     }
 
