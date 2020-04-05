@@ -1,13 +1,12 @@
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class BrokerMain {
     public static void main(String[] args) {
         int numBrokers = args.length + 1;
         System.out.println("Number of brokers: " + numBrokers);
-        List<String> brokerIPs = new ArrayList<>();
+        ArrayList<String> brokerIPs = new ArrayList<>();
         for (String IP : args){
             if (isValidIP(IP)){
                 brokerIPs.add(IP);

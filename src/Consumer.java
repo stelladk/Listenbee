@@ -80,24 +80,35 @@ public class Consumer {
         Socket connection = null;
         try {
             connection = new Socket(SERVER_IP, PORT);
-            while(true){
+            boolean processed = false;
+            while(!processed){
                 //get credentials from user and send them to responsible broker
                 ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+                out.writeObject("LOGIN");
+                out.flush(); 
+                Utilities.print("send log in ");
+
+                out = new ObjectOutputStream(connection.getOutputStream());
                 out.writeObject(credentials);
                 out.flush();
+                Utilities.print("send creds");
     
                 //wait for confirmation
                 ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
                 String message = (String) in.readObject();
+                Utilities.print("read msg ");
                 switch (message){
                     //user hasn't been registered
                     case "REGISTER":
                         closeConnection(connection);
                         registerUser(credentials);
+                        processed = true;
                         break;
                     //user has been registered
                     case "VERIFIED":
                         STATE = IN;
+                        Utilities.print("success ");
+                        processed = true;
                         break;
                     //user registered but wrong credentials
                     case "FALSE":
@@ -162,6 +173,8 @@ public class Consumer {
 
                 //request song
                 ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+                out.writeObject("PULL");
+                out.flush();
                 out.writeObject(new Pair<>(track, artist));
                 out.flush();
 
@@ -184,10 +197,15 @@ public class Consumer {
             //CASE 2
             //check the artists list to choose the right broker
             String brokerIP = artists.get(artist);
+            if(brokerIP == null){
+                Utilities.printError("Artist doesn't exist");
+            }
             Socket connection = new Socket(brokerIP, PORT);
 
             //request song
             ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject("PULL");
+            out.flush();
             out.writeObject(new Pair<>(track, artist));
             out.flush();
 

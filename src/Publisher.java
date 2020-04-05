@@ -2,6 +2,7 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyStore.Entry;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,6 +45,9 @@ public class Publisher {
         if (files == null || files.isEmpty()){
             Utilities.printError("PUBLISHER: ERROR: No available songs");
             return false;
+        }
+        for(String art :files.keySet()){
+            Utilities.print(art); //TODO
         }
 
         //get all active brokers

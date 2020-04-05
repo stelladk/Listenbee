@@ -30,6 +30,8 @@ public class Broker {
         print("BROKER: Construct broker");
         this.IP = IP;
         this.HASH_VALUE = Utilities.SHA1(IP+TO_PUB_PORT);
+        artistsToPublishers = new HashMap<>();
+        artistsToBrokers = new HashMap<>();
         threadPool = Executors.newCachedThreadPool();
     }
 
@@ -38,8 +40,9 @@ public class Broker {
      * register all available brokers
      * @param brokerIPs online broker IPs
      */
-    public void init (List<String> brokerIPs){
+    public void init (ArrayList<String> brokerIPs){
         print("BROKER: Initialize broker");
+        brokersList = brokerIPs;
         //TODO: Read registeredUsers
     }
 
@@ -66,7 +69,20 @@ public class Broker {
         //send the entire list with astistName as key
 
         String broker = artistsToBrokers.get(artistName);
-        if(broker.equals(getIP())){ //the current broker is responsible for the artist
+        if(broker == null){ //artist doesn't exist
+            try{
+                //inform consumer that you will send hashmap
+                ObjectOutputStream clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
+                clientOut.writeObject("DECLINE");
+                clientOut.flush();
+
+                clientOut.writeObject(artistsToBrokers);
+                clientOut.flush();
+                closeConnection(clientConnx);
+            }catch(IOException e){
+                //TODO exw hasei ti mpala me ta system.err help me
+            }
+        }else if(broker.equals(getIP())){ //the current broker is responsible for the artist
             String publisher = artistsToPublishers.get(artistName);
             try{
                 //inform consumer that you will send files
@@ -494,17 +510,21 @@ public class Broker {
                 }
             }
             //send message to consumer
+            ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
             String message = "FALSE"; //wrong credentials
             if(!registered){
                 message = "REGISTER"; //not registered
+                out.writeObject(message);
+                out.flush();
                 break;
             }
             else if(client != null) {
                 message = "VERIFIED"; //successful log-in
+                out.writeObject(message);
+                out.flush();
                 //loggedinUsers.add(clientIP);
                 break;
             }
-            ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
             out.writeObject(message);
             out.flush();
         }
