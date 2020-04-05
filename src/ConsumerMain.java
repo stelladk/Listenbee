@@ -3,6 +3,7 @@ import javafx.util.Pair;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Console;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -114,7 +115,7 @@ public class ConsumerMain {
             String username = input();
 
             System.out.println("Password: ");
-            BigInteger password = Utilities.SHA1(input());
+            BigInteger password = inputPass();
 
             return new Pair<>(username, password);
     }
@@ -158,5 +159,14 @@ public class ConsumerMain {
             System.err.println("ERROR: Could not read input from user");
             return null;
         }
+    }
+
+    private static BigInteger inputPass(){
+        Console cons;
+        char[] passwd = null;
+        if ((cons = System.console()) != null && (passwd = cons.readPassword("%s", "")) != null) {
+            java.util.Arrays.fill(passwd, '*');
+        }
+        return Utilities.SHA1(String.valueOf(passwd));
     }
 }
