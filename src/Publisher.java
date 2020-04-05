@@ -45,9 +45,6 @@ public class Publisher {
             Utilities.printError("PUBLISHER: ERROR: No available songs");
             return false;
         }
-        for(String art :files.keySet()){
-            Utilities.print(art); //TODO
-        }
 
         //get all active brokers
         getBrokerList(brokerIPs);
@@ -64,12 +61,6 @@ public class Publisher {
             return false;
         }
         
-        for(String ip : brokers.keySet()){
-            Utilities.print("Broker "+ ip+"");
-            for(String art:brokers.get(ip)){
-                Utilities.print(art);
-            }
-        }
         //connect with responsible brokers
         //and send them publisher's artists
         informBrokers();
@@ -240,7 +231,6 @@ public class Publisher {
                         brokers.put(broker.getKey(), new ArrayList<>());
                     }
                     brokers.get(broker.getKey()).add(artist);
-                    Utilities.print("Got responsible broker");//TODO
                     break;
                 }
             }
@@ -317,7 +307,6 @@ public class Publisher {
 
         //if song doesn't exist OR user searched for artist return all songs
         if (!found) {
-            Utilities.print("Song not found");
             chunks = new ArrayList<>();
             for (MusicFile song : files.get(artist)) {
                 chunks.addAll(MusicFileHandler.split(song));

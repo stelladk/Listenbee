@@ -64,12 +64,6 @@ public class Broker {
     //send data to consumer on consumer demand
     //(PREVIOUS) String --> ArtistName
     public void pull(Socket clientConnx, String trackName, String artistName){
-        //request data from publisher using push method
-        //find data in hashmap
-        //send the entire list with astistName as key
-        for(String art:artistsToBrokers.keySet()){
-            Utilities.print(art);
-        }
 
         String broker = artistsToBrokers.get(artistName);
         if(broker == null){ //artist doesn't exist
@@ -110,21 +104,12 @@ public class Broker {
                             //send files back to consumer
                             clientOut.writeObject(file);
                             clientOut.flush();
-                            Utilities.print("got chunk");
                             counter = 0;
                         }
                     }catch(EOFException e){
-                        // clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
-                        // clientOut.writeObject(null);
-                        // clientOut.flush();
-                        Utilities.print("eof");
                         ++counter;
                     }
                 }
-                // clientOut = new ObjectOutputStream(clientConnx.getOutputStream());
-                // clientOut.writeObject(null);
-                // clientOut.flush();
-                Utilities.print("eof final");
                 closeConnection(PubConnx);
                 // closeConnection(clientConnx);
 
@@ -408,7 +393,6 @@ public class Broker {
      */
     public synchronized void setInnerArtistSource(ArrayList<String> artists, String publisher){
         for(String artist : artists){
-            Utilities.print("set "+artist);
             artistsToBrokers.put(artist, getIP());
             artistsToPublishers.put(artist,publisher);
         }

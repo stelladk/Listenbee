@@ -276,7 +276,6 @@ public class Consumer {
                 // ++counter;
                 
                 if (mode.equals("ONLINE")) { //save music file chunks
-                    Utilities.print("online");
                     MusicFileHandler.write(chunks);
                 } else if (mode.equals("OFFLINE")) { //merge chunks and save the music file
                     MusicFile merged = MusicFileHandler.merge(chunks);
