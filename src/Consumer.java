@@ -87,17 +87,14 @@ public class Consumer {
                 ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
                 out.writeObject("LOGIN");
                 out.flush(); 
-                Utilities.print("send log in ");
 
                 out = new ObjectOutputStream(connection.getOutputStream());
                 out.writeObject(credentials);
                 out.flush();
-                Utilities.print("send creds");
     
                 //wait for confirmation
                 ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
                 String message = (String) in.readObject();
-                Utilities.print("read msg ");
                 switch (message){
                     //user hasn't been registered
                     case "REGISTER":
@@ -131,27 +128,6 @@ public class Consumer {
         Utilities.print("CONSUMER: Log out user");
 
         STATE = OUT;
-        // Socket conn = null;
-        // try{
-        //     while(true){
-        //         conn = new Socket(server_IP, PORT);
-        //         //send log-out message
-        //         ObjectOutputStream out = new ObjectOutputStream(conn.getOutputStream());
-        //         out.writeObject("OUT");
-        //         out.flush();
-
-        //         //wait for confirmation
-        //         ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
-        //         boolean confirmed = (boolean) in.readObject();
-        //         closeConnection(conn);
-        //         if(confirmed){
-        //             break;
-        //         }
-        //     }
-        // }catch(IOException | ClassNotFoundException e){
-        //     System.err.println("REGISTRATION ERROR: Could not connect to server");
-        // }
-        // closeConnection(conn);
     }
 
     /**

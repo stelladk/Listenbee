@@ -35,7 +35,7 @@ public class ConsumerMain {
 
         while (true) {
             //while consumer not logged in keep him in main menu
-            while (!consumer.isLoggedIn()) {
+            if (!consumer.isLoggedIn()) {
                 input = menu(0);
                 switch (input) {
                     //sign up user
@@ -63,7 +63,7 @@ public class ConsumerMain {
             }
 
             //when user has logged in give him access
-            while (consumer.isLoggedIn()) {
+            if (consumer.isLoggedIn()) {
                 input = menu(1);
                 switch (input) {
                     //let user search for song and artist
