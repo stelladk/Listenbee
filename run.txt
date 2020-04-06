@@ -1,8 +1,0 @@
-javac BrokerMain.java
-java BrokerMain
-
-javac PublisherMain.java
-java PublisherMain 127.0.0.1
-
-javac ConsumerMain.java
-java ConsumerMain 127.0.0.1

@@ -2,15 +2,13 @@
 /.idea/
 *.iml
 /out/
-/res/
+/res/dataset1/
+/res/Download/
+/res/Stream/
 
 #VSCode
-*.class
 /.vscode/
+*.class
 
 #General
-Notes.pdf
 Project.pdf
-Structure.png
-Test.java
-/src/data/
