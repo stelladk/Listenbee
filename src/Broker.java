@@ -20,6 +20,9 @@ public class Broker {
     private ArrayList<String> brokersList; //available brokers
     private static final ArrayList<String> registeredPublishers = new ArrayList<>();
     private static final ArrayList<Pair<String,BigInteger>> registeredUsers = new ArrayList<>(); //username and password for registered users
+    private static File userFile; //registered users
+    private static BufferedWriter userWriter; //writer for user file
+    private static BufferedReader userReader; //reader for user file
 
     private HashMap<String, String> artistsToPublishers; //artists assigned to publishers
     private HashMap<String, String> artistsToBrokers; //artists assigned to brokers
@@ -44,7 +47,32 @@ public class Broker {
     public void init (ArrayList<String> brokerIPs) {
         Utilities.print("BROKER: Initialize broker");
         brokersList = brokerIPs;
-        //TODO: Read registeredUsers
+
+        //create directory
+        File dir = new File("data/");
+        if (!dir.exists()) {
+            if (!dir.mkdir()) {
+                Utilities.printError("BROKER: ERROR: Could not create directory");
+                return;
+            }
+        }
+        
+        //create user file
+        userFile = new File(dir, "users.txt");
+        try{
+            if(userFile.createNewFile()){
+                writeToUserFile("/* User Credentials */");
+                writeUser(new Pair<String,BigInteger>("admin", BigInteger.TEN));
+            }
+        }catch(IOException e){
+            Utilities.printError("ERROR: Could not create user file");
+        }
+
+        //read user credentials
+        Utilities.print(""+readUsers());
+        for(Pair<String,BigInteger> user : registeredUsers){
+            Utilities.print(user.getKey()+" "+user.getValue());
+        }
     }
 
     /**
@@ -393,37 +421,25 @@ public class Broker {
      * @param connection socket for connection
      * @param clientIP consumer IP address
      */
-    private synchronized void registerUser(Socket connection, String clientIP) {
+    private void registerUser(Socket connection, String clientIP) {
         Utilities.print("BROKER: Register user");
 
-        boolean verified = false;
-        while(!verified) {
-            try {
-                ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
 
-                Pair<String,BigInteger> credentials = (Pair<String,BigInteger>) in.readObject();
-                //TODO: handle passwords -> save in file
-                // try{
-                //     //write to file
-                //     verified = true;
-                // }catch(IOException e){
-                //     System.err.println("EROOR: Couls not register user to file");
-                //     out.writeObject(verified);
-                //     out.flush();
-                // }
+            Pair<String,BigInteger> credentials = (Pair<String,BigInteger>) in.readObject();
+            
+           boolean verified = writeUser(credentials);
 
-                registeredUsers.add(credentials);
-                verified = true;
-
-                out.writeObject(verified);
-                out.flush();
-            } catch (IOException e) {
-                Utilities.printError("BROKER: REGISTER USER: Could not use streams");
-            } catch (ClassNotFoundException e) {
-                Utilities.printError("BROKER: ACCEPT PUBLISHER CONNECTION: Could not cast Object to Pair");
-            }
+            out.writeObject(verified);
+            out.flush();
+        } catch (IOException e) {
+            Utilities.printError("BROKER: REGISTER USER: Could not use streams");
+        } catch (ClassNotFoundException e) {
+            Utilities.printError("BROKER: ACCEPT PUBLISHER CONNECTION: Could not cast Object to Pair");
         }
+        
         closeConnection(connection);
     }
 
@@ -475,7 +491,7 @@ public class Broker {
      * @param title song title
      * @param artist artist name
      */
-    public void pull(Socket clientConnx, String title, String artist) {
+    private void pull(Socket clientConnx, String title, String artist) {
         Utilities.print("BROKER: Get requested song from user");
 
         String broker = artistsToBrokers.get(artist); //get broker (IP address) responsible for that artist
@@ -546,6 +562,77 @@ public class Broker {
             }
         }
         closeConnection(clientConnx);
+    }
+
+    /**
+     * Read user file to get user credentials
+     * @return true if the operation was successful
+     */
+    private synchronized boolean readUsers(){
+        try{
+            userReader = new BufferedReader(new FileReader(userFile));
+            String line = userReader.readLine();
+            if(!line.toLowerCase().contains("user credentials")) {
+                Utilities.printError("Not a valid user file");
+                return false;
+            }
+            String username;
+            String password;
+            while((line = userReader.readLine()) != null){
+                if(line.equals("<User>")){ //begining of user
+                    line = userReader.readLine();
+                    if(line.startsWith("<username>") && line.endsWith("</username>")){
+                        username = line.substring(line.indexOf(">") + 1, line.lastIndexOf("<"));
+                        line = userReader.readLine();
+                        if(line.startsWith("<password>") && line.endsWith("</password>")){
+                            password = line.substring(line.indexOf(">") + 1, line.lastIndexOf("<"));
+                            registeredUsers.add(new Pair<String,BigInteger>(username, new BigInteger(password)));
+                        }
+                    }
+                }
+            }
+            userReader.close();
+            return true;
+        }catch(IOException e){
+            Utilities.printError("ERROR: Could not read user file");
+            return false;
+        }
+    }
+
+    /**
+     * Write user credentials to file
+     * @param credentials user's username and password
+     * @return true if the operation was successful
+     */
+    private synchronized boolean writeUser(Pair<String,BigInteger> credentials){
+        boolean processed = true;
+        processed = writeToUserFile("<User>") && processed;
+        processed = writeToUserFile("<username>"+credentials.getKey()+"</username>") && processed;
+        processed = writeToUserFile("<password>"+credentials.getValue()+"</password>") && processed;
+        processed = writeToUserFile("</User>") && processed;
+        if(processed) registeredUsers.add(credentials);
+        return processed;
+    }
+
+    /**
+     * Append to user file
+     * @param str String to be appended
+     * @return true if the orepation was successful
+     */
+    private synchronized boolean writeToUserFile(String str){
+        try{
+            userFile.setWritable(true);
+            userWriter = new BufferedWriter(new FileWriter(userFile, true));
+            userWriter.write(str);
+            userWriter.newLine();
+            userWriter.close();
+            userFile.setWritable(false);
+            return true;
+        }catch(IOException e){
+            userFile.setWritable(false);
+            Utilities.printError("ERROR: Could not write to user file");
+            return false;
+        }
     }
 
     /**
