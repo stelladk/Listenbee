@@ -49,7 +49,7 @@ public class Broker {
         brokersList = brokerIPs;
 
         //create directory
-        File dir = new File("data/");
+        File dir = new File("../res/data/");
         if (!dir.exists()) {
             if (!dir.mkdir()) {
                 Utilities.printError("BROKER: ERROR: Could not create directory");
@@ -62,17 +62,13 @@ public class Broker {
         try{
             if(userFile.createNewFile()){
                 writeToUserFile("/* User Credentials */");
-                writeUser(new Pair<String,BigInteger>("admin", BigInteger.TEN));
             }
         }catch(IOException e){
             Utilities.printError("ERROR: Could not create user file");
         }
 
         //read user credentials
-        Utilities.print(""+readUsers());
-        for(Pair<String,BigInteger> user : registeredUsers){
-            Utilities.print(user.getKey()+" "+user.getValue());
-        }
+        readUsers();
     }
 
     /**
