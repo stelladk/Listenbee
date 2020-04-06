@@ -52,14 +52,17 @@ public class Consumer {
 
             //wait for confirmation
             ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
-            boolean confirmed = (boolean) in.readObject();
-            //user registration was successful
-            if (confirmed) {
+            String message = (String) in.readObject();
+            if(message.equals("EXISTS")){
+                //username already exists
+                Utilities.printError("CONSUMER: REGISTER: This username already exists try again");
+            }else if(message.equals("TRUE")){
+                //user registration was successful
                 STATE = IN;
-                return;
+            }else if(message.equals("FALSE")){
+                //user registration was unsuccessful
+                Utilities.printError("CONSUMER: REGISTER: ERROR: Could not register, try again");
             }
-            //user registration was unsuccessful
-            Utilities.printError("CONSUMER: REGISTER: ERROR: Could not register, try again");
         } catch(IOException e) {
             Utilities.printError("CONSUMER: REGISTER: ERROR: Could not get streams");
         } catch (ClassNotFoundException e){

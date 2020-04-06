@@ -430,9 +430,9 @@ public class Broker {
 
             Pair<String,BigInteger> credentials = (Pair<String,BigInteger>) in.readObject();
             
-           boolean verified = writeUser(credentials);
+            String message = writeUser(credentials);
 
-            out.writeObject(verified);
+            out.writeObject(message);
             out.flush();
         } catch (IOException e) {
             Utilities.printError("BROKER: REGISTER USER: Could not use streams");
@@ -604,14 +604,19 @@ public class Broker {
      * @param credentials user's username and password
      * @return true if the operation was successful
      */
-    private synchronized boolean writeUser(Pair<String,BigInteger> credentials){
+    private synchronized String writeUser(Pair<String,BigInteger> credentials){
+        for(Pair<String,BigInteger> user : registeredUsers){
+            if(credentials.getKey().equals(user.getKey())){
+                return "EXISTS";
+            }
+        }
         boolean processed = true;
         processed = writeToUserFile("<User>") && processed;
         processed = writeToUserFile("<username>"+credentials.getKey()+"</username>") && processed;
         processed = writeToUserFile("<password>"+credentials.getValue()+"</password>") && processed;
         processed = writeToUserFile("</User>") && processed;
         if(processed) registeredUsers.add(credentials);
-        return processed;
+        return processed? "TRUE" : "FALSE";
     }
 
     /**
