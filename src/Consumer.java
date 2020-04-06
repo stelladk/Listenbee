@@ -106,7 +106,6 @@ public class Consumer {
                     //user has been registered
                     case "VERIFIED":
                         STATE = IN;
-                        Utilities.print("success ");
                         processed = true;
                         break;
                     //user registered but wrong credentials

@@ -29,9 +29,17 @@ public class ConsumerMain {
             return;
         }
 
-        Consumer consumer = new Consumer(IP, args[0], Broker.getToCliPort());
-
         reader = new BufferedReader(new InputStreamReader(System.in));
+
+        String serverIP;
+        if(args.length < 1){
+            System.out.println("Server IP: ");
+            serverIP = input();
+        }else{
+            serverIP = args[0];
+        }
+        Consumer consumer = new Consumer(IP, serverIP, Broker.getToCliPort());
+
 
         while (true) {
             //while consumer not logged in keep him in main menu
