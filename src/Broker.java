@@ -5,7 +5,6 @@ import java.io.*;
 import java.net.*;
 import java.math.BigInteger;
 
-import com.mpatric.mp3agic.MutableInteger;
 import javafx.util.*;
 import musicFile.MusicFile;
 
@@ -428,8 +427,8 @@ public class Broker {
         closeConnection(connection);
     }
 
-    /**Utilities.printError("BROKER: ACCEPT PUBLISHER CONNECTION: Could not cast Object to Pair");
-     *
+    /**
+     * Check credentials send by user and inform user about their validity
      * @param connection socket for connection
      * @param clientIP consumer IP address
      */
@@ -456,14 +455,9 @@ public class Broker {
             String message = "FALSE"; //used for wrong credentials
             if (!registered) { //if not registered, sign consumer up
                 message = "REGISTER";
-                out.writeObject(message);
-                out.flush();
             } else if (client != null) { //if consumer registered and used right credentials
                 message = "VERIFIED";
-                out.writeObject(message);
-                out.flush();
             }
-            //TODO
             out.writeObject(message);
             out.flush();
 

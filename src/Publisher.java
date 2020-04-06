@@ -199,6 +199,11 @@ public class Publisher {
         return thread;
     }
 
+    /**
+     * Add new Broker to brokerList
+     * @param IP broker's IP address
+     * @param HASH broker's hash value
+     */
     private synchronized void updateBrokerList(String IP, BigInteger HASH){
         brokerList.add(new Pair<>(IP, HASH));
     }
