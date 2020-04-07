@@ -23,8 +23,8 @@ public class PublisherMain {
             return;
         }
 
-        Publisher pub = new Publisher(IP,"^[[a-jA-J] | [0-9]].*"); 
-        
+        Publisher pub = new Publisher(IP, "^[k-zK-Z].*");
+
         List<String> serverIPs; 
         if(args.length < 1){
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
