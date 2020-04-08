@@ -5,7 +5,7 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class PublisherMain {
+public class PublisherMain2 {
 
     public static void main(String[] args) {
         String IP;
