@@ -312,7 +312,9 @@ public class Publisher {
             chunks = new ArrayList<>();
             for (MusicFile song : files.get(artist)) {
                 chunks.addAll(MusicFileHandler.split(song));
+                chunks.add(null);
             }
+            chunks.add(null);
         }
 
         //send music file to broker

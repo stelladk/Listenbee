@@ -533,6 +533,8 @@ public class Broker {
                             cli_out.flush();
                             counter = 0;
                         }
+                        cli_out.writeObject(null);
+                        cli_out.flush();
                     } catch(EOFException e){
                         ++counter;
                     }

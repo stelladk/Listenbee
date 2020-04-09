@@ -231,24 +231,25 @@ public class Consumer {
         try {
             while (counter < 2) {
                 try {
-                    while (true) {
-                        file = (MusicFile) in.readObject();
+                    while ((file = (MusicFile) in.readObject()) != null) {
                         chunks.add(file);
                         counter = 0;
                     }
+
+                    if (!chunks.isEmpty()) {
+                        if (mode.equals("ONLINE")) { //save music file chunks
+                            MusicFileHandler.write(chunks);
+                        } else if (mode.equals("OFFLINE")) { //merge chunks and save the music file
+                            MusicFile merged = MusicFileHandler.merge(chunks);
+                            MusicFileHandler.write(merged);
+                        }
+                    }
+
+                    chunks.clear();
                 }catch(EOFException e){
                     ++counter;
                 }
                 if (counter >= 2) break;
-                
-                if (mode.equals("ONLINE")) { //save music file chunks
-                    MusicFileHandler.write(chunks);
-                } else if (mode.equals("OFFLINE")) { //merge chunks and save the music file
-                    MusicFile merged = MusicFileHandler.merge(chunks);
-                    MusicFileHandler.write(merged);
-                }
-                
-                chunks.clear();
             }
         } catch (IOException e) {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not get streams");
