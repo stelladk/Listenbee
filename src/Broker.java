@@ -495,10 +495,7 @@ public class Broker {
             try {
                 //inform consumer that you will send the brokers
                 ObjectOutputStream cli_out = new ObjectOutputStream(clientConnx.getOutputStream());
-                cli_out.writeObject("DECLINE");
-                cli_out.flush();
-
-                cli_out.writeObject(artistsToBrokers);
+                cli_out.writeObject("FAILURE");
                 cli_out.flush();
 
                 closeConnection(clientConnx);

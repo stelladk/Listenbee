@@ -163,9 +163,15 @@ public class Consumer {
                         receiveData(in, mode);
                         closeConnection(connection);
                         return;
+                    //artists doen't exist
+                    case "FAILURE":
+                        Utilities.printError("Artist doesn't exist");
+                        closeConnection(connection);
+                        return;
                     //broker doesn't have the song --> send other brokers
                     case "DECLINE":
                         getBrokers(in);
+                        
                 }
                 closeConnection(connection);
             }
