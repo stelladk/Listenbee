@@ -10,3 +10,19 @@ framework/*.class
 
 #General
 Project.pdf
+
+#AndroidStrudio
+Listenbee/*.iml
+Listenbee/.gradle
+Listenbee/local.properties
+Listenbee/.idea/caches
+Listenbee/.idea/libraries
+Listenbee/.idea/modules.xml
+Listenbee/.idea/workspace.xml
+Listenbee/.idea/navEditor.xml
+Listenbee/.idea/assetWizardSettings.xml
+Listenbee/.DS_Store
+Listenbee/build
+Listenbee/captures
+Listenbee/.externalNativeBuild
+Listenbee/.cxx
