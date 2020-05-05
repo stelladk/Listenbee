@@ -1,15 +1,12 @@
 #IntelliJ
-/.idea/
-*.iml
-/out/
-/res/dataset1/
-/res/Download/
-/res/Stream/
-/res/data/
+framework/.idea/
+framework/*.iml
+framework/out/
+framework/res/
 
 #VSCode
-/.vscode/
-*.class
+framework/.vscode/
+framework/*.class
 
 #General
 Project.pdf
