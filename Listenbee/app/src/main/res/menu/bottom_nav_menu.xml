@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_library"
+        android:icon="@drawable/library"
+        android:enabled="true"
+        app:showAsAction="always"
+        android:title="@string/library_btn_desc"/>
+
+    <item
+        android:id="@+id/action_profile"
+        android:icon="@drawable/profile"
+        android:enabled="true"
+        app:showAsAction="always"
+        android:title="@string/profile_btn_desc"/>
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/search"
+        android:enabled="true"
+        app:showAsAction="always"
+        android:title="@string/search_btn_desc"/>
+
+</menu>
