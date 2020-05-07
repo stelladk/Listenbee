@@ -6,11 +6,19 @@
     tools:context=".MainActivity"
     style="@style/AppTheme">
 
+    <!-- FRAGMENT CONTAINER -->
+    <RelativeLayout
+        android:id="@+id/container_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottom_navigation"
+        android:background="@color/white"/>
+
     <!-- BOTTOM NAVIGATION BAR -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
-        app:itemIconTint="@color/white"
-        app:itemTextColor="@color/white"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
         app:menu="@menu/bottom_nav_menu"
         style="@style/BottomNavigationBar"/>
 

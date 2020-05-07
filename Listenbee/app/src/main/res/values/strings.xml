@@ -5,4 +5,8 @@
     <string name="library_btn_desc">Library</string>
     <string name="profile_btn_desc">Profile</string>
     <string name="search_btn_desc">Search</string>
+
+    <!-- TITLE -->
+    <string name="library_title">Library</string>
+    <string name="recent_title">Recently Added</string>
 </resources>

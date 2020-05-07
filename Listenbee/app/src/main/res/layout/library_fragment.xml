@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/container_library_fragment"
+    style="@style/FragContainer">
+
+    <!-- TITLE -->
+    <TextView
+        android:id="@+id/title_fragment"
+        android:text="@string/library_title"
+        style="@style/TitleView"/>
+
+    <!-- DIVIDER -->
+    <View
+        android:id="@+id/divider"
+        style="@style/Divider"/>
+
+    <!-- LIST & DIVIDERS  -->
+    <!--       TODO       -->
+
+    <!-- TITLE RECENT-->
+    <TextView
+        android:id="@+id/recent_title"
+        android:text="@string/recent_title"
+        style="@style/RecentView"/>
+
+    <!-- SCROLLVIEW RECENT -->
+    <!--       TODO        -->
+
+</RelativeLayout>

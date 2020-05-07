@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- DARK THEME -->
-    <color name="black_stone">#1C1D24</color>
-    <color name="white">#FFFFFF</color>
+    <!-- GENERAL -->
     <color name="black">#000</color>
+
+    <!-- LIGHT THEME -->
+    <color name="white">#FFF</color>
+    <color name="wolf_grey">#939498</color>
+    <color name="red_flag">#FF2047</color>
 </resources>

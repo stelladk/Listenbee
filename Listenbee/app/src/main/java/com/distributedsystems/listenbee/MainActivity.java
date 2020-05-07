@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
+import com.distributedsystems.listenbee.fragments.LibraryFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -15,6 +18,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container_fragment, new LibraryFragment())
+                .addToBackStack(null)
+                .commit();
 
         //Bottom navigation toolbar
         tabs = findViewById(R.id.bottom_navigation);
@@ -39,22 +48,31 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item){
+        Fragment selectedFragment;
 
         switch(item.getItemId()){
             case R.id.action_library:
-                //TODO
+                selectedFragment = new LibraryFragment();
                break;
             case R.id.action_profile:
                 //TODO
-                break;
+                //break;
+                return true;
             case R.id.action_search:
                 //TODO
-                break;
+                //break;
+                return true;
             default:
                 //TODO
                 return false;
         }
 
+        //load the right fragment
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container_fragment, selectedFragment)
+                .addToBackStack(null)
+                .commit();
         return true;
     }
 }
