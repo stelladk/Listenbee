@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.distributedsystems.listenbee.fragments.LibraryFragment;
+import com.example.eventdeliverysystem.Broker;
+import com.example.eventdeliverysystem.Consumer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -28,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         //Bottom navigation toolbar
         tabs = findViewById(R.id.bottom_navigation);
         tabs.setOnNavigationItemSelectedListener(this);
+
+        Consumer consumer = new Consumer("127.0.0.1", "127.0.0.1", Broker.getToCliPort());
     }
 
 

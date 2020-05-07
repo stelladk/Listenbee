@@ -6,7 +6,9 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c151c0c8-0c69-4cc2-a5b5-ddb87454bc49" name="Default Changelist" comment="" />
+    <list default="true" id="c151c0c8-0c69-4cc2-a5b5-ddb87454bc49" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/app.iml" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
