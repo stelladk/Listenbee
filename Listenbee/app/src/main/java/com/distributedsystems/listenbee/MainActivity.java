@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.distributedsystems.listenbee.fragments.LibraryFragment;
+import com.distributedsystems.listenbee.fragments.ProfileFragment;
+import com.distributedsystems.listenbee.fragments.SearchFragment;
 import com.example.eventdeliverysystem.Broker;
 import com.example.eventdeliverysystem.Consumer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -57,17 +59,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         switch(item.getItemId()){
             case R.id.action_library:
                 selectedFragment = new LibraryFragment();
-               break;
+                break;
             case R.id.action_profile:
-                //TODO
-                //break;
-                return true;
+                selectedFragment = new ProfileFragment();
+                break;
             case R.id.action_search:
-                //TODO
-                //break;
-                return true;
+                selectedFragment = new SearchFragment();
+                break;
             default:
-                //TODO
                 return false;
         }
 

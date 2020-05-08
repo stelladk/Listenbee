@@ -6,7 +6,14 @@
     <string name="profile_btn_desc">Profile</string>
     <string name="search_btn_desc">Search</string>
 
+    <string name="songs_btn">Songs</string>
+    <string name="albums_btn">Albums</string>
+    <string name="artists_btn">Artists</string>
+    <string name="playlists_btn">Playlists</string>
+
     <!-- TITLE -->
     <string name="library_title">Library</string>
     <string name="recent_title">Recently Added</string>
+    <string name="profile_title">Profile</string>
+    <string name="search_title">Search</string>
 </resources>

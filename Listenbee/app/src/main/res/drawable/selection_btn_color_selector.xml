@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- PRESSED -->
+    <item android:state_pressed="true" android:drawable="@color/red_flag"/>
+    <!-- SELECTED -->
+    <item android:state_selected="true" android:drawable="@color/red_flag"/>
+    <!-- CHECKED -->
+    <item android:state_checked="true" android:drawable="@color/red_flag"/>
+    <!-- DEFAULT -->
+    <item android:drawable="@color/white"/>
+</selector>
