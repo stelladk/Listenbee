@@ -2,6 +2,9 @@
     <string name="app_name">Listenbee</string>
 
     <!-- BUTTON -->
+    <string name="login_btn">Log In</string>
+    <string name="signup_btn">Sign Up</string>
+
     <string name="library_btn_desc">Library</string>
     <string name="profile_btn_desc">Profile</string>
     <string name="search_btn_desc">Search</string>
@@ -16,4 +19,6 @@
     <string name="recent_title">Recently Added</string>
     <string name="profile_title">Profile</string>
     <string name="search_title">Search</string>
+    <string name="email_title">Email</string>
+    <string name="password_title">Password</string>
 </resources>

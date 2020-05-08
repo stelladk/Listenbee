@@ -32,8 +32,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         //Bottom navigation toolbar
         tabs = findViewById(R.id.bottom_navigation);
         tabs.setOnNavigationItemSelectedListener(this);
-
-        Consumer consumer = new Consumer("127.0.0.1", "127.0.0.1", Broker.getToCliPort());
     }
 
 

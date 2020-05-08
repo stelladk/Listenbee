@@ -14,7 +14,30 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <!-- LOGIN SCREEN -->
+    <style name="LoginContainer">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_centerInParent">true</item>
+        <!-- Misc -->
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
     <!-- TEXTVIEW -->
+    <style name="LogInTitle">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Text -->
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="TitleView">
         <!-- Dimensions -->
         <item name="android:layout_width">match_parent</item>
@@ -55,6 +78,22 @@
         <item name="android:background">@color/wolf_grey</item>
     </style>
 
+    <!-- FORMS -->
+    <style name="LogInForm">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <!-- Text -->
+        <item name="android:ems">8</item>
+        <item name="android:textColor">@color/black</item>
+        <!-- Color -->
+        <item name="android:backgroundTint">@color/red_flag</item>
+        <item name="android:textCursorDrawable">@null</item>
+        <!-- Misc -->
+        <item name="paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
+    </style>
+
     <!-- LIST -->
     <style name="List">
         <!-- Dimensions -->
@@ -67,11 +106,49 @@
     </style>
 
     <!-- BUTTON -->
+    <style name="LoginButton">
+        <!-- Dimensions -->
+        <item name="android:layout_width">120dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_below">@id/login_form_container</item>
+        <item name="android:layout_centerInParent">true</item>
+        <!-- Text -->
+        <item name="android:textSize">16sp</item>
+        <!-- Color -->
+        <item name="android:background">@drawable/button</item>
+        <!-- Misc -->
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <style name="SignUpButton">
+        <!-- Dimensions -->
+        <item name="android:layout_width">120dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_below">@id/login_btn</item>
+        <item name="android:layout_centerInParent">true</item>
+        <!-- Text -->
+        <item name="android:textColor">@color/red_flag</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textAllCaps">false</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+        <!-- Misc -->
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:padding">0dp</item>
+    </style>
+
     <style name="SelectionButton">
         <!-- Dimensions -->
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <!-- Text -->
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/selection_btn_text_color_selector</item>
         <item name="android:textAlignment">textStart</item>
         <!-- Color -->
@@ -80,6 +157,7 @@
         <!-- Misc -->
         <item name="android:stateListAnimator">@null</item>
     </style>
+
 
     <!--  RECENT -->
     <style name="RecentContainer">

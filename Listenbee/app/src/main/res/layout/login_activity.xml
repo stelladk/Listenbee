@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".LoginActivity"
+    style="@style/AppTheme">
+
+    <!-- APPLICATION ICON -->
+    <!-- TODO -->
+
+    <!-- APPLICATION NAME -->
+    <!-- TODO -->
+
+    <!-- SIGN-IN FORM CONTAINER -->
+    <LinearLayout
+        android:id="@+id/login_form_container"
+        style="@style/LoginContainer">
+
+        <TextView
+            android:id="@+id/email_title"
+            android:text="@string/email_title"
+            style="@style/LogInTitle"/>
+
+        <EditText
+            android:id="@+id/email_form"
+            android:inputType="textEmailAddress"
+            style="@style/LogInForm" />
+
+        <TextView
+            android:id="@+id/password_title"
+            android:text="@string/password_title"
+            android:paddingTop="10dp"
+            style="@style/LogInTitle"/>
+
+        <EditText
+            android:id="@+id/password_form"
+            android:inputType="textPassword"
+            style="@style/LogInForm"/>
+
+    </LinearLayout>
+
+    <!-- SIGN-IN BUTTON -->
+    <!-- TODO -->
+    <Button
+        android:id="@+id/login_btn"
+        android:text="@string/login_btn"
+        android:onClick="changeActivity"
+        style="@style/LoginButton"/>
+
+    <!-- SIGN-UP -->
+    <!-- TODO -->
+    <Button
+        android:id="@+id/signup_btn"
+        android:text="@string/signup_btn"
+        android:onClick="changeActivity"
+        style="@style/SignUpButton"/>
+
+</RelativeLayout>
