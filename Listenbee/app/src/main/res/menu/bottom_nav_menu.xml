@@ -4,21 +4,21 @@
 
     <item
         android:id="@+id/action_library"
-        android:icon="@drawable/library"
+        android:icon="@drawable/library_ic"
         android:enabled="true"
         app:showAsAction="always"
         android:title="@string/library_btn_desc"/>
 
     <item
         android:id="@+id/action_profile"
-        android:icon="@drawable/profile"
+        android:icon="@drawable/profile_ic"
         android:enabled="true"
         app:showAsAction="always"
         android:title="@string/profile_btn_desc"/>
 
     <item
         android:id="@+id/action_search"
-        android:icon="@drawable/search"
+        android:icon="@drawable/search_ic"
         android:enabled="true"
         app:showAsAction="always"
         android:title="@string/search_btn_desc"/>

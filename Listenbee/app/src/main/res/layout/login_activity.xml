@@ -11,7 +11,7 @@
     <!-- APPLICATION NAME -->
     <!-- TODO -->
 
-    <!-- SIGN-IN FORM CONTAINER -->
+    <!-- LOG-IN FORM CONTAINER -->
     <LinearLayout
         android:id="@+id/login_form_container"
         style="@style/LoginContainer">
@@ -40,19 +40,18 @@
     </LinearLayout>
 
     <!-- SIGN-IN BUTTON -->
-    <!-- TODO -->
+    <!-- FIXME -->
     <Button
         android:id="@+id/login_btn"
         android:text="@string/login_btn"
-        android:onClick="changeActivity"
+        android:onClick="toMainActivity"
         style="@style/LoginButton"/>
 
     <!-- SIGN-UP -->
-    <!-- TODO -->
     <Button
         android:id="@+id/signup_btn"
         android:text="@string/signup_btn"
-        android:onClick="changeActivity"
+        android:onClick="toSignUpActivity"
         style="@style/SignUpButton"/>
 
 </RelativeLayout>

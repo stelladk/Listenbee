@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/library_container"
+    android:id="@+id/library_fragment"
     style="@style/FragContainer">
 
     <!-- TITLE -->
@@ -24,28 +24,28 @@
         <Button
             android:id="@+id/songs_btn"
             android:text="@string/songs_btn"
-            android:drawableEnd="@drawable/arrow"
+            android:drawableEnd="@drawable/arrow_ic"
             style="@style/SelectionButton"/>
 
         <!-- ALBUMS -->
         <Button
             android:id="@+id/albums_btn"
             android:text="@string/albums_btn"
-            android:drawableEnd="@drawable/arrow"
+            android:drawableEnd="@drawable/arrow_ic"
             style="@style/SelectionButton"/>
 
         <!-- ARTISTS -->
         <Button
             android:id="@+id/artists_btn"
             android:text="@string/artists_btn"
-            android:drawableEnd="@drawable/arrow"
+            android:drawableEnd="@drawable/arrow_ic"
             style="@style/SelectionButton"/>
 
         <!-- PLAYLISTS -->
         <Button
             android:id="@+id/playlists_btn"
             android:text="@string/playlists_btn"
-            android:drawableEnd="@drawable/arrow"
+            android:drawableEnd="@drawable/arrow_ic"
             style="@style/SelectionButton"/>
 
     </LinearLayout>

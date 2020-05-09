@@ -6,13 +6,13 @@ import android.util.Log;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class LoginActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.login_activity);
+        setContentView(R.layout.signup_activity);
     }
 
     /**
@@ -27,12 +27,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Transfer user to sign-up activity
+     * Transfer user to main activity
      */
-    public void toSignUpActivity(View view) {
-        Log.d("METHOD", "------ TO SIGN-UP ACTIVITY ------");
+    public void previous(View view){
+        Log.d("METHOD", "------ TO PREVIOUS ACTIVITY ------");
 
-        Intent signup_activity = new Intent(this, SignUpActivity.class);
-        startActivity(signup_activity);
+        Intent main_activity = new Intent(this, LoginActivity.class);
+        startActivity(main_activity);
     }
+
 }

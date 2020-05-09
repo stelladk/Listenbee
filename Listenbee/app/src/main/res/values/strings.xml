@@ -4,6 +4,7 @@
     <!-- BUTTON -->
     <string name="login_btn">Log In</string>
     <string name="signup_btn">Sign Up</string>
+    <string name="prev_btn_desc">Previous</string>
 
     <string name="library_btn_desc">Library</string>
     <string name="profile_btn_desc">Profile</string>
@@ -15,10 +16,16 @@
     <string name="playlists_btn">Playlists</string>
 
     <!-- TITLE -->
+    <string name="email_title">Email</string>
+    <string name="password_title">Password</string>
+    <string name="username_title">User name</string>
+    <string name="age_title">Age</string>
+
     <string name="library_title">Library</string>
     <string name="recent_title">Recently Added</string>
     <string name="profile_title">Profile</string>
     <string name="search_title">Search</string>
-    <string name="email_title">Email</string>
-    <string name="password_title">Password</string>
+
+    <!-- HINTS -->
+    <string name="search_hint">Artists, Songs and More</string>
 </resources>
