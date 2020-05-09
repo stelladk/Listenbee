@@ -67,6 +67,38 @@
         <item name="android:paddingBottom">5dp</item>
     </style>
 
+    <style name="InfoTitle">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Text -->
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="InfoDesc">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Text -->
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <!-- IMAGEVIEW -->
+    <style name="ImageView">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_below">@id/title_fragment</item>
+        <!-- COLOUR -->
+        <item name="android:background">@color/white</item>
+        <!-- MISC -->
+        <item name="android:adjustViewBounds">true</item>
+    </style>
+
     <!-- DIVIDER -->
     <style name="Divider">
         <!-- Dimensions -->
@@ -92,6 +124,7 @@
         <!-- Misc -->
         <item name="paddingStart">4dp</item>
         <item name="android:paddingEnd">4dp</item>
+        <item name="android:singleLine">true</item>
     </style>
 
     <!-- LIST -->
@@ -103,6 +136,18 @@
         <item name="android:layout_below">@id/divider</item>
         <!-- Misc -->
         <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="ProfileInfo">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_below">@id/profile_image</item>
+<!--        &lt;!&ndash; Misc &ndash;&gt;-->
+<!--        <item name="android:paddingStart">16dp</item>-->
+<!--        <item name="android:paddingEnd">16dp</item>-->
     </style>
 
     <!-- BUTTON -->

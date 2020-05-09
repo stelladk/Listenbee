@@ -4,15 +4,63 @@
     android:id="@+id/profile_fragment"
     style="@style/FragContainer">
 
+    <!-- TOOLBAR -->
+    <RelativeLayout
+        android:id="@+id/toolbar_container"
+        style="@style/Toolbar">
+
+        <ImageButton
+            android:id="@+id/settings_btn"
+            android:src="@drawable/settings_ic"
+            android:contentDescription="@string/settings_btn_desc"
+            android:layout_alignParentEnd="true"
+            android:onClick="toSettings"
+            style="@style/ImageButton"/>
+
+    </RelativeLayout>
+
     <!-- TITLE -->
     <TextView
         android:id="@+id/title_fragment"
         android:text="@string/profile_title"
-        style="@style/TitleView"/>
+        style="@style/TitleView"
+        android:layout_alignParentTop="false"
+        android:layout_below="@id/toolbar_container"/>
 
-    <!-- DIVIDER -->
-    <View
-        android:id="@+id/divider"
-        style="@style/Divider"/>
+    <!-- PROFILE IMAGE -->
+    <!-- FIXME -->
+   <ImageView
+       android:id="@+id/profile_image"
+       android:contentDescription="@string/image_view_desc"
+       android:src="@drawable/ic_launcher_foreground"
+       style="@style/ImageView"/>
+
+    <!--PROFILE INFO -->
+    <!-- FIXME -->
+    <LinearLayout
+        android:id="@+id/login_form_container"
+        style="@style/ProfileInfo"
+        android:paddingTop="16dp">
+
+        <TextView
+            android:id="@+id/username_title"
+            android:text="@string/username_title"
+            style="@style/InfoTitle"/>
+        <TextView
+            android:id="@+id/username_field"
+            android:text="Lampros Lountzis"
+            style="@style/InfoDesc"/>
+
+        <TextView
+            android:id="@+id/email_title"
+            android:text="@string/email_title"
+            android:paddingTop="10dp"
+            style="@style/InfoTitle"/>
+        <TextView
+            android:id="@+id/email_field"
+            android:text="lambroslntz15@gmail.com"
+            style="@style/InfoDesc"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

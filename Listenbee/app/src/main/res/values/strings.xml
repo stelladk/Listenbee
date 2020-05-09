@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Listenbee</string>
 
+    <!-- VIEW -->
+    <string name="image_view_desc">Profile Image</string>
+
     <!-- BUTTON -->
     <string name="login_btn">Log In</string>
     <string name="signup_btn">Sign Up</string>
@@ -15,10 +18,12 @@
     <string name="artists_btn">Artists</string>
     <string name="playlists_btn">Playlists</string>
 
+    <string name="settings_btn_desc">Settings</string>
+
     <!-- TITLE -->
     <string name="email_title">Email</string>
     <string name="password_title">Password</string>
-    <string name="username_title">User name</string>
+    <string name="username_title">Username</string>
     <string name="age_title">Age</string>
 
     <string name="library_title">Library</string>
@@ -26,6 +31,4 @@
     <string name="profile_title">Profile</string>
     <string name="search_title">Search</string>
 
-    <!-- HINTS -->
-    <string name="search_hint">Artists, Songs and More</string>
 </resources>
