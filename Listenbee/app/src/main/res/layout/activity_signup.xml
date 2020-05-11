@@ -17,7 +17,7 @@
             android:contentDescription="@string/prev_btn_desc"
             android:layout_alignParentStart="true"
             android:onClick="previous"
-            style="@style/SettingsBtn"/>
+            style="@style/ToolbarBtn"/>
 
     </RelativeLayout>
 

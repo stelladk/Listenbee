@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/MusicPlayerContainer">
+
+    <!-- BUTTON -->
+    <ImageButton
+        android:id="@+id/minimize_btn"
+        android:src="@drawable/minimize_ic"
+        android:onClick="minimizePlayer"
+        style="@style/ToolbarBtn"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:tint="@color/wolf_grey"/>
+
+    <!-- IMAGE COVER -->
+    <ImageView
+        android:id="@+id/song_cover"
+        android:contentDescription="@string/song_cover_desc"
+        style="@style/SongCoverLg"/>
+
+    <!-- PROGRESS BAR -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/song_cover"
+        android:layout_centerHorizontal="true"
+        android:thumbTint="@color/wolf_grey"
+        android:progressTint="@color/red_flag"
+        android:progressBackgroundTint="@color/wolf_grey"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        style="?android:attr/progressBarStyleHorizontal"/>
+
+    <!-- TITLE -->
+    <TextView
+        android:id="@+id/song_title"
+        android:text="Physical"
+        android:layout_below="@id/progressBar"
+        style="@style/SongTitleLg"/>
+
+    <!-- ARTIST -->
+    <TextView
+        android:id="@+id/artist_title"
+        android:text="Dua Lipa"
+        android:layout_below="@id/song_title"
+        style="@style/Artist"/>
+
+    <!-- PLAYER BUTTONS -->
+    <RelativeLayout
+        android:id="@+id/player_buttons"
+        style="@style/PlayerBtnContainer">
+        <ImageButton
+            android:id="@+id/fast_rewind_btn"
+            android:contentDescription="@string/fast_rewind_desc"
+            android:src="@drawable/fast_rewind_ic_md"
+            android:layout_alignParentStart="true"
+            android:onClick="fastRewind"
+            style="@style/PlayerBtn"/>
+
+        <ImageButton
+            android:id="@+id/play_btn"
+            android:contentDescription="@string/play_desc"
+            android:src="@drawable/play_ic_md"
+            android:layout_toEndOf="@id/fast_rewind_btn"
+            android:layout_toStartOf="@id/fast_forward_btn"
+            android:onClick="play"
+            style="@style/PlayerBtn"/>
+
+        <ImageButton
+            android:id="@+id/fast_forward_btn"
+            android:contentDescription="@string/fast_forward_desc"
+            android:src="@drawable/fast_forward_ic_md"
+            android:layout_alignParentEnd="true"
+            android:onClick="fastForward"
+            style="@style/PlayerBtn"/>
+    </RelativeLayout>
+
+    <!-- VOLUME BAR -->
+    <RelativeLayout
+        android:id="@+id/volume_container"
+        style="@style/VolumeContainer">
+
+        <ImageView
+            android:id="@+id/low_volume"
+            android:src="@drawable/low_volume_ic"
+            android:layout_alignParentStart="true"
+            style="@style/VolumeIcon"/>
+
+        <SeekBar
+            android:id="@+id/volume_bar"
+            style="@style/VolumeBar"/>
+
+        <ImageView
+            android:id="@+id/high_volume"
+            android:src="@drawable/high_volume_ic"
+            android:layout_alignParentEnd="true"
+            style="@style/VolumeIcon"/>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

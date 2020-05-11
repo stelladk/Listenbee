@@ -14,6 +14,7 @@
     <!-- MUSIC PLAYER -->
     <RelativeLayout
         android:id="@+id/music_player_container"
+        android:onClick="openPlayer"
         style="@style/MusicPlayer">
 
         <ImageView

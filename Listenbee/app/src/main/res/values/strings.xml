@@ -8,16 +8,19 @@
     <!-- BUTTON -->
     <string name="login_btn">Log In</string>
     <string name="signup_btn">Sign Up</string>
-    <string name="prev_btn_desc">Previous</string>
 
     <string name="library_btn_desc">Library</string>
     <string name="profile_btn_desc">Profile</string>
     <string name="search_btn_desc">Search</string>
 
+    <string name="fast_rewind_desc">Fast Rewind</string>
     <string name="fast_forward_desc">Fast Forward</string>
     <string name="play_desc">Play</string>
 
     <string name="settings_btn_desc">Settings</string>
+    <string name="save_btn_desc">Save</string>
+    <string name="prev_btn_desc">Previous</string>
+    <string name="upload_image_desc">Upload Image</string>
 
     <!-- TITLE -->
     <string name="email_title">Email</string>
@@ -26,8 +29,9 @@
     <string name="age_title">Age</string>
 
     <string name="library_title">Library</string>
-    <string name="recent_title">Recently Added</string>
     <string name="profile_title">Profile</string>
     <string name="search_title">Search</string>
+
+    <string name="image_title">Profile Image</string>
 
 </resources>

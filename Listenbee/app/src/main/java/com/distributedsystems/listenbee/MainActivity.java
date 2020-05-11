@@ -1,6 +1,8 @@
 package com.distributedsystems.listenbee;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -9,8 +11,6 @@ import androidx.fragment.app.Fragment;
 import com.distributedsystems.listenbee.fragments.LibraryFragment;
 import com.distributedsystems.listenbee.fragments.ProfileFragment;
 import com.distributedsystems.listenbee.fragments.SearchFragment;
-import com.example.eventdeliverysystem.Broker;
-import com.example.eventdeliverysystem.Consumer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -47,6 +47,28 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     //todo
     public void fastForward(View view) {
 
+    }
+
+    //todo
+    public void fastRewind(View view) {
+
+    }
+
+
+    //todo
+    public void toSettings(View view) {
+        Log.d("METHOD", "------ TO SETTINGS ACTIVITY ------");
+
+        Intent settings_activity = new Intent(this, SettingsActivity.class);
+        startActivity(settings_activity);
+    }
+
+    public void openPlayer(View view) {
+        setContentView(R.layout.music_player);
+    }
+
+    public void minimizePlayer(View view) {
+        setContentView(R.layout.activity_main);
     }
 
 
@@ -90,10 +112,5 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .addToBackStack(null)
                 .commit();
         return true;
-    }
-
-    //todo
-    public void toSettings(View view) {
-
     }
 }
