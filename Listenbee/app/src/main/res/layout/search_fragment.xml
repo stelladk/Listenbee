@@ -2,14 +2,26 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/search_fragment"
-    style="@style/FragContainer">
+    style="@style/Fragment">
 
-    <!-- TITLE -->
-    <TextView
-        android:id="@+id/title_fragment"
-        android:text="@string/search_title"
-        style="@style/TitleView"/>
+    <!-- TOOLBAR -->
+    <RelativeLayout
+        android:id="@+id/toolbar_container"
+        style="@style/ToolbarContainer">
 
+        <!-- TITLE -->
+        <TextView
+            android:id="@+id/title_fragment"
+            android:text="@string/search_title"
+            style="@style/FragTitle"/>
 
+    </RelativeLayout>
+
+    <!-- DIVIDER -->
+    <View
+        android:id="@+id/divider"
+        style="@style/Divider"/>
+
+    <!-- SEARCH BAR -->
 
 </RelativeLayout>

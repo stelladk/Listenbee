@@ -3,11 +3,9 @@ package com.distributedsystems.listenbee;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-
 import com.distributedsystems.listenbee.fragments.LibraryFragment;
 import com.distributedsystems.listenbee.fragments.ProfileFragment;
 import com.distributedsystems.listenbee.fragments.SearchFragment;
@@ -34,6 +32,21 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         //Bottom navigation toolbar
         tabs = findViewById(R.id.bottom_navigation);
         tabs.setOnNavigationItemSelectedListener(this);
+    }
+
+    //todo
+    public void play(View view) {
+
+    }
+
+    //todo
+    public void pause(View view) {
+
+    }
+
+    //todo
+    public void fastForward(View view) {
+
     }
 
 

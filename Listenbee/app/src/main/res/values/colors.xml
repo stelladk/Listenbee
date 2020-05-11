@@ -6,5 +6,7 @@
     <!-- LIGHT THEME -->
     <color name="white">#FFF</color>
     <color name="wolf_grey">#939498</color>
+    <color name="white_smoke">#F2F2F2</color>
+    <color name="white_chalk">#F5F3F0</color>
     <color name="red_flag">#FF2047</color>
 </resources>

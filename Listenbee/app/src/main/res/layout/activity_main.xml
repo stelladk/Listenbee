@@ -9,13 +9,39 @@
     <!-- FRAGMENT CONTAINER -->
     <RelativeLayout
         android:id="@+id/container_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="16dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:layout_above="@+id/bottom_navigation"
-        android:background="@color/white"/>
+        style="@style/FragContainer"/>
+
+    <!-- MUSIC PLAYER -->
+    <RelativeLayout
+        android:id="@+id/music_player_container"
+        style="@style/MusicPlayer">
+
+        <ImageView
+            android:id="@+id/song_cover"
+            android:contentDescription="@string/song_cover_desc"
+            style="@style/SongCoverSm"/>
+
+        <TextView
+            android:id="@+id/song_title"
+            style="@style/SongTitleSm"/>
+
+        <ImageButton
+            android:id="@+id/play_btn"
+            android:contentDescription="@string/play_desc"
+            android:src="@drawable/play_ic"
+            android:layout_toStartOf="@id/fast_forward_btn"
+            android:onClick="play"
+            style="@style/MusicPlayerBtn"/>
+
+        <ImageButton
+            android:id="@+id/fast_forward_btn"
+            android:contentDescription="@string/fast_forward_desc"
+            android:src="@drawable/fast_forward_ic"
+            android:layout_alignParentEnd="true"
+            android:onClick="fastForward"
+            style="@style/MusicPlayerBtn"/>
+
+    </RelativeLayout>
 
     <!-- BOTTOM NAVIGATION BAR -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

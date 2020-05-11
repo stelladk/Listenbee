@@ -2,45 +2,45 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/profile_fragment"
-    style="@style/FragContainer">
+    style="@style/Fragment">
 
     <!-- TOOLBAR -->
     <RelativeLayout
         android:id="@+id/toolbar_container"
-        style="@style/Toolbar">
+        style="@style/ToolbarContainer">
 
+        <!-- TITLE -->
+        <TextView
+            android:id="@+id/title_fragment"
+            android:text="@string/profile_title"
+            style="@style/FragTitle"/>
+
+        <!-- SETTINGS -->
         <ImageButton
             android:id="@+id/settings_btn"
             android:src="@drawable/settings_ic"
             android:contentDescription="@string/settings_btn_desc"
             android:layout_alignParentEnd="true"
             android:onClick="toSettings"
-            style="@style/ImageButton"/>
+            style="@style/SettingsBtn"/>
 
     </RelativeLayout>
 
-    <!-- TITLE -->
-    <TextView
-        android:id="@+id/title_fragment"
-        android:text="@string/profile_title"
-        style="@style/TitleView"
-        android:layout_alignParentTop="false"
-        android:layout_below="@id/toolbar_container"/>
+    <!-- DIVIDER -->
+    <View
+        android:id="@+id/divider"
+        style="@style/Divider"/>
 
     <!-- PROFILE IMAGE -->
-    <!-- FIXME -->
-   <ImageView
-       android:id="@+id/profile_image"
-       android:contentDescription="@string/image_view_desc"
-       android:src="@drawable/ic_launcher_foreground"
-       style="@style/ImageView"/>
+    <ImageView
+        android:id="@+id/profile_image"
+        android:contentDescription="@string/image_view_desc"
+        style="@style/ProfileImage" />
 
     <!--PROFILE INFO -->
-    <!-- FIXME -->
     <LinearLayout
-        android:id="@+id/login_form_container"
-        style="@style/ProfileInfo"
-        android:paddingTop="16dp">
+        android:id="@+id/profile_info_container"
+        style="@style/ProfileInfo">
 
         <TextView
             android:id="@+id/username_title"
@@ -48,7 +48,6 @@
             style="@style/InfoTitle"/>
         <TextView
             android:id="@+id/username_field"
-            android:text="Lampros Lountzis"
             style="@style/InfoDesc"/>
 
         <TextView
@@ -58,7 +57,6 @@
             style="@style/InfoTitle"/>
         <TextView
             android:id="@+id/email_field"
-            android:text="lambroslntz15@gmail.com"
             style="@style/InfoDesc"/>
 
     </LinearLayout>

@@ -2,6 +2,7 @@
     <string name="app_name">Listenbee</string>
 
     <!-- VIEW -->
+    <string name="song_cover_desc">Song Cover Image</string>
     <string name="image_view_desc">Profile Image</string>
 
     <!-- BUTTON -->
@@ -13,10 +14,8 @@
     <string name="profile_btn_desc">Profile</string>
     <string name="search_btn_desc">Search</string>
 
-    <string name="songs_btn">Songs</string>
-    <string name="albums_btn">Albums</string>
-    <string name="artists_btn">Artists</string>
-    <string name="playlists_btn">Playlists</string>
+    <string name="fast_forward_desc">Fast Forward</string>
+    <string name="play_desc">Play</string>
 
     <string name="settings_btn_desc">Settings</string>
 

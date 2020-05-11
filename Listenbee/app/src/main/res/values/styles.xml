@@ -14,8 +14,206 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!-- LOGIN SCREEN -->
-    <style name="LoginContainer">
+    <!-- FRAGMENT CONTAINER -->
+    <style name="FragContainer">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <!-- Alignment -->
+        <item name="android:layout_above">@id/music_player_container</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+        <!-- Misc -->
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <!-- MUSIC PLAYER -->
+    <style name="MusicPlayer">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_above">@id/bottom_navigation</item>
+        <!-- Color -->
+        <item name="android:background">@color/white_smoke</item>
+        <!-- Misc -->
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <!-- SONG IMAGE SMALL -->
+    <style name="SongCoverSm">
+        <!-- Dimensions -->
+        <item name="android:layout_width">45dp</item>
+        <item name="android:layout_height">45dp</item>
+        <!-- Alignment -->
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_centerInParent">true</item>
+        <!-- Color -->
+        <item name="android:background">@color/white_smoke</item>
+    </style>
+
+    <!-- SONG TITLE SMALL -->
+    <style name="SongTitleSm">
+        <!-- Dimensions -->
+        <item name="android:layout_width">180dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_toEndOf">@id/song_cover</item>
+        <item name="android:layout_centerInParent">true</item>
+        <!-- Text -->
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <!-- Color -->
+        <item name="android:background">@color/white_smoke</item>
+        <!-- Misc -->
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+    </style>
+
+    <!-- MUSIC PLAYER BUTTONS -->
+    <style name="MusicPlayerBtn">
+        <!-- Dimensions -->
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <!-- Alignment -->
+        <item name="android:layout_centerInParent">true</item>
+        <!-- Color -->
+        <item name="android:background">@color/white_smoke</item>
+        <item name="android:tint">@color/black</item>
+        <!--Misc -->
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <style name="BottomNavigationBar">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_alignParentBottom">true</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+        <!-- Misc -->
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <!-- ACTUAL FRAGMENT -->
+    <style name="Fragment">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="ToolbarContainer">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <!-- FRAGMENT TITLE -->
+    <style name="FragTitle">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <!-- Text -->
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- DIVIDER -->
+    <style name="Divider">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <!-- Alignment -->
+        <item name="android:layout_below">@id/toolbar_container</item>
+        <!-- Color -->
+        <item name="android:background">@color/wolf_grey</item>
+        <!-- Misc -->
+        <item name="android:layout_marginBottom">5dp</item>
+    </style>
+
+    <!-- LIBRARY SCROLL VIEW -->
+    <style name="LibraryView">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_below">@id/divider</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <!-- TOOLBAR BUTTON -->
+    <style name="SettingsBtn">
+        <!-- Dimensions -->
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <!-- Alignment -->
+        <item name="android:layout_centerVertical">true</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+        <item name="android:tint">@color/red_flag</item>
+    </style>
+
+    <!-- PROFILE IMAGE -->
+    <style name="ProfileImage">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_below">@id/divider</item>
+        <!-- COLOUR -->
+        <item name="android:background">@color/white</item>
+        <!-- MISC -->
+        <item name="android:adjustViewBounds">true</item>
+    </style>
+
+    <!-- PROFILE INFORMATION -->
+    <style name="ProfileInfo">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_below">@id/profile_image</item>
+        <!-- Misc -->
+        <item name="android:paddingTop">16dp</item>
+    </style>
+
+    <style name="InfoTitle">
+        <!-- Dimensions -->
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Text -->
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="InfoDesc">
+        <!-- Dimensions -->
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Text -->
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <!-- FORM CONTAINER -->
+    <style name="FormContainer">
         <!-- Dimensions -->
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -27,10 +225,10 @@
         <item name="android:paddingEnd">16dp</item>
     </style>
 
-    <!-- TEXTVIEW -->
-    <style name="LogInTitle">
+    <!-- FORM TITLE -->
+    <style name="FormTitle">
         <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <!-- Text -->
         <item name="android:textColor">@color/black</item>
@@ -38,80 +236,8 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TitleView">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- Alignment -->
-        <item name="android:layout_alignParentTop">true</item>
-        <!-- Text -->
-        <item name="android:textColor">@color/black</item>
-        <item name="android:textSize">25sp</item>
-        <item name="android:textStyle">bold</item>
-        <!-- Misc -->
-        <item name="android:paddingBottom">5dp</item>
-    </style>
-
-    <style name="RecentView">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- Alignment -->
-        <item name="android:layout_below">@id/selections_container</item>
-        <!-- Text -->
-        <item name="android:textColor">@color/black</item>
-        <item name="android:textSize">25sp</item>
-        <item name="android:textStyle">bold</item>
-        <!-- Misc -->
-        <item name="android:paddingTop">16dp</item>
-        <item name="android:paddingBottom">5dp</item>
-    </style>
-
-    <style name="InfoTitle">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- Text -->
-        <item name="android:textColor">@color/black</item>
-        <item name="android:textSize">22sp</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="InfoDesc">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- Text -->
-        <item name="android:textColor">@color/black</item>
-        <item name="android:textSize">15sp</item>
-    </style>
-
-    <!-- IMAGEVIEW -->
-    <style name="ImageView">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- Alignment -->
-        <item name="android:layout_below">@id/title_fragment</item>
-        <!-- COLOUR -->
-        <item name="android:background">@color/white</item>
-        <!-- MISC -->
-        <item name="android:adjustViewBounds">true</item>
-    </style>
-
-    <!-- DIVIDER -->
-    <style name="Divider">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dp</item>
-        <!-- Alignment -->
-        <item name="android:layout_below">@id/title_fragment</item>
-        <!-- Color -->
-        <item name="android:background">@color/wolf_grey</item>
-    </style>
-
-    <!-- FORMS -->
-    <style name="LogInForm">
+    <!-- FORM FIELD -->
+    <style name="FormField">
         <!-- Dimensions -->
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">56dp</item>
@@ -127,30 +253,7 @@
         <item name="android:singleLine">true</item>
     </style>
 
-    <!-- LIST -->
-    <style name="List">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- Alignment -->
-        <item name="android:layout_below">@id/divider</item>
-        <!-- Misc -->
-        <item name="android:orientation">vertical</item>
-    </style>
-
-    <style name="ProfileInfo">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- Alignment -->
-        <item name="android:orientation">vertical</item>
-        <item name="android:layout_below">@id/profile_image</item>
-<!--        &lt;!&ndash; Misc &ndash;&gt;-->
-<!--        <item name="android:paddingStart">16dp</item>-->
-<!--        <item name="android:paddingEnd">16dp</item>-->
-    </style>
-
-    <!-- BUTTON -->
+    <!-- LOG-IN BUTTON -->
     <style name="LoginButton">
         <!-- Dimensions -->
         <item name="android:layout_width">120dp</item>
@@ -168,6 +271,7 @@
         <item name="android:paddingEnd">16dp</item>
     </style>
 
+    <!-- SIGN-UP BUTTON -->
     <style name="SignUpButton">
         <!-- Dimensions -->
         <item name="android:layout_width">120dp</item>
@@ -185,75 +289,6 @@
         <item name="android:stateListAnimator">@null</item>
         <item name="android:padding">0dp</item>
     </style>
-
-    <style name="ImageButton">
-        <!-- Dimensions -->
-        <item name="android:layout_width">48dp</item>
-        <item name="android:layout_height">48dp</item>
-        <!-- Padding -->
-        <item name="android:padding">12dp</item>
-        <!-- Color -->
-        <item name="android:background">@color/white</item>
-        <item name="android:tint">@color/red_flag</item>
-    </style>
-
-    <style name="SelectionButton">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- Text -->
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="android:textColor">@color/selection_btn_text_color_selector</item>
-        <item name="android:textAlignment">textStart</item>
-        <!-- Color -->
-        <item name="android:drawableTint">@color/selection_btn_icon_color_selector</item>
-        <item name="android:background">@drawable/selection_btn_color_selector</item>
-        <!-- Misc -->
-        <item name="android:stateListAnimator">@null</item>
-    </style>
-
-
-    <!--  RECENT -->
-    <style name="RecentContainer">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <!-- Alignment -->
-        <item name="android:layout_below">@id/recent_title</item>
-    </style>
-
-    <!-- NAVIGATION BAR -->
-    <style name="Toolbar">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">56dp</item>
-        <!-- Alignment -->
-        <item name="android:layout_alignParentTop">true</item>
-    </style>
-
-    <style name="BottomNavigationBar">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- Padding -->
-        <item name="android:padding">12dp</item>
-        <!-- Color -->
-        <item name="android:background">@color/white</item>
-        <!-- Alignment -->
-        <item name="android:layout_alignParentBottom">true</item>
-    </style>
-
-    <!-- FRAGMENT CONTAINER FOR BOTTOM NAVIGATION BAR -->
-    <style name="FragContainer">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <!-- Color -->
-        <item name="android:background">@color/white</item>
-    </style>
-
 
 <!--    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />-->
 
