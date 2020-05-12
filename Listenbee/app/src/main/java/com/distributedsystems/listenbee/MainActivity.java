@@ -11,11 +11,18 @@ import androidx.fragment.app.Fragment;
 import com.distributedsystems.listenbee.fragments.LibraryFragment;
 import com.distributedsystems.listenbee.fragments.ProfileFragment;
 import com.distributedsystems.listenbee.fragments.SearchFragment;
+import com.example.eventdeliverysystem.Broker;
+import com.example.eventdeliverysystem.Consumer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     private BottomNavigationView tabs;
+
+    private static Consumer consumer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +39,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         //Bottom navigation toolbar
         tabs = findViewById(R.id.bottom_navigation);
         tabs.setOnNavigationItemSelectedListener(this);
+
+        String server_IP = "127.0.0.1";
+        String client_IP = "127.0.0.1";
+        try {
+            client_IP = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        consumer = new Consumer(client_IP, server_IP, Broker.getToCliPort());
     }
 
     //todo
@@ -112,5 +128,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .addToBackStack(null)
                 .commit();
         return true;
+    }
+
+    public static Consumer getConsumer(){
+        return consumer;
     }
 }
