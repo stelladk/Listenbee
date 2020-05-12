@@ -1,4 +1,5 @@
 import javafx.util.Pair;
+import java.util.List;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -74,6 +75,13 @@ public class ConsumerMain {
             if (consumer.isLoggedIn()) {
                 input = menu(1);
                 switch (input) {
+                    //display artists
+                    case 2:
+                        List<String> artists  = consumer.loadLibrary();
+                        for(String artist : artists){
+                            System.out.println(artist);
+                        }
+                        continue;
                     //let user search for song and artist
                     case 1:
                         String title;
@@ -144,6 +152,7 @@ public class ConsumerMain {
             return userInput != null ? Integer.parseInt(userInput) : 0;
         } else if (choice == 1) {
             System.out.println("---------- MENU ----------");
+            System.out.println("2\tDisplay available artists");
             System.out.println("1\tSearch for song/artist");
             System.out.println("0\tLog out");
             System.out.println("--------------------------");

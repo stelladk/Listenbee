@@ -210,6 +210,43 @@ public class Consumer {
     }
 
     /**
+     * Request artists from main broker
+     */
+    public List<String> loadLibrary(){
+        //open connection
+        Socket connection = null;
+        try {
+            connection = new Socket(SERVER_IP, PORT);
+            
+            //request brokers list
+            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject("INIT");
+            out.flush();
+            
+            //get answer from broker
+            ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
+            String message = (String) in.readObject();
+            //broker will send artists
+            if(message.equals("DECLINE")){
+                getBrokers(in);
+            }
+            closeConnection(connection);
+            List<String> temp = new ArrayList<>();
+            for(String artistName : artists.keySet()){
+                temp.add(artistName);
+            }
+            return temp;
+        } catch(IOException e){
+            Utilities.printError("CONSUMER: LOAD: ERROR: Could not get streams");
+        } catch (ClassNotFoundException e){
+            Utilities.printError("CONSUMER: LOAD: ERROR: Could not cast Object to String");
+        }
+        
+        closeConnection(connection);
+        return null;
+    }
+
+    /**
      * @return consumer IP address
      */
     public String getIP(){

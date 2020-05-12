@@ -404,6 +404,9 @@ public class Broker {
                     Pair<String, String> song = (Pair) in.readObject();
                     pull(connection, song.getKey(), song.getValue());
                     break;
+                case "INIT":
+                    pull(connection, null, "_INIT");
+                    break;
             }
         } catch(IOException e) {
             Utilities.printError("BROKER: ACCEPT CONSUMER CONNECTION: Could not read from stream");
@@ -491,6 +494,11 @@ public class Broker {
         Utilities.print("BROKER: Get requested song from user");
 
         String broker = artistsToBrokers.get(artist); //get broker (IP address) responsible for that artist
+        
+        if(artist.equals("_INIT")){ //consumer wants the list of brokers
+            broker = "0.0.0.0"; 
+        }
+
         if (broker == null){ //artist doesn't exist
             try {
                 //inform consumer that you will send the brokers
