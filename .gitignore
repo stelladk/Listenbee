@@ -6,7 +6,9 @@ framework/res/
 
 #VSCode
 framework/.vscode/
-framework/*.class
+framework/src/*.class
+framework/src/musicFile/*.class
+framework/src/com/mpatric/mp3agic/*.class
 
 #General
 Project.pdf
