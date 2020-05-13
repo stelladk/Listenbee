@@ -41,10 +41,12 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(SignUpActivity.this, "Password is required!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                consumer.registerUser(new Pair<String, BigInteger>(username_form.getText().toString(), Utilities.SHA1(password_form.getText().toString())));
-                if(!consumer.isLoggedIn()){
+                int res = consumer.registerUser(new Pair<String, BigInteger>(username_form.getText().toString(), Utilities.SHA1(password_form.getText().toString())));
+                if(res == 0){
                    Toast.makeText(SignUpActivity.this, "Username already exists!", Toast.LENGTH_SHORT).show();
-                }else{
+                }else if(res == -1){
+                    Toast.makeText(SignUpActivity.this, "Server is not available try again later", Toast.LENGTH_SHORT).show();
+                }else if(res == 1){
                     toMainActivity(null);
                 }
             }
