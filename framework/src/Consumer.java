@@ -32,8 +32,12 @@ public class Consumer {
 
     /**
      * Register user to responsible broker
+     * @param credentials pair of username and hashed password
+     * @return 1 if registration was successful,
+     *  0 if username already exists,
+     *  -1 if registration failed
      */
-    public void registerUser(Pair<String, BigInteger> credentials) {
+    public int registerUser(Pair<String, BigInteger> credentials) {
         Utilities.print("CONSUMER: Register user");
 
         Socket connection = null;
@@ -56,12 +60,18 @@ public class Consumer {
             if(message.equals("EXISTS")){
                 //username already exists
                 Utilities.printError("CONSUMER: REGISTER: This username already exists try again");
+                closeConnection(connection);
+                return 0;
             }else if(message.equals("TRUE")){
                 //user registration was successful
                 STATE = IN;
+                closeConnection(connection);
+                return 1;
             }else if(message.equals("FALSE")){
                 //user registration was unsuccessful
                 Utilities.printError("CONSUMER: REGISTER: ERROR: Could not register, try again");
+                closeConnection(connection);
+                return -1;
             }
         } catch(IOException e) {
             Utilities.printError("CONSUMER: REGISTER: ERROR: Could not get streams");
@@ -69,21 +79,26 @@ public class Consumer {
             Utilities.printError("CONSUMER: REGISTER: ERROR: Could not cast Object to boolean");
         }
         closeConnection(connection);
+        return -1;
     }
 
     /**
      * User enters credentials
      * Search whether user is registered or not
      * If user is registered login else register him
+     * @param credentials pair of username and hashed password
+     * @return 1 if login was successful,
+     *  0 if username does not exist and user has to register,
+     *  -1 if login failed
      */
-    public void loginUser(Pair<String, BigInteger> credentials) {
+    public int loginUser(Pair<String, BigInteger> credentials) {
         Utilities.print("CONSUMER: Log in user");
 
         Socket connection = null;
         try {
             connection = new Socket(SERVER_IP, PORT);
-            boolean processed = false;
-            while(!processed){
+            // boolean processed = false;
+            while(true){
                 //get credentials from user and send them to responsible broker
                 ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
                 out.writeObject("LOGIN");
@@ -100,14 +115,16 @@ public class Consumer {
                     //user hasn't been registered
                     case "REGISTER":
                         closeConnection(connection);
-                        registerUser(credentials);
-                        processed = true;
-                        break;
+                        // registerUser(credentials);
+                        // processed = true;
+                        closeConnection(connection);
+                        return 0;
                     //user has been registered
                     case "VERIFIED":
                         STATE = IN;
-                        processed = true;
-                        break;
+                        // processed = true;
+                        closeConnection(connection);
+                        return 1;
                     //user registered but wrong credentials
                     case "FALSE":
                         Utilities.printError("CONSUMER: LOGIN: ERROR: Could not login try again");
@@ -119,6 +136,7 @@ public class Consumer {
             Utilities.printError("CONSUMER: LOGIN: ERROR: Could not cast Object to String");
         }
         closeConnection(connection);
+        return -1;
     }
 
     /**
@@ -135,10 +153,12 @@ public class Consumer {
      * Else broker sends a list of other brokers which will be queried
      * @param track song's title
      * @param artist song's artist
+     * @return true if operation was successful
      */
-    public void playData (String track, String artist, String mode) {
+    public boolean playData (String track, String artist, String mode) {
         Utilities.print("CONSUMER: Song request");
 
+        boolean state = false;
         try {
             //CASE 1
             //consumer hasn't asked for a song yet
@@ -160,14 +180,14 @@ public class Consumer {
                 switch (message){
                     //broker has the song --> send it
                     case "ACCEPT":
-                        receiveData(in, mode);
+                        state = receiveData(in, mode);
                         closeConnection(connection);
-                        return;
+                        return state;
                     //artists doen't exist
                     case "FAILURE":
                         Utilities.printError("Artist doesn't exist");
                         closeConnection(connection);
-                        return;
+                        return state;
                     //broker doesn't have the song --> send other brokers
                     case "DECLINE":
                         getBrokers(in);
@@ -181,6 +201,7 @@ public class Consumer {
             String brokerIP = artists.get(artist);
             if (brokerIP == null) {
                 Utilities.printError("Artist doesn't exist");
+                return false;
             }
             Socket connection = new Socket(brokerIP, PORT);
 
@@ -194,9 +215,10 @@ public class Consumer {
             //get answer from broker
             ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
             String message = (String) in.readObject();
+            state = false;
             switch (message) {
                 case "ACCEPT":
-                    receiveData(in, mode);
+                    state = receiveData(in, mode);
                     break;
                 default:
                     Utilities.printError("CONSUMER: PLAY: ERROR: INCONSISTENCY IN BROKERS");
@@ -207,10 +229,12 @@ public class Consumer {
         } catch (ClassNotFoundException e){
             Utilities.printError("CONSUMER: PLAY: ERROR: Could not cast Object to String");
         }
+        return state;
     }
 
     /**
      * Request artists from main broker
+     * @return list of available artists
      */
     public List<String> loadLibrary(){
         //open connection
@@ -267,7 +291,7 @@ public class Consumer {
      * @param in input stream
      * @param mode online or offline
      */
-    private void receiveData (ObjectInputStream in, String mode) {
+    private boolean receiveData (ObjectInputStream in, String mode) {
         ArrayList<MusicFile> chunks = new ArrayList<>();
         MusicFile file;
         int counter = 0; //when counter == 2 then end of all file chunks
@@ -294,12 +318,14 @@ public class Consumer {
                 }
                 if (counter >= 2) break;
             }
+            return true;
         } catch (IOException e) {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not get streams");
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not cast Object to MusicFile");
         }
+        return false;
     }
 
     /**
