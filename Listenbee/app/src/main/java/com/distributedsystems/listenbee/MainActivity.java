@@ -47,7 +47,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+
+        //Initialise Consumer
         consumer = new Consumer(client_IP, server_IP, Broker.getToCliPort());
+        //TODO: Inflate login activity
+        //TODO: Load artists to library (not yet ready)
     }
 
     //todo
