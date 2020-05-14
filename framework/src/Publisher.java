@@ -5,7 +5,6 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import javafx.util.*;
 
 import musicFile.MusicFile;
@@ -24,7 +23,7 @@ public class Publisher {
 
     private final ExecutorService threadPool;
 
-    public Publisher(String IP, String RANGE){
+    public Publisher(String IP, String RANGE) {
         Utilities.print("PUBLISHER: Construct publisher");
         this.IP = IP;
         this.RANGE = RANGE;

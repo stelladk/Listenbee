@@ -56,6 +56,8 @@ public class MusicFileHandler {
                         if (!songs.containsKey(artist)){ //if artist doesn't exist make a new record
                             songs.put(artist, new ArrayList<MusicFile>());
                         }
+                        //get song cover
+                        byte[] cover = tag.getAlbumImage();
                         //get all the file bytes
                         byte[] allBytes = Files.readAllBytes(file.toPath());
                         //position of song data
@@ -66,10 +68,11 @@ public class MusicFileHandler {
                         //array without metadata
                         byte[] bytes = Arrays.copyOfRange(allBytes, offset, end-1);
 
-                        songs.get(artist).add(new MusicFile(title, artist, tag.getAlbum(), tag.getGenreDescription(), metadata, bytes));
+                        songs.get(artist).add(new MusicFile(title, artist, tag.getAlbum(), tag.getGenreDescription(), cover, metadata, bytes));
                     }
                 } catch (IOException | UnsupportedTagException | InvalidDataException e) {
                     System.err.println("HANDLER: READ: ERROR: Could not parse file");
+                    e.printStackTrace();
                     return null;
                 }
             }
@@ -153,8 +156,6 @@ public class MusicFileHandler {
             }
         }
 
-        String title = chunks.get(0).getTrackName().substring(chunks.get(0).getTrackName().indexOf(" ") + 1);
-
         for (MusicFile chunk : chunks){
             //create file
             File savedFile = new File(dir, chunk.getTrackName() + ".mp3");
@@ -209,6 +210,7 @@ public class MusicFileHandler {
                             file.getArtistName(),
                             file.getAlbumInfo(),
                             file.getGenre(),
+                            file.getCover(),
                             file.getMetadata(),
                             Arrays.copyOfRange(songBytes, start, Math.min(start + chunkSize, songBytes.length)), //if end index is greater than the array length then use the array length
                             serial
@@ -254,6 +256,7 @@ public class MusicFileHandler {
         String artist = chunks.get(0).getArtistName();
         String album = chunks.get(0).getAlbumInfo();
         String genre = chunks.get(0).getGenre();
+        byte[] cover = chunks.get(0).getCover();
         byte[] metadata = chunks.get(0).getMetadata();
 
         //get bytes from chunks
@@ -273,6 +276,6 @@ public class MusicFileHandler {
         //clear the list
         temp.clear();
 
-        return new MusicFile(title, artist, album, genre, metadata, bytes);
+        return new MusicFile(title, artist, album, genre, cover, metadata, bytes);
     }
 }
