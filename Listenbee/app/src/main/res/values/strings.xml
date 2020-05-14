@@ -16,6 +16,8 @@
     <string name="fast_rewind_desc">Fast Rewind</string>
     <string name="fast_forward_desc">Fast Forward</string>
     <string name="play_desc">Play</string>
+    <string name="add_song_desc">Add Song</string>
+    <string name="delete_song_desc">delete song</string>
 
     <string name="settings_btn_desc">Settings</string>
     <string name="save_btn_desc">Save</string>
@@ -31,7 +33,5 @@
     <string name="library_title">Library</string>
     <string name="profile_title">Profile</string>
     <string name="search_title">Search</string>
-
-    <string name="image_title">Profile Image</string>
 
 </resources>

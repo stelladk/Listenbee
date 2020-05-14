@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/song_container"
+    android:onClick="openPlayer"
+    style="@style/SongContainer">
+
+    <!-- SONG COVER -->
+    <ImageView
+        android:id="@+id/song_cover"
+        android:contentDescription="@string/song_cover_desc"
+        style="@style/SongCoverSm"
+        android:background="@color/white"/>
+
+    <!-- SONG INFO -->
+    <RelativeLayout
+        android:id="@+id/song_info"
+        style="@style/SongInfo">
+
+        <!-- SONG TITLE -->
+        <TextView
+            android:id="@+id/song_title"
+            style="@style/SongTitleMd"/>
+
+        <!-- ARTIST -->
+        <TextView
+            android:id="@+id/song_artist"
+            style="@style/ArtistMd"/>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

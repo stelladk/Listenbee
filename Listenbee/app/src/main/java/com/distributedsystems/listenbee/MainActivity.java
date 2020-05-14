@@ -74,6 +74,17 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     }
 
+    //todo
+    public void addSong(View view) {
+
+    }
+
+    //todo
+    public void deleteSong(View view) {
+
+    }
+
+
 
     //todo
     public void toSettings(View view) {

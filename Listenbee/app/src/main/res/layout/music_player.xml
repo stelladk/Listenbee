@@ -100,5 +100,28 @@
 
     </RelativeLayout>
 
+    <!-- UTILITY BAR -->
+    <RelativeLayout
+        android:id="@+id/utility_container"
+        style="@style/UtilityContainer">
+
+        <ImageButton
+            android:id="@+id/add_song_btn"
+            android:contentDescription="@string/add_song_desc"
+            android:layout_alignParentStart="true"
+            android:src="@drawable/add_ic"
+            android:onClick="addSong"
+            style="@style/UtilityBtn"/>
+
+        <ImageButton
+            android:id="@+id/delete_song_btn"
+            android:contentDescription="@string/delete_song_desc"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/delete_ic"
+            android:onClick="deleteSong"
+            style="@style/UtilityBtn"/>
+
+    </RelativeLayout>
+
 
 </RelativeLayout>

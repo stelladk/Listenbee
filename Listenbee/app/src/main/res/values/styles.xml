@@ -28,7 +28,7 @@
         <item name="android:paddingEnd">16dp</item>
     </style>
 
-    <!-- MUSIC PLAYER -->
+    <!-- MUSIC PLAYER SMALL -->
     <style name="MusicPlayer">
         <!-- Dimensions -->
         <item name="android:layout_width">match_parent</item>
@@ -75,7 +75,6 @@
         <item name="android:layout_toEndOf">@id/song_cover</item>
         <item name="android:layout_centerInParent">true</item>
         <!-- Text -->
-        <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:textSize">20sp</item>
         <item name="android:singleLine">true</item>
@@ -375,7 +374,6 @@
         <item name="android:layout_height">wrap_content</item>
         <!-- Alignment -->
         <item name="android:layout_below">@id/artist_title</item>
-        <item name="android:layout_above">@id/volume_container</item>
         <item name="android:layout_centerHorizontal">true</item>
         <!-- Color -->
         <item name="android:background">@color/white</item>
@@ -400,7 +398,8 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <!-- Alignment -->
-        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_below">@id/player_buttons</item>
+        <item name="android:layout_above">@id/utility_container</item>
     </style>
 
     <style name="VolumeIcon">
@@ -428,6 +427,76 @@
         <!-- Misc -->
         <item name="android:paddingTop">8dp</item>
         <item name="android:paddingBottom">8dp</item>
+    </style>
+
+    <!-- UTILITY CONTAINER -->
+    <style name="UtilityContainer">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_alignParentBottom">true</item>
+    </style>
+
+    <style name="UtilityBtn">
+        <!-- Dimensions -->
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+        <!-- Color -->
+        <item name="android:tint">@color/red_flag</item>
+    </style>
+
+    <!-- SONG CONTAINER -->
+    <style name="SongContainer">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="SongInfo">
+        <!-- Dimensions -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_toEndOf">@id/song_cover</item>
+    </style>
+
+    <style name="SongTitleMd">
+        <!-- Dimensions -->
+        <item name="android:layout_width">250dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Text -->
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+        <!-- Misc -->
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+    </style>
+
+    <style name="ArtistMd">
+        <!-- Dimensions -->
+        <item name="android:layout_width">250dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Alignment -->
+        <item name="android:layout_below">@id/song_title</item>
+        <!-- Text -->
+        <item name="android:textColor">@color/wolf_grey</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <!-- Color -->
+        <item name="android:background">@color/white</item>
+        <!-- Misc -->
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
     </style>
 
 

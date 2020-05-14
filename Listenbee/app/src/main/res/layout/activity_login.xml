@@ -17,13 +17,13 @@
         style="@style/FormContainer">
 
         <TextView
-            android:id="@+id/email_title"
-            android:text="@string/email_title"
+            android:id="@+id/username_title"
+            android:text="@string/username_title"
             style="@style/FormTitle"/>
 
         <EditText
-            android:id="@+id/email_form"
-            android:inputType="textEmailAddress"
+            android:id="@+id/username_form"
+            android:inputType="textPersonName"
             style="@style/FormField" />
 
         <TextView
