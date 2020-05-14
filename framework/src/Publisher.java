@@ -325,6 +325,8 @@ public class Publisher {
                 out.writeObject(chunk);
                 out.flush();
             }
+            out.writeObject(null);
+            out.flush();
 
             chunks.clear(); //clear chunk list
         } catch (IOException e) {
