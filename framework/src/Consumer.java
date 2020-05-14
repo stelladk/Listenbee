@@ -22,6 +22,8 @@ public class Consumer {
 
     private HashMap<String, String> artists = null; //artists assigned to brokers (IP addresses)
 
+    private List<MusicFile> temp_tracks;
+
     public Consumer(String IP, String SERVER_IP, int PORT) {
         Utilities.print("CONSUMER: Create consumer");
         this.IP = IP;
@@ -236,7 +238,7 @@ public class Consumer {
      * Request artists from main broker
      * @return list of available artists
      */
-    public List<String> loadLibrary(){
+    public List<MusicFile> loadLibrary(){
         //open connection
         Socket connection = null;
         try {
@@ -255,11 +257,11 @@ public class Consumer {
                 getBrokers(in);
             }
             closeConnection(connection);
-            List<String> temp = new ArrayList<>();
+            temp_tracks = new ArrayList<>();
             for(String artistName : artists.keySet()){
-                temp.add(artistName);
+                playData("", artistName, "INFO");
             }
-            return temp;
+            return temp_tracks;
         } catch(IOException e){
             Utilities.printError("CONSUMER: LOAD: ERROR: Could not get streams");
         } catch (ClassNotFoundException e){
@@ -309,6 +311,13 @@ public class Consumer {
                         } else if (mode.equals("OFFLINE")) { //merge chunks and save the music file
                             MusicFile merged = MusicFileHandler.merge(chunks);
                             MusicFileHandler.write(merged);
+                        } else if(mode.equals("INFO")){
+                            MusicFile preview = chunks.get(0);
+                            preview.setAlbumInfo(null);
+                            preview.setGenre(null);
+                            preview.setMetadata(null);
+                            preview.setFileBytes(null);
+                            temp_tracks.add(preview);
                         }
                     }
 

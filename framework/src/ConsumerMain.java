@@ -1,4 +1,6 @@
 import javafx.util.Pair;
+import musicFile.MusicFile;
+
 import java.util.List;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -77,9 +79,9 @@ public class ConsumerMain {
                 switch (input) {
                     //display artists
                     case 2:
-                        List<String> artists  = consumer.loadLibrary();
-                        for(String artist : artists){
-                            System.out.println(artist);
+                        List<MusicFile> tracks  = consumer.loadLibrary();
+                        for(MusicFile file : tracks){
+                            System.out.println(file.getTrackName() + " | " + file.getArtistName());
                         }
                         continue;
                     //let user search for song and artist
