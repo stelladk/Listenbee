@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/preview_img"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerVertical="true"
+        android:contentDescription="Track Preview Image"
+        android:background="#D52828"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+    <TextView
+        android:id="@+id/preview_track"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="100dp"
+        android:layout_alignStart="@+id/preview_img"
+        android:layout_alignTop="@id/preview_img"
+        android:text="Track Name"/>
+    <TextView
+        android:id="@+id/preview_artist"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="100dp"
+        android:layout_alignStart="@+id/preview_img"
+        android:layout_alignBottom="@id/preview_img"
+        android:text="Artist Name"/>
+
+    <ImageButton
+        android:id="@+id/download_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="Download Button"
+        android:src="@drawable/download_ic" />
+</RelativeLayout>
