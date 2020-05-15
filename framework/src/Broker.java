@@ -19,7 +19,7 @@ public class Broker {
 
     private ArrayList<String> brokersList; //available brokers
     private static final ArrayList<String> registeredPublishers = new ArrayList<>();
-    private static final ArrayList<Pair<String,BigInteger>> registeredUsers = new ArrayList<>(); //username and password for registered users
+    private static final HashMap<Pair<String, BigInteger>,Pair<String, Integer>> registeredUsers = new HashMap<>(); //username and password for registered users
     private static File userFile; //registered users
     private static BufferedWriter userWriter; //writer for user file
     private static BufferedReader userReader; //reader for user file
@@ -428,8 +428,9 @@ public class Broker {
             ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
 
             Pair<String,BigInteger> credentials = (Pair<String,BigInteger>) in.readObject();
+            Pair<String,Integer> extra = (Pair<String,Integer>) in.readObject();
             
-            String message = writeUser(credentials);
+            String message = writeUser(credentials, extra);
 
             out.writeObject(message);
             out.flush();
@@ -456,7 +457,7 @@ public class Broker {
 
             boolean registered = false;
             Pair<String,BigInteger> client = null;
-            for (Pair<String,BigInteger> consumer : registeredUsers) {//check if consumer is registered
+            for (Pair<String,BigInteger> consumer : registeredUsers.keySet()) {//check if consumer is registered
                 if (consumer.getKey().equals(credentials.getKey())) { //check his username
                     registered = true;
                     if (credentials.getValue().equals(consumer.getValue())) { //check his password
@@ -581,15 +582,29 @@ public class Broker {
             }
             String username;
             String password;
+            String email;
+            String age;
+            Pair<String, BigInteger> creds;
+            Pair<String, Integer> extra;
             while((line = userReader.readLine()) != null){
                 if(line.equals("<User>")){ //begining of user
                     line = userReader.readLine();
                     if(line.startsWith("<username>") && line.endsWith("</username>")){
-                        username = line.substring(line.indexOf(">") + 1, line.lastIndexOf("<"));
-                        line = userReader.readLine();
+                        username = line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")); //username
+                        line = userReader.readLine(); //next line
                         if(line.startsWith("<password>") && line.endsWith("</password>")){
-                            password = line.substring(line.indexOf(">") + 1, line.lastIndexOf("<"));
-                            registeredUsers.add(new Pair<String,BigInteger>(username, new BigInteger(password)));
+                            password = line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")); //password
+                            line = userReader.readLine(); //next line
+                            if(line.startsWith("<email>") && line.endsWith("</email>")){
+                                email = line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")); //email
+                                line = userReader.readLine(); //next line
+                                if(line.startsWith("<age>") && line.endsWith("</age>")){
+                                    age = line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")); //age
+                                    creds = new Pair<String, BigInteger>(username, new BigInteger(password));
+                                    extra = new Pair<String, Integer>(email, Integer.parseInt(age));
+                                    registeredUsers.put(creds, extra);
+                                }
+                            }
                         }
                     }
                 }
@@ -607,18 +622,23 @@ public class Broker {
      * @param credentials user's username and password
      * @return true if the operation was successful
      */
-    private synchronized String writeUser(Pair<String,BigInteger> credentials){
-        for(Pair<String,BigInteger> user : registeredUsers){
+    private synchronized String writeUser(Pair<String,BigInteger> credentials, Pair<String, Integer> extra){
+        for(Pair<String,BigInteger> user : registeredUsers.keySet()){ //check username
             if(credentials.getKey().equals(user.getKey())){
-                return "EXISTS";
+                return "EXISTS_U";
+            }
+            if(extra.getKey().equals(registeredUsers.get(user).getKey())){ //check email
+                return "EXISTS_E";
             }
         }
         boolean processed = true;
         processed = writeToUserFile("<User>") && processed;
         processed = writeToUserFile("<username>"+credentials.getKey()+"</username>") && processed;
         processed = writeToUserFile("<password>"+credentials.getValue()+"</password>") && processed;
+        processed = writeToUserFile("<email>"+extra.getKey()+"</email>") && processed;
+        processed = writeToUserFile("<age>"+extra.getValue()+"</age>") && processed;
         processed = writeToUserFile("</User>") && processed;
-        if(processed) registeredUsers.add(credentials);
+        if(processed) registeredUsers.put(credentials, extra);
         return processed? "TRUE" : "FALSE";
     }
 

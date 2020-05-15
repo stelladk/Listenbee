@@ -1,6 +1,5 @@
 package musicFile;
 
-import java.awt.image.BufferedImage;
 import java.io.Serializable;
 
 public class MusicFile implements Serializable {
@@ -11,7 +10,6 @@ public class MusicFile implements Serializable {
     private byte[] cover;
     private byte[] metadata;
     private byte[] fileBytes;
-    private BufferedImage image = null;
     private int serial = 0; //serial number for chunks
 
     public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] cover, byte[] metadata, byte[] fileBytes) {
@@ -56,10 +54,6 @@ public class MusicFile implements Serializable {
         return fileBytes;
     }
 
-    public BufferedImage getImage(){
-        return image;
-    }
-
     public int getSerial(){
         return serial;
     }
@@ -89,10 +83,6 @@ public class MusicFile implements Serializable {
 
     public void setFileBytes(byte[] fileBytes) {
         this.fileBytes = fileBytes;
-    }
-
-    public void setImage(BufferedImage image){
-        this.image = image;
     }
 
     public int compareTo(MusicFile b){

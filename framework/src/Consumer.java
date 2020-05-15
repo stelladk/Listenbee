@@ -36,10 +36,11 @@ public class Consumer {
      * Register user to responsible broker
      * @param credentials pair of username and hashed password
      * @return 1 if registration was successful,
-     *  0 if username already exists,
-     *  -1 if registration failed
+     *  0 if registration failed,
+     *  -1 if username already exists,
+     *  -2 if email already exists
      */
-    public int registerUser(Pair<String, BigInteger> credentials) {
+    public int registerUser(Pair<String, BigInteger> credentials, Pair<String, Integer> extra) {
         Utilities.print("CONSUMER: Register user");
 
         Socket connection = null;
@@ -56,14 +57,22 @@ public class Consumer {
             out.writeObject(credentials);
             out.flush();
 
+            out.writeObject(extra);
+            out.flush();
+
             //wait for confirmation
             ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
             String message = (String) in.readObject();
-            if(message.equals("EXISTS")){
+            if(message.equals("EXISTS_U")){
                 //username already exists
                 Utilities.printError("CONSUMER: REGISTER: This username already exists try again");
                 closeConnection(connection);
-                return 0;
+                return -1;
+            }else if(message.equals("EXISTS_E")){
+                //email already exists
+                Utilities.printError("CONSUMER: REGISTER: This email already exists try again");
+                closeConnection(connection);
+                return -2;
             }else if(message.equals("TRUE")){
                 //user registration was successful
                 STATE = IN;
@@ -73,7 +82,7 @@ public class Consumer {
                 //user registration was unsuccessful
                 Utilities.printError("CONSUMER: REGISTER: ERROR: Could not register, try again");
                 closeConnection(connection);
-                return -1;
+                return 0;
             }
         } catch(IOException e) {
             Utilities.printError("CONSUMER: REGISTER: ERROR: Could not get streams");

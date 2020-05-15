@@ -15,6 +15,7 @@ public class ConsumerMain {
     private static int input;
 
     private static Pair<String, BigInteger> credentials;
+    private static Pair<String, Integer> extras;
 
     public static void main(String[] args) {
         String IP;
@@ -52,7 +53,8 @@ public class ConsumerMain {
                     //sign up user
                     case 1:
                         credentials = getCredentials();
-                        consumer.registerUser(credentials);
+                        extras = getExtras();
+                        consumer.registerUser(credentials, extras);
                         break;
                     //login user
                     case 2:
@@ -135,6 +137,19 @@ public class ConsumerMain {
             BigInteger password = inputPass();
 
             return new Pair<>(username, password);
+    }
+
+    /**
+     * @return email and age the user gave
+     */
+    private static Pair<String, Integer> getExtras() {
+            System.out.print("E-mail: ");
+            String email = input();
+
+            System.out.print("Age: ");
+            Integer age = Integer.parseInt(input());
+
+            return new Pair<>(email, age);
     }
 
     /**
