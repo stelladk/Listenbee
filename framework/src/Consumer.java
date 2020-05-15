@@ -7,6 +7,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import javax.swing.ImageIcon;
 import java.math.BigInteger;
 import java.net.*;
 
@@ -16,6 +17,7 @@ public class Consumer {
     private final String IP;
     private final String SERVER_IP;
 
+    private Pair<String, BigInteger> user_credentials = null;
     private String STATE;
     private static String OUT = "LOGGED_OUT";
     private static String IN = "LOGGED_IN";
@@ -76,6 +78,7 @@ public class Consumer {
             }else if(message.equals("TRUE")){
                 //user registration was successful
                 STATE = IN;
+                this.user_credentials = credentials;
                 closeConnection(connection);
                 return 1;
             }else if(message.equals("FALSE")){
@@ -133,6 +136,7 @@ public class Consumer {
                     //user has been registered
                     case "VERIFIED":
                         STATE = IN;
+                        this.user_credentials = credentials;
                         // processed = true;
                         closeConnection(connection);
                         return 1;
@@ -149,13 +153,120 @@ public class Consumer {
         closeConnection(connection);
         return -1;
     }
-
+    
     /**
      * Logout user
      */
     public void logoutUser() {
         Utilities.print("CONSUMER: Log out user");
         STATE = OUT;
+        this.user_credentials = null;
+    }
+
+    /**
+     * Update profile photo or age
+     * @param username consumer username
+     * @param age updated age
+     * @param photo updated photo
+     * @return true if operation was successful
+     */
+    public boolean updateProfile(int age, ImageIcon photo){
+        if(user_credentials == null){return false;}
+        boolean processed = true;
+        if(photo != null){
+            processed = updatePhoto(user_credentials, photo) && processed;
+        }
+        if(age != -1){
+            processed = updateAge(user_credentials, age) && processed;
+        }
+        return processed;
+    }
+
+    //TODO: delete
+    /**
+     * Update profile age
+     * @param username consumer username
+     * @param age updated age
+     * @return true if operation was successful
+     */
+    private boolean updateAge(Pair<String, BigInteger> credentials, int age){
+        Socket connection = null;
+        try {
+            //open connection
+            connection = new Socket(SERVER_IP, PORT);
+
+            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject("UPDATE_A");
+            out.flush();
+
+            //send username and age to responsible broker
+            out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject(credentials);
+            out.flush();
+
+            out.writeObject(age);
+            out.flush();
+
+            //wait for confirmation
+            ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
+            String message = (String) in.readObject();
+            switch(message){
+                case "TRUE":
+                    Utilities.print("CONSUMER: UPDATE AGE: Age changed");
+                    return true;
+                case "FALSE":
+                    Utilities.print("CONSUMER: UPDATE AGE: Could not update age");
+                    return false;
+            }
+        }catch(IOException e){
+            Utilities.printError("CONSUMER: UPDATE AGE: ERROR: Could not get streams");
+        }catch(ClassNotFoundException e){
+            Utilities.printError("CONSUMER: UPDATE AGE: ERROR: Could not cast Object to String");
+        }
+        return false;
+    }
+
+    /**
+     * Update profile photograph
+     * @param username consumer username
+     * @param photo updated photo
+     * @return true if operation was successful
+     */
+    private boolean updatePhoto(Pair<String, BigInteger> credentials, ImageIcon photo){
+        Socket connection = null;
+        try {
+            //open connection
+            connection = new Socket(SERVER_IP, PORT);
+
+            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject("UPDATE_P");
+            out.flush();
+
+            //send username and photo to responsible broker
+            out = new ObjectOutputStream(connection.getOutputStream());
+            out.writeObject(credentials);
+            out.flush();
+
+            out.writeObject(photo);
+            out.flush();
+
+            //wait for confirmation
+            ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
+            String message = (String) in.readObject();
+            switch(message){
+                case "TRUE":
+                    Utilities.print("CONSUMER: UPDATE PHOTO: Photo changed");
+                    return true;
+                case "FALSE":
+                    Utilities.print("CONSUMER: UPDATE PHOTO: Could not update photo");
+                    return false;
+            }
+        }catch(IOException e){
+            Utilities.printError("CONSUMER: UPDATE PHOTO: ERROR: Could not get streams");
+        }catch(ClassNotFoundException e){
+            Utilities.printError("CONSUMER: UPDATE PHOTO: ERROR: Could not cast Object to String");
+        }
+        return false;
     }
 
     /**
@@ -294,6 +405,7 @@ public class Consumer {
     public boolean isLoggedIn(){
         return STATE.equals(IN);
     }
+    
 
     /**
      * Get file chunks from stream
