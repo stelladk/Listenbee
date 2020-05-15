@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.distributedsystems.listenbee.fragments.LibraryFragment;
 import com.distributedsystems.listenbee.fragments.ProfileFragment;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         consumer = new Consumer(client_IP, server_IP, Broker.getToCliPort());
         //TODO: Inflate login activity
         //TODO: Load artists to library (not yet ready)
+
     }
 
     /**
@@ -142,6 +144,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 //add song layout to library scrollView
                 //libraryView.addView(song);
             }
+
+            //Library
+            RecyclerView library = findViewById(R.id.library_view);
+            LibraryAdapter adapter = new LibraryAdapter(songs);
+            library.setAdapter(adapter);
         }
         return true;
     }
