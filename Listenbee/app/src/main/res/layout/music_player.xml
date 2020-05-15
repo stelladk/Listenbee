@@ -36,14 +36,12 @@
     <!-- TITLE -->
     <TextView
         android:id="@+id/song_title"
-        android:text="Physical"
         android:layout_below="@id/progressBar"
         style="@style/SongTitleLg"/>
 
     <!-- ARTIST -->
     <TextView
         android:id="@+id/artist_title"
-        android:text="Dua Lipa"
         android:layout_below="@id/song_title"
         style="@style/Artist"/>
 
@@ -66,6 +64,16 @@
             android:layout_toEndOf="@id/fast_rewind_btn"
             android:layout_toStartOf="@id/fast_forward_btn"
             android:onClick="play"
+            style="@style/PlayerBtn"/>
+
+        <ImageButton
+            android:id="@+id/pause_btn"
+            android:contentDescription="@string/pause_desc"
+            android:src="@drawable/pause_ic_md"
+            android:layout_toEndOf="@id/fast_rewind_btn"
+            android:layout_toStartOf="@id/fast_forward_btn"
+            android:onClick="pause"
+            android:visibility="gone"
             style="@style/PlayerBtn"/>
 
         <ImageButton

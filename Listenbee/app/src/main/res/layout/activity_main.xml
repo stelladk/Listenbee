@@ -35,6 +35,15 @@
             style="@style/MusicPlayerBtn"/>
 
         <ImageButton
+            android:id="@+id/pause_btn"
+            android:contentDescription="@string/pause_desc"
+            android:src="@drawable/pause_ic"
+            android:layout_toStartOf="@id/fast_forward_btn"
+            android:onClick="pause"
+            android:visibility="gone"
+            style="@style/MusicPlayerBtn"/>
+
+        <ImageButton
             android:id="@+id/fast_forward_btn"
             android:contentDescription="@string/fast_forward_desc"
             android:src="@drawable/fast_forward_ic"

@@ -33,5 +33,6 @@
     <string name="library_title">Library</string>
     <string name="profile_title">Profile</string>
     <string name="search_title">Search</string>
+    <string name="pause_desc">Pause</string>
 
 </resources>
