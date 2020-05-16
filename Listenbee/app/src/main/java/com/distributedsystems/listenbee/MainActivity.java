@@ -26,13 +26,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.distributedsystems.listenbee.fragments.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import com.example.eventdeliverysystem.Broker;
 import com.example.eventdeliverysystem.Consumer;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private String songArtist;
     private Bitmap songCover;
     private MediaPlayer mp3;
-    private static Consumer consumer;
+    private static Consumer consumer = null;
 
     private BottomNavigationView tabs;
 
@@ -77,17 +74,22 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         mp3 = new MediaPlayer();
 
-        String server_IP = "127.0.0.1";
-        String client_IP = "127.0.0.1";
-        try {
-            client_IP = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+//        String server_IP = "127.0.0.1";
+//        String client_IP = "127.0.0.1";
+//        try {
+//            client_IP = InetAddress.getLocalHost().getHostAddress();
+//        } catch (UnknownHostException e) {
+//            e.printStackTrace();
+//        }
 
         //Initialise Consumer
-        consumer = new Consumer(client_IP, server_IP, Broker.getToCliPort());
-        //TODO: Inflate login activity
+//        if(consumer == null){
+//            consumer = new Consumer(client_IP, server_IP, Broker.getToCliPort());
+//        }
+//        if(!consumer.isLoggedIn()){
+//            toLogin();
+//        }
+
         //TODO: Load artists to library (not yet ready)
 
     }
@@ -145,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
             //Library
             RecyclerView library = findViewById(R.id.library_view);
-            LibraryAdapter adapter = new LibraryAdapter(songs);
+            LibraryAdapter adapter = new LibraryAdapter(this, songs);
             library.setAdapter(adapter);
         }
         return true;
@@ -273,6 +275,16 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     /**
+     * Go to login activity
+     */
+    public void toLogin(){
+        Log.d("METHOD", "------ TO SETTINGS ACTIVITY ------");
+
+        Intent login_activity = new Intent(this, LoginActivity.class);
+        startActivity(login_activity);
+    }
+
+    /**
      * Open music player and set content
      * @param view button view
      */
@@ -327,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         return consumer;
     }
 
-
+    public static void setConsumer(Consumer con){consumer = con;}
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
 //

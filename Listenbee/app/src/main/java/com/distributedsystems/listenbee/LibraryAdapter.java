@@ -1,5 +1,8 @@
 package com.distributedsystems.listenbee;
 
+import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +19,11 @@ import android.net.Uri;
 import java.util.List;
 
 public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryViewHolder> {
-    private List<MusicFile> items;
+    private Context context;
+    private List<Uri> items;
 
-    public LibraryAdapter(@NonNull List<MusicFile> items) {
+    public LibraryAdapter(Context context, @NonNull List<Uri> items) {
+        this.context = context;
         this.items = items;
     }
 
@@ -31,12 +36,18 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
 
     @Override
     public void onBindViewHolder(@NonNull LibraryViewHolder holder, int position) {
-        MusicFile track = items.get(position);
-        //TODO: get song data
-//        holder.image.setImageDrawable(track.getCover());
-        holder.trackName.setText(track.getTrackName());
-        holder.artistName.setText(track.getArtistName());
-        holder.download_btn.setImageResource(R.drawable.download_ic);
+        Uri track = items.get(position);
+        MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
+        metadataRetriever.setDataSource(context, track);
+
+        byte[] cover = metadataRetriever.getEmbeddedPicture();
+        String title = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        String artist = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+
+        holder.image.setImageBitmap(BitmapFactory.decodeByteArray(cover, 0, cover.length));
+        holder.trackName.setText(title);
+        holder.artistName.setText(artist);
+//        holder.download_btn.setImageResource(R.drawable.download_ic);
     }
 
     @Override

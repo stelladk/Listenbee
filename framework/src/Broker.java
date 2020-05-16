@@ -648,7 +648,7 @@ public class Broker {
             Pair<String, BigInteger> user = (Pair<String, BigInteger>) in.readObject();
             byte[] send_photo = (byte[]) in.readObject();
 
-            File saved_photo = new File("../res/data/" + user.first + ".jpg");
+            File saved_photo = new File("../res/data/" + user.getKey() + ".jpg");
             FileOutputStream fout = new FileOutputStream(saved_photo);
             fout.write(send_photo);
             fout.close();
