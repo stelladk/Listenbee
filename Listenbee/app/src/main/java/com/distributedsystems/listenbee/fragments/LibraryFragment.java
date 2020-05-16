@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.distributedsystems.listenbee.LibraryAdapter;
@@ -27,7 +28,9 @@ public class LibraryFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.library_fragment, container, false);
+        View view =  inflater.inflate(R.layout.library_fragment, container, false);
+        loadMusicFiles(view);
+        return view;
     }
 
 
@@ -37,7 +40,7 @@ public class LibraryFragment extends Fragment {
      * Add these songs to library
      * @return true if operation was successful
      */
-    public boolean loadMusicFiles() {
+    public boolean loadMusicFiles(View view) {
         Log.d("METHOD", "------ LOAD MUSIC FILES ------");
 
         songs = MainActivity.getSongs();
@@ -45,9 +48,14 @@ public class LibraryFragment extends Fragment {
         if (songs != null){
 
             //Library
-            RecyclerView library = getView().findViewById(R.id.library_view);
             LibraryAdapter adapter = new LibraryAdapter(getContext(), songs);
+            Log.d("Adapter null", ""+(adapter == null));
+            RecyclerView library = view.findViewById(R.id.library_view);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
+            library.setLayoutManager(layoutManager);
+            library.setHasFixedSize(true);
             library.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
         }
         return true;
     }

@@ -44,15 +44,16 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
         String title = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         String artist = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
 
-        holder.image.setImageBitmap(BitmapFactory.decodeByteArray(cover, 0, cover.length));
+        if(cover != null){
+            holder.image.setImageBitmap(BitmapFactory.decodeByteArray(cover, 0, cover.length));
+        }
         holder.trackName.setText(title);
         holder.artistName.setText(artist);
-//        holder.download_btn.setImageResource(R.drawable.download_ic);
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return items.size();
     }
 
     static class LibraryViewHolder extends RecyclerView.ViewHolder{

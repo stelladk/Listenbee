@@ -26,6 +26,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import com.example.eventdeliverysystem.Consumer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.distributedsystems.listenbee.fragments.*;
@@ -219,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         Log.d("METHOD", "------ PLAY ------");
 
         if (!mp3.isPlaying()) {
-            Uri fileUri = songs.get(9); //todo change
+            Uri fileUri = songs.get(1); //todo change
             try {
                 mp3.setDataSource(getApplicationContext(), fileUri);
             } catch (IOException e) {
