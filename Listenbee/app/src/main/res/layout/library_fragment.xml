@@ -23,7 +23,6 @@
         style="@style/Divider"/>
 
     <!-- LIBRARY -->
-    <!-- TODO -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/library_view"
         android:layout_width="match_parent"

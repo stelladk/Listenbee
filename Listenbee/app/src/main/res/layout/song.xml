@@ -29,5 +29,12 @@
 
     </RelativeLayout>
 
+    <ImageButton
+        android:id="@+id/download_btn"
+        android:src="@drawable/add_ic"
+        android:layout_centerInParent="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="addSong"
+        style="@style/UtilityBtn"/>
 
 </RelativeLayout>

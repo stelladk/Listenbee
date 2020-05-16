@@ -11,7 +11,7 @@
 
     <string name="library_btn_desc">Library</string>
     <string name="profile_btn_desc">Profile</string>
-    <string name="search_btn_desc">Search</string>
+    <string name="foryou_btn_desc">For You</string>
 
     <string name="fast_rewind_desc">Fast Rewind</string>
     <string name="fast_forward_desc">Fast Forward</string>
@@ -32,7 +32,7 @@
 
     <string name="library_title">Library</string>
     <string name="profile_title">Profile</string>
-    <string name="search_title">Search</string>
+    <string name="foryou_title">For You</string>
     <string name="pause_desc">Pause</string>
 
 </resources>

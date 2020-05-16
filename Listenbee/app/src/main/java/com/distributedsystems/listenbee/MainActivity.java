@@ -1,13 +1,16 @@
 package com.distributedsystems.listenbee;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -15,18 +18,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.distributedsystems.listenbee.fragments.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import com.example.eventdeliverysystem.Consumer;
+import com.distributedsystems.listenbee.fragments.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static Consumer consumer = null;
 
     private BottomNavigationView tabs;
+    private ProgressBar musicBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .addToBackStack(null)
                 .commit();
 
+        //volume buttons functionality
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         //Bottom navigation toolbar
         tabs = findViewById(R.id.bottom_navigation);
@@ -149,7 +154,64 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     /**
-     * FIXME
+     * Open music player and set content
+     * @param view button view
+     */
+    public void openPlayer(View view) {
+        setContentView(R.layout.music_player);
+
+        if (mp3.isPlaying()) {
+            ImageButton playbtn = findViewById(R.id.play_btn);
+            playbtn.setVisibility(View.GONE);
+            ImageButton pausebtn = findViewById(R.id.pause_btn);
+            pausebtn.setVisibility(View.VISIBLE);
+
+            //get progress bar
+            musicBar = findViewById(R.id.progressBar);
+            int duration = mp3.getDuration();
+            musicBar.setMax(duration);
+            new Progress().execute();
+        }
+
+        //set title text view
+        TextView titleView = findViewById(R.id.song_title);
+        titleView.setText(songTitle);
+
+        //set artist text view
+        TextView artistView = findViewById(R.id.artist_title);
+        artistView.setText(songArtist);
+
+        //set image view
+        ImageView coverView = findViewById(R.id.song_cover);
+        coverView.setImageBitmap(songCover);
+
+        volume();
+    }
+
+    /**
+     * Minimize music player and set content
+     * @param view button view
+     */
+    public void minimizePlayer(View view) {
+        setContentView(R.layout.activity_main);
+
+        if (mp3.isPlaying()) {
+            ImageButton playbtn = findViewById(R.id.play_btn);
+            playbtn.setVisibility(View.GONE);
+            ImageButton pausebtn = findViewById(R.id.pause_btn);
+            pausebtn.setVisibility(View.VISIBLE);
+        }
+
+        //set title text view
+        TextView titleView = findViewById(R.id.song_title);
+        titleView.setText(songTitle);
+
+        //set image view
+        ImageView coverView = findViewById(R.id.song_cover);
+        coverView.setImageBitmap(songCover);
+    }
+
+    /**
      * Play the song
      * @param view play button
      */
@@ -219,6 +281,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
      * @param view fast forward button
      */
     public void fastForward(View view) {
+        Log.d("METHOD", "------ FAST FORWARD ------");
+
         if (mp3.isPlaying()) {
             final int seekForwardTime = 5 * 1000;
 
@@ -232,10 +296,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     /**
-     *
+     * Fast rewind song
      * @param view fast rewind button
      */
     public void fastRewind(View view) {
+        Log.d("METHOD", "------ FAST REWIND ------");
+
         if (mp3.isPlaying()) {
             final int seekBackwardTime = 5 * 1000;
 
@@ -246,6 +312,39 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 mp3.seekTo(0);
             }
         }
+    }
+
+    /**
+     * Handles volume
+     */
+    public void volume() {
+        Log.d("METHOD", "------ VOLUME ------");
+
+        //get system audio service
+        final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+        int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        int curVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+        //get volume seekbar
+        SeekBar volumeBar = (SeekBar) findViewById(R.id.volume_bar);
+        volumeBar.setMax(maxVolume);
+        volumeBar.setProgress(curVolume);
+        //implement seekbar volume functionality
+        volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekbar) {
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
+            }
+        });
     }
 
     //todo
@@ -270,63 +369,13 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     /**
-     * Go to login activity
+     * Transfer user to log-in activity
      */
-    public void toLogin(){
-        Log.d("METHOD", "------ TO SETTINGS ACTIVITY ------");
+    public void toLogin () {
+        Log.d("METHOD", "------ TO LOG-IN ACTIVITY ------");
 
         Intent login_activity = new Intent(this, LoginActivity.class);
         startActivity(login_activity);
-    }
-
-    /**
-     * Open music player and set content
-     * @param view button view
-     */
-    public void openPlayer(View view) {
-        setContentView(R.layout.music_player);
-
-        if (mp3.isPlaying()) {
-            ImageButton playbtn = findViewById(R.id.play_btn);
-            playbtn.setVisibility(View.GONE);
-            ImageButton pausebtn = findViewById(R.id.pause_btn);
-            pausebtn.setVisibility(View.VISIBLE);
-        }
-
-        //set title text view
-        TextView titleView = findViewById(R.id.song_title);
-        titleView.setText(songTitle);
-
-        //set artist text view
-        TextView artistView = findViewById(R.id.artist_title);
-        artistView.setText(songArtist);
-
-        //set image view
-        ImageView coverView = findViewById(R.id.song_cover);
-        coverView.setImageBitmap(songCover);
-    }
-
-    /**
-     * Minimize music player and set content
-     * @param view button view
-     */
-    public void minimizePlayer(View view) {
-        setContentView(R.layout.activity_main);
-
-        if (mp3.isPlaying()) {
-            ImageButton playbtn = findViewById(R.id.play_btn);
-            playbtn.setVisibility(View.GONE);
-            ImageButton pausebtn = findViewById(R.id.pause_btn);
-            pausebtn.setVisibility(View.VISIBLE);
-        }
-
-        //set title text view
-        TextView titleView = findViewById(R.id.song_title);
-        titleView.setText(songTitle);
-
-        //set image view
-        ImageView coverView = findViewById(R.id.song_cover);
-        coverView.setImageBitmap(songCover);
     }
 
     public static List<Uri> getSongs(){
@@ -338,6 +387,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     public static void setConsumer(Consumer con){consumer = con;}
+
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
 //
@@ -363,8 +413,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             case R.id.action_profile:
                 selectedFragment = new ProfileFragment();
                 break;
-            case R.id.action_search:
-                selectedFragment = new SearchFragment();
+            case R.id.action_foryou:
+                selectedFragment = new ForYouFragment();
                 break;
             default:
                 return false;
@@ -395,11 +445,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
     }
 
-    /**
-     * TODO
-     + inform about the importance of this permission etc.
-     + JAVADOC
-     */
+
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         switch (requestCode) {
@@ -411,6 +457,31 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) { // permission denied
                     //TODO inform about the importance of this permission etc.
                 }
+        }
+    }
+
+    /**
+     * Class that handles a progress bar asynchronously
+     * The progress bar displays the song current position
+     */
+    private class Progress extends AsyncTask<Void, Integer, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            while (mp3.isPlaying()) {
+                publishProgress(mp3.getCurrentPosition());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            musicBar.setProgress(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            mp3.stop();
+            mp3.reset();
         }
     }
 }
