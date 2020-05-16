@@ -1,5 +1,7 @@
 import musicFile.MusicFile;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.*;
 import javafx.util.Pair;
 import musicFile.MusicFileHandler;
@@ -170,7 +172,7 @@ public class Consumer {
      * @param photo updated photo
      * @return true if operation was successful
      */
-    public boolean updateProfile(int age, ImageIcon photo){
+    public boolean updateProfile(int age, File photo){
         if(user_credentials == null){return false;}
         boolean processed = true;
         if(photo != null){
@@ -232,7 +234,7 @@ public class Consumer {
      * @param photo updated photo
      * @return true if operation was successful
      */
-    private boolean updatePhoto(Pair<String, BigInteger> credentials, ImageIcon photo){
+    private boolean updatePhoto(Pair<String, BigInteger> credentials, File photo){
         Socket connection = null;
         try {
             //open connection
@@ -247,7 +249,8 @@ public class Consumer {
             out.writeObject(credentials);
             out.flush();
 
-            out.writeObject(photo);
+            byte[] buffer = Files.readAllBytes(photo.toPath());
+            out.writeObject(buffer);
             out.flush();
 
             //wait for confirmation

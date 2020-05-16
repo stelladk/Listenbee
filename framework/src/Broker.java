@@ -646,13 +646,13 @@ public class Broker {
 
         try {
             Pair<String, BigInteger> user = (Pair<String, BigInteger>) in.readObject();
-            ImageIcon photo = (ImageIcon) in.readObject();
+            byte[] send_photo = (byte[]) in.readObject();
 
-            BufferedImage bimage = new BufferedImage(photo.getIconWidth(), photo.getIconHeight(),
-                    BufferedImage.TYPE_INT_RGB);
-            File photo_file = new File("../res/data/" + user.getKey() + ".jpg");
-            ImageIO.write(bimage, "jpg", photo_file);
-
+            File saved_photo = new File("../res/data/" + user.first + ".jpg");
+            FileOutputStream fout = new FileOutputStream(saved_photo);
+            fout.write(send_photo);
+            fout.close();
+            
             ObjectOutputStream out = new ObjectOutputStream(clientConnx.getOutputStream());
             out.writeObject("TRUE");
             out.flush();
