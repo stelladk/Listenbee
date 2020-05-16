@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static final int READ_STORAGE_PERMISSION_CODE = 100;
     private static final int WRITE_STORAGE_PERMISSION_CODE = 200;
 
-    private List<Uri> songs = new ArrayList<>();
+    private static List<Uri> songs = new ArrayList<>();
     private String songTitle;
     private String songArtist;
     private Bitmap songCover;
@@ -144,11 +144,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 //add song layout to library scrollView
                 //libraryView.addView(song);
             }
-
-            //Library
-            RecyclerView library = findViewById(R.id.library_view);
-            LibraryAdapter adapter = new LibraryAdapter(this, songs);
-            library.setAdapter(adapter);
         }
         return true;
     }
@@ -334,6 +329,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         coverView.setImageBitmap(songCover);
     }
 
+    public static List<Uri> getSongs(){
+        return songs;
+    }
 
     public static Consumer getConsumer(){
         return consumer;
