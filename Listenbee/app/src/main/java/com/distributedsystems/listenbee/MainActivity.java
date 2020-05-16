@@ -23,9 +23,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.distributedsystems.listenbee.fragments.LibraryFragment;
-import com.distributedsystems.listenbee.fragments.ProfileFragment;
-import com.distributedsystems.listenbee.fragments.SearchFragment;
+import com.distributedsystems.listenbee.fragments.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.example.eventdeliverysystem.Broker;

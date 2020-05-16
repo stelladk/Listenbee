@@ -16,9 +16,9 @@ import android.net.Uri;
 import java.util.List;
 
 public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryViewHolder> {
-    private List<Uri> items;
+    private List<MusicFile> items;
 
-    public LibraryAdapter(@NonNull List<Uri> items) {
+    public LibraryAdapter(@NonNull List<MusicFile> items) {
         this.items = items;
     }
 
@@ -31,12 +31,12 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
 
     @Override
     public void onBindViewHolder(@NonNull LibraryViewHolder holder, int position) {
-        Uri track = items.get(position);
+        MusicFile track = items.get(position);
         //TODO: get song data
-//        holder.image.setImageDrawable(track.getImage());
-//        holder.trackName.setText(track.getTrackName());
-//        holder.artistName.setText(track.getArtistName());
-//        holder.download_btn.setImageResource(R.drawable.download_ic);
+//        holder.image.setImageDrawable(track.getCover());
+        holder.trackName.setText(track.getTrackName());
+        holder.artistName.setText(track.getArtistName());
+        holder.download_btn.setImageResource(R.drawable.download_ic);
     }
 
     @Override
