@@ -44,14 +44,20 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static final int WRITE_STORAGE_PERMISSION_CODE = 200;
 
     private static List<Uri> songs = new ArrayList<>();
-    private String songTitle;
-    private String songArtist;
-    private Bitmap songCover;
-    private MediaPlayer mp3;
+    private static String songTitle;
+    private static String songArtist;
+    private static Bitmap songCover;
+    private static MediaPlayer mp3;
     private static Consumer consumer = null;
 
     private BottomNavigationView tabs;
     private ProgressBar musicBar;
+    private static MainActivity mainView;
+    private static ImageButton play_btn;
+    private static ImageButton pause_btn;
+
+    private Fragment activeFragment;
+    private static Uri now_playing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +65,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         setContentView(R.layout.activity_main);
 
+        activeFragment = new LibraryFragment();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container_fragment, new LibraryFragment())
+                .replace(R.id.container_fragment, activeFragment)
                 .addToBackStack(null)
                 .commit();
 
@@ -96,6 +103,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 //        if(!consumer.isLoggedIn()){
 //            toLogin();
 //        }
+
+        mainView = MainActivity.this;
+        play_btn = findViewById(R.id.play_btn);
+        pause_btn = findViewById(R.id.pause_btn);
 
         //TODO: Load artists to library (not yet ready)
 
@@ -176,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
 
         //set title text view
-        TextView titleView = findViewById(R.id.song_title);
+        TextView titleView = findViewById(R.id.player_song_title);
         titleView.setText(songTitle);
 
         //set artist text view
@@ -184,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         artistView.setText(songArtist);
 
         //set image view
-        ImageView coverView = findViewById(R.id.song_cover);
+        ImageView coverView = findViewById(R.id.player_song_cover);
         coverView.setImageBitmap(songCover);
 
         volume();
@@ -205,12 +216,64 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
 
         //set title text view
-        TextView titleView = findViewById(R.id.song_title);
+        TextView titleView = findViewById(R.id.player_song_title);
         titleView.setText(songTitle);
 
         //set image view
-        ImageView coverView = findViewById(R.id.song_cover);
+        ImageView coverView = findViewById(R.id.player_song_cover);
         coverView.setImageBitmap(songCover);
+
+        //re-establish active fragment
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container_fragment, activeFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public static void playOnClick(View itemView, int position){
+
+        if (!mp3.isPlaying()) {
+            Uri fileUri = songs.get(position);
+            now_playing = fileUri;
+            try {
+                mp3.setDataSource(itemView.getContext(), fileUri);
+            } catch (IOException e) {
+                Log.e("ERROR", "Could not set data to mp3 player");
+            }
+
+            //get song metadata
+            MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+            metaRetriever.setDataSource(itemView.getContext(), fileUri);
+
+            songTitle = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            TextView titleView = mainView.findViewById(R.id.player_song_title);
+            titleView.setText(songTitle);
+
+            songArtist =  metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            TextView artistView = mainView.findViewById(R.id.artist_title);
+            if(artistView != null) artistView.setText(songArtist);
+
+            byte[] imageBytes = metaRetriever.getEmbeddedPicture();
+            BitmapFactory.Options config = new BitmapFactory.Options();
+            if (imageBytes != null) {
+                songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
+                ImageView coverView = mainView.findViewById(R.id.player_song_cover);
+                coverView.setImageBitmap(songCover);
+            }
+
+
+            try {
+                mp3.prepare();
+            } catch (IOException e) {
+                Log.e("ERROR", "Could not play song");
+            }
+
+            mp3.start();
+
+            play_btn.setVisibility(View.GONE);
+            pause_btn.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -221,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         Log.d("METHOD", "------ PLAY ------");
 
         if (!mp3.isPlaying()) {
-            Uri fileUri = songs.get(1); //todo change
+            Uri fileUri = now_playing; //todo change
             try {
                 mp3.setDataSource(getApplicationContext(), fileUri);
             } catch (IOException e) {
@@ -233,16 +296,18 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             metaRetriever.setDataSource(this, fileUri);
 
             songTitle = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            TextView titleView = findViewById(R.id.song_title);
+            TextView titleView = findViewById(R.id.player_song_title);
             titleView.setText(songTitle);
 
             songArtist =  metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            TextView artistView = findViewById(R.id.artist_title);
+            if(artistView != null) artistView.setText(songArtist);
 
             byte[] imageBytes = metaRetriever.getEmbeddedPicture();
             BitmapFactory.Options config = new BitmapFactory.Options();
             if (imageBytes != null) {
                 songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
-                ImageView coverView = findViewById(R.id.song_cover);
+                ImageView coverView = findViewById(R.id.player_song_cover);
                 coverView.setImageBitmap(songCover);
             }
 
@@ -428,6 +493,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .replace(R.id.container_fragment, selectedFragment)
                 .addToBackStack(null)
                 .commit();
+        activeFragment = selectedFragment;
         return true;
     }
 

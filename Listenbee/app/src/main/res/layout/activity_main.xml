@@ -18,12 +18,12 @@
         style="@style/MusicPlayer">
 
         <ImageView
-            android:id="@+id/song_cover"
+            android:id="@+id/player_song_cover"
             android:contentDescription="@string/song_cover_desc"
             style="@style/SongCoverSm"/>
 
         <TextView
-            android:id="@+id/song_title"
+            android:id="@+id/player_song_title"
             style="@style/SongTitleSm"/>
 
         <ImageButton

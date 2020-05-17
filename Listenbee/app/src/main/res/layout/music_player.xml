@@ -15,7 +15,7 @@
 
     <!-- IMAGE COVER -->
     <ImageView
-        android:id="@+id/song_cover"
+        android:id="@+id/player_song_cover"
         android:contentDescription="@string/song_cover_desc"
         style="@style/SongCoverLg"/>
 
@@ -24,7 +24,7 @@
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/song_cover"
+        android:layout_below="@id/player_song_cover"
         android:layout_centerHorizontal="true"
         android:thumbTint="@color/wolf_grey"
         android:progressTint="@color/red_flag"
@@ -35,14 +35,14 @@
 
     <!-- TITLE -->
     <TextView
-        android:id="@+id/song_title"
+        android:id="@+id/player_song_title"
         android:layout_below="@id/progressBar"
         style="@style/SongTitleLg"/>
 
     <!-- ARTIST -->
     <TextView
         android:id="@+id/artist_title"
-        android:layout_below="@id/song_title"
+        android:layout_below="@id/player_song_title"
         style="@style/Artist"/>
 
     <!-- PLAYER BUTTONS -->

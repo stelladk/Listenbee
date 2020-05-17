@@ -35,7 +35,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LibraryViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull LibraryViewHolder holder, final int position) {
         Uri track = items.get(position);
         MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
         metadataRetriever.setDataSource(context, track);
@@ -49,6 +49,13 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
         }
         holder.trackName.setText(title);
         holder.artistName.setText(artist);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.playOnClick(view, position);
+            }
+        });
     }
 
     @Override
@@ -58,6 +65,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
 
     static class LibraryViewHolder extends RecyclerView.ViewHolder{
 
+        View itemView;
         ImageView image;
         TextView trackName;
         TextView artistName;
@@ -65,6 +73,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
 
         LibraryViewHolder(@NonNull View itemView) {
             super(itemView);
+            this.itemView = itemView;
             image = itemView.findViewById(R.id.song_cover);
             trackName = itemView.findViewById(R.id.song_title);
             artistName = itemView.findViewById(R.id.song_artist);
