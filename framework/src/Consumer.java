@@ -105,7 +105,8 @@ public class Consumer {
      * @param credentials pair of username and hashed password
      * @return 1 if login was successful,
      *  0 if username does not exist and user has to register,
-     *  -1 if login failed
+     *  -1 if password was wrong
+     *  -2 if login failed
      */
     public int loginUser(Pair<String, BigInteger> credentials) {
         Utilities.print("CONSUMER: Log in user");
@@ -145,6 +146,8 @@ public class Consumer {
                     //user registered but wrong credentials
                     case "FALSE":
                         Utilities.printError("CONSUMER: LOGIN: ERROR: Could not login try again");
+                        closeConnection(connection);
+                        return -1;
                 }
             }
         } catch(IOException e){
@@ -153,7 +156,7 @@ public class Consumer {
             Utilities.printError("CONSUMER: LOGIN: ERROR: Could not cast Object to String");
         }
         closeConnection(connection);
-        return -1;
+        return -2;
     }
     
     /**

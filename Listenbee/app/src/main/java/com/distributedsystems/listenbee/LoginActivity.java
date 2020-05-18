@@ -66,7 +66,11 @@ public class LoginActivity extends AppCompatActivity {
 
                             //connect with Broker
                             int res = consumer.loginUser(new Pair<String, BigInteger>(username_form.getText().toString(), Utilities.SHA1(password_form.getText().toString())));
-                            if(res == -1){
+                            if(res == -2){
+                                //Connection failed
+                                Log.d("LOG IN", "Connection failed");
+
+                            }else if(res == -1){
                                 //wrong credentials
                                 Log.d("LOG IN", "Wrong credentials");
 //                                Toast.makeText(LoginActivity.this, "Wrong credentials", Toast.LENGTH_SHORT).show();

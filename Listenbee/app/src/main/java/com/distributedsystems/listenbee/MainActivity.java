@@ -208,6 +208,13 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public void minimizePlayer(View view) {
         setContentView(R.layout.activity_main);
 
+        //re-establish active fragment
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container_fragment, activeFragment)
+                .addToBackStack(null)
+                .commit();
+
         if (mp3.isPlaying()) {
             ImageButton playbtn = findViewById(R.id.play_btn);
             playbtn.setVisibility(View.GONE);
@@ -222,13 +229,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         //set image view
         ImageView coverView = findViewById(R.id.player_song_cover);
         coverView.setImageBitmap(songCover);
-
-        //re-establish active fragment
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container_fragment, activeFragment)
-                .addToBackStack(null)
-                .commit();
     }
 
     public static void playOnClick(View itemView, int position){
