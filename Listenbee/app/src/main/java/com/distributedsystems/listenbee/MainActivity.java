@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.eventdeliverysystem.Consumer;
+import com.example.eventdeliverysystem.musicFile.MusicFile;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.distributedsystems.listenbee.fragments.*;
@@ -229,6 +230,39 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         //set image view
         ImageView coverView = findViewById(R.id.player_song_cover);
         coverView.setImageBitmap(songCover);
+    }
+
+    public static void playOnClick(MusicFile track){
+        if (!mp3.isPlaying()) {
+
+            songTitle = track.getTrackName();
+            TextView titleView = mainView.findViewById(R.id.player_song_title);
+            titleView.setText(songTitle);
+
+            songArtist =  track.getArtistName();
+            TextView artistView = mainView.findViewById(R.id.artist_title);
+            if(artistView != null) artistView.setText(songArtist);
+
+            byte[] imageBytes = track.getCover();
+            BitmapFactory.Options config = new BitmapFactory.Options();
+            if (imageBytes != null) {
+                songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
+                ImageView coverView = mainView.findViewById(R.id.player_song_cover);
+                coverView.setImageBitmap(songCover);
+            }
+
+
+            try {
+                mp3.prepare();
+            } catch (IOException e) {
+                Log.e("ERROR", "Could not play song");
+            }
+
+            mp3.start();
+
+            play_btn.setVisibility(View.GONE);
+            pause_btn.setVisibility(View.VISIBLE);
+        }
     }
 
     public static void playOnClick(View itemView, int position){

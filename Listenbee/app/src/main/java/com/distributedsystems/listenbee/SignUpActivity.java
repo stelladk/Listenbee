@@ -30,6 +30,8 @@ public class SignUpActivity extends AppCompatActivity {
         Button sign_up_btn = findViewById(R.id.signup_btn);
         final EditText username_form = findViewById(R.id.username_form);
         final EditText password_form = findViewById(R.id.password_form);
+        final EditText email_form = findViewById(R.id.email_form);
+        final EditText age_form = findViewById(R.id.age_form);
         sign_up_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -39,9 +41,14 @@ public class SignUpActivity extends AppCompatActivity {
                 }
                 if(password_form.getText().toString() == ""){
                     Toast.makeText(SignUpActivity.this, "Password is required!", Toast.LENGTH_SHORT).show();
+                    return;//TODO
+                }if(email_form.getText().toString() == ""){
+                    Toast.makeText(SignUpActivity.this, "Password is required!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                int res = consumer.registerUser(new Pair<String, BigInteger>(username_form.getText().toString(), Utilities.SHA1(password_form.getText().toString())));
+                Pair<String,BigInteger> creds = new Pair<String, BigInteger>(username_form.getText().toString(), Utilities.SHA1(password_form.getText().toString()));
+                Pair<String, Integer> extra = new Pair<String, Integer>(email_form.getText().toString(), Integer.parseInt(age_form.getText().toString()));
+                int res = consumer.registerUser(creds, extra);
                 if(res == 0){
                    Toast.makeText(SignUpActivity.this, "Username already exists!", Toast.LENGTH_SHORT).show();
                 }else if(res == -1){

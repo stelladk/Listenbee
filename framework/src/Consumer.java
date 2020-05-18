@@ -169,7 +169,6 @@ public class Consumer {
 
     /**
      * Update profile photo or age
-     * @param username consumer username
      * @param age updated age
      * @param photo updated photo
      * @return true if operation was successful
@@ -189,7 +188,7 @@ public class Consumer {
     //TODO: delete
     /**
      * Update profile age
-     * @param username consumer username
+     * @param credentials consumer username and password
      * @param age updated age
      * @return true if operation was successful
      */
@@ -232,7 +231,7 @@ public class Consumer {
 
     /**
      * Update profile photograph
-     * @param username consumer username
+     * @param credentials consumer username and password
      * @param photo updated photo
      * @return true if operation was successful
      */

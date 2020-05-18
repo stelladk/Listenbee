@@ -16,6 +16,7 @@ import com.distributedsystems.listenbee.R;
 import com.example.eventdeliverysystem.Consumer;
 import com.example.eventdeliverysystem.musicFile.MusicFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ForYouFragment extends Fragment {
@@ -43,7 +44,7 @@ public class ForYouFragment extends Fragment {
     }
 
     public static void getData(String trackName, String artistName){
-//        MusicFile track = consumer.playData(trackName, artistName, "ONLINE");
-//        MainActivity.playOnClick(track);
+        ArrayList<MusicFile> track = consumer.playData(trackName, artistName, "ONLINE");
+        MainActivity.playOnClick(track.get(0));
     }
 }
