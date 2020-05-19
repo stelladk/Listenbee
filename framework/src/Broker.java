@@ -601,7 +601,7 @@ public class Broker {
         try {
             userReader = new BufferedReader(new FileReader(userFile));
             String line = userReader.readLine();
-            if (!line.toLowerCase().contains(userFileIntro)) {
+            if (!line.contains(userFileIntro)) {
                 Utilities.printError("Not a valid user file");
                 return false;
             }

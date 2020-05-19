@@ -34,7 +34,10 @@ public class ForYouFragment extends Fragment {
 
     public void loadLibrary(){
         consumer = MainActivity.getConsumer();
-        available_songs = consumer.loadLibrary();
+        Log.d("LOAD", ""+(consumer==null));
+        if(available_songs == null){
+            available_songs = consumer.loadLibrary();
+        }
 
         if(available_songs != null){
             ExploreAdapter adapter = new ExploreAdapter(getContext(), available_songs);
