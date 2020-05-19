@@ -16,6 +16,7 @@ import com.distributedsystems.listenbee.R;
 import com.example.eventdeliverysystem.Consumer;
 import com.example.eventdeliverysystem.musicFile.MusicFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ForYouFragment extends Fragment {
@@ -33,7 +34,10 @@ public class ForYouFragment extends Fragment {
 
     public void loadLibrary(){
         consumer = MainActivity.getConsumer();
-        available_songs = consumer.loadLibrary();
+        Log.d("LOAD", ""+(consumer==null));
+        if(available_songs == null){
+            available_songs = consumer.loadLibrary();
+        }
 
         if(available_songs != null){
             ExploreAdapter adapter = new ExploreAdapter(getContext(), available_songs);
@@ -43,7 +47,7 @@ public class ForYouFragment extends Fragment {
     }
 
     public static void getData(String trackName, String artistName){
-//        MusicFile track = consumer.playData(trackName, artistName, "ONLINE");
-//        MainActivity.playOnClick(track);
+        ArrayList<MusicFile> track = consumer.playData(trackName, artistName, "ONLINE");
+        MainActivity.playOnClick(track.get(0));
     }
 }

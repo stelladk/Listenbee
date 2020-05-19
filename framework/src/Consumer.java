@@ -9,7 +9,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import javax.swing.ImageIcon;
 import java.math.BigInteger;
 import java.net.*;
 
@@ -170,7 +169,6 @@ public class Consumer {
 
     /**
      * Update profile photo or age
-     * @param username consumer username
      * @param age updated age
      * @param photo updated photo
      * @return true if operation was successful
@@ -190,7 +188,7 @@ public class Consumer {
     //TODO: delete
     /**
      * Update profile age
-     * @param username consumer username
+     * @param credentials consumer username and password
      * @param age updated age
      * @return true if operation was successful
      */
@@ -233,7 +231,7 @@ public class Consumer {
 
     /**
      * Update profile photograph
-     * @param username consumer username
+     * @param credentials consumer username and password
      * @param photo updated photo
      * @return true if operation was successful
      */
@@ -283,10 +281,11 @@ public class Consumer {
      * @param artist song's artist
      * @return true if operation was successful
      */
-    public boolean playData (String track, String artist, String mode) {
+    public ArrayList<MusicFile> playData (String track, String artist, String mode) {
         Utilities.print("CONSUMER: Song request");
+        ArrayList<MusicFile> songs = null;
 
-        boolean state = false;
+        // boolean state = false;
         try {
             //CASE 1
             //consumer hasn't asked for a song yet
@@ -308,14 +307,14 @@ public class Consumer {
                 switch (message){
                     //broker has the song --> send it
                     case "ACCEPT":
-                        state = receiveData(in, mode);
+                        songs = receiveData(in, mode);
                         closeConnection(connection);
-                        return state;
+                        return songs;
                     //artists doen't exist
                     case "FAILURE":
                         Utilities.printError("Artist doesn't exist");
                         closeConnection(connection);
-                        return state;
+                        return null;
                     //broker doesn't have the song --> send other brokers
                     case "DECLINE":
                         getBrokers(in);
@@ -329,7 +328,7 @@ public class Consumer {
             String brokerIP = artists.get(artist);
             if (brokerIP == null) {
                 Utilities.printError("Artist doesn't exist");
-                return false;
+                return null;
             }
             Socket connection = new Socket(brokerIP, PORT);
 
@@ -343,10 +342,9 @@ public class Consumer {
             //get answer from broker
             ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
             String message = (String) in.readObject();
-            state = false;
             switch (message) {
                 case "ACCEPT":
-                    state = receiveData(in, mode);
+                    songs = receiveData(in, mode);
                     break;
                 default:
                     Utilities.printError("CONSUMER: PLAY: ERROR: INCONSISTENCY IN BROKERS");
@@ -357,7 +355,7 @@ public class Consumer {
         } catch (ClassNotFoundException e){
             Utilities.printError("CONSUMER: PLAY: ERROR: Could not cast Object to String");
         }
-        return state;
+        return songs;
     }
 
     /**
@@ -420,7 +418,8 @@ public class Consumer {
      * @param in input stream
      * @param mode online or offline
      */
-    private boolean receiveData (ObjectInputStream in, String mode) {
+    private ArrayList<MusicFile> receiveData (ObjectInputStream in, String mode) {
+        ArrayList<MusicFile> returned = new ArrayList<>();
         ArrayList<MusicFile> chunks = new ArrayList<>();
         MusicFile file;
         int counter = 0; //when counter == 2 then end of all file chunks
@@ -434,10 +433,12 @@ public class Consumer {
 
                     if (!chunks.isEmpty()) {
                         if (mode.equals("ONLINE")) { //save music file chunks
-                            MusicFileHandler.write(chunks);
+                            // MusicFileHandler.write(chunks);
+                            returned.addAll(chunks);
                         } else if (mode.equals("OFFLINE")) { //merge chunks and save the music file
                             MusicFile merged = MusicFileHandler.merge(chunks);
-                            MusicFileHandler.write(merged);
+                            // MusicFileHandler.write(merged);
+                            returned.add(merged);
                         } else if(mode.equals("INFO")){
                             MusicFile preview = chunks.get(0);
                             preview.setAlbumInfo(null);
@@ -454,14 +455,14 @@ public class Consumer {
                 }
                 if (counter >= 2) break;
             }
-            return true;
+            return returned;
         } catch (IOException e) {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not get streams");
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not cast Object to MusicFile");
         }
-        return false;
+        return null;
     }
 
     /**

@@ -2,7 +2,6 @@ package com.distributedsystems.listenbee;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.distributedsystems.listenbee.fragments.ForYouFragment;
 import com.example.eventdeliverysystem.musicFile.MusicFile;
 
-import android.net.Uri;
 import java.util.List;
 
 public class ExploreAdapter extends RecyclerView.Adapter<ExploreAdapter.ExploreViewHolder> {
