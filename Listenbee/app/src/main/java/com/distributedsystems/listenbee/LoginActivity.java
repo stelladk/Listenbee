@@ -2,7 +2,9 @@ package com.distributedsystems.listenbee;
 
 import android.content.Intent;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -19,10 +21,10 @@ import com.example.eventdeliverysystem.Consumer;
 import com.example.eventdeliverysystem.Utilities;
 
 import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 public class LoginActivity extends AppCompatActivity {
+
+    Consumer consumer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,65 +36,14 @@ public class LoginActivity extends AppCompatActivity {
         Button signup_btn = findViewById(R.id.signup_btn);
         final EditText username_form = findViewById(R.id.username_form);
         final EditText password_form = findViewById(R.id.password_form);
-        toMainActivity(null);
+//        toMainActivity(null);
+
 
         login_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Thread login_thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            //get IP address
-                            String client_IP = InetAddress.getLocalHost().getHostAddress();
-                            Log.d("LOCALHOST", client_IP);
-                            WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
-                            client_IP = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
-                            Log.d("LOCALHOST", client_IP);
-                            String server_IP = "192.168.1.3";
-                            final Consumer consumer = new Consumer(client_IP, server_IP, Broker.getToCliPort());
-
-                            //check required forms
-                            if(TextUtils.isEmpty(username_form.getText())){
-                                Log.d("LOG IN", "Username is required!");
-//                                Toast.makeText(LoginActivity.this, "Username is required!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            if(TextUtils.isEmpty(password_form.getText())){
-                                Log.d("LOG IN", "Password is required!");
-//                                Toast.makeText(LoginActivity.this, "Password is required!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-
-                            //connect with Broker
-                            int res = consumer.loginUser(new Pair<String, BigInteger>(username_form.getText().toString(), Utilities.SHA1(password_form.getText().toString())));
-                            if(res == -2){
-                                //Connection failed
-                                Log.d("LOG IN", "Connection failed");
-
-                            }else if(res == -1){
-                                //wrong credentials
-                                Log.d("LOG IN", "Wrong credentials");
-//                                Toast.makeText(LoginActivity.this, "Wrong credentials", Toast.LENGTH_SHORT).show();
-                            }else if(res == 0){
-                                //no account
-                                Log.d("LOG IN", "No such account found please register");
-//                                Toast.makeText(LoginActivity.this, "No such account found please register", Toast.LENGTH_SHORT).show();
-                                toSignUpActivity(null);
-                            }else if(res == 1){
-                                //successful login
-                                Log.d("LOG IN", "Success!!!");
-                                MainActivity.setConsumer(consumer);
-                                toMainActivity(null);
-                            }
-                        } catch (UnknownHostException e) {
-                            Log.d("LOG IN", "No internet connection at the moment!");
-//                            Toast.makeText(LoginActivity.this, "No internet connection at the moment!", Toast.LENGTH_SHORT).show();
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                login_thread.start();
+                LoginTask loginTask = new LoginTask();
+                loginTask.execute(username_form.getText(), password_form.getText());
             }
         });
 
@@ -123,5 +74,64 @@ public class LoginActivity extends AppCompatActivity {
 
         Intent signup_activity = new Intent(this, SignUpActivity.class);
         startActivity(signup_activity);
+    }
+
+    public class LoginTask extends AsyncTask<Editable, Void, Integer>{
+
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Integer doInBackground(Editable... editables) {
+            //get IP address
+            WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
+            String client_IP = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+            Log.d("LOCALHOST", client_IP);
+            String server_IP = "192.168.1.3";
+            consumer = new Consumer(client_IP, server_IP, Broker.getToCliPort());
+
+            //check required forms
+            if(TextUtils.isEmpty(editables[0])){
+                Log.d("LOG IN", "Username is required!");
+//                                Toast.makeText(LoginActivity.this, "Username is required!", Toast.LENGTH_SHORT).show();
+                return null;
+            }
+            if(TextUtils.isEmpty(editables[1])){
+                Log.d("LOG IN", "Password is required!");
+//                                Toast.makeText(LoginActivity.this, "Password is required!", Toast.LENGTH_SHORT).show();
+                return null;
+            }
+
+            //connect with Broker
+            String username = editables[0].toString();
+            BigInteger password = Utilities.SHA1(editables[1].toString());
+            return consumer.loginUser(new Pair<>(username, password));
+        }
+
+        @Override
+        protected void onPostExecute(Integer res) {
+            super.onPostExecute(res);
+            if(res == -2){
+                //Connection failed
+                Log.d("LOG IN", "Connection failed");
+                Toast.makeText(LoginActivity.this, "Connection failed", Toast.LENGTH_SHORT).show();
+            }else if(res == -1){
+                //wrong credentials
+                Log.d("LOG IN", "Wrong credentials");
+                Toast.makeText(LoginActivity.this, "Wrong credentials", Toast.LENGTH_SHORT).show();
+            }else if(res == 0){
+                //no account
+                Log.d("LOG IN", "No such account found please register");
+                Toast.makeText(LoginActivity.this, "No such account found please register", Toast.LENGTH_SHORT).show();
+                toSignUpActivity(null);
+            }else if(res == 1){
+                //successful login
+                Log.d("LOG IN", "Success!!!");
+                MainActivity.setConsumer(consumer);
+                toMainActivity(null);
+            }
+        }
     }
 }
