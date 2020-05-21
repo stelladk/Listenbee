@@ -10,9 +10,9 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.util.Pair;
 
 import com.example.eventdeliverysystem.Consumer;
+import com.example.eventdeliverysystem.Pair;
 import com.example.eventdeliverysystem.Utilities;
 
 import java.math.BigInteger;

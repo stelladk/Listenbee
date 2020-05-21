@@ -1,4 +1,6 @@
-package com.example.eventdeliverysystem;
+package com.example.eventdeliverysystem.testing;
+
+import com.example.eventdeliverysystem.Publisher;
 
 import java.util.*;
 import java.io.BufferedReader;
@@ -25,7 +27,7 @@ public class PublisherMain {
             return;
         }
 
-        Publisher pub = new Publisher(IP,"^[[a-jA-J] | [0-9]].*"); 
+        Publisher pub = new Publisher(IP,"^[[a-jA-J] | [0-9]].*");
         
         List<String> serverIPs; 
         if(args.length < 1){

@@ -5,7 +5,6 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javafx.util.*;
 
 import musicFile.MusicFile;
 import musicFile.MusicFileHandler;
@@ -228,7 +227,7 @@ public class Publisher {
             for (Pair<String,BigInteger> broker : brokerList) { //for each broker IP address
                 if (hashArtist.compareTo(broker.getValue()) < 0){
                     if (!brokers.containsKey(broker.getKey())){
-                        brokers.put(broker.getKey(), new ArrayList<>());
+                        brokers.put(broker.getKey(), new ArrayList<String>());
                     }
                     brokers.get(broker.getKey()).add(artist);
                     break;

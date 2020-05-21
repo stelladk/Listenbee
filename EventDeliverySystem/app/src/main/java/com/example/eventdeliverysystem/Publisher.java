@@ -1,7 +1,5 @@
 package com.example.eventdeliverysystem;
 
-import androidx.core.util.Pair;
-
 import java.io.*;
 import java.math.BigInteger;
 import java.net.ServerSocket;
@@ -19,7 +17,7 @@ public class Publisher {
 
     private ServerSocket server;
 
-    private ArrayList<Pair<String,BigInteger>> brokerList; //active brokers
+    private ArrayList< Pair<String,BigInteger> > brokerList; //active brokers
     private Map<String, ArrayList<MusicFile>> files;
     private Map<String, ArrayList<String>> brokers; //brokers (IP addresses) and their artists
 
@@ -106,7 +104,7 @@ public class Publisher {
                                     Pair<String, String> song = (Pair<String, String>) in.readObject();
 
                                     //send the music file to broker
-                                    push(song.first, song.second, connection);
+                                    push(song.getKey(), song.getValue(), connection);
                                 }catch (IOException e){
                                     Utilities.printError("PUBLISHER: ONLINE: ERROR: Could not read from stream");
                                 } catch (ClassNotFoundException e) {
@@ -166,7 +164,7 @@ public class Publisher {
         brokerList.sort(new Comparator<Pair<String, BigInteger>>() {
             @Override
             public int compare(Pair<String, BigInteger> a, Pair<String, BigInteger> b) {
-                return a.second.compareTo(b.second);
+                return a.getValue().compareTo(b.getValue());
             }
         });
     }
@@ -220,7 +218,7 @@ public class Publisher {
         brokers = new HashMap<>();
         //find broker whose hash value is greater than the others
         Pair<String,BigInteger> maxBroker = brokerList.get(brokerList.size() - 1);
-        BigInteger maxBrokerHash = maxBroker.second;
+        BigInteger maxBrokerHash = maxBroker.getValue();
 
         for (String artist : files.keySet()){
             //if hash(artist_name) > maximum hash(broker)
@@ -228,11 +226,11 @@ public class Publisher {
             BigInteger hashArtist = Utilities.SHA1(artist).mod(maxBrokerHash);
 
             for (Pair<String,BigInteger> broker : brokerList) { //for each broker IP address
-                if (hashArtist.compareTo(broker.second) < 0){
-                    if (!brokers.containsKey(broker.first)){
-                        brokers.put(broker.first, new ArrayList<String>());
+                if (hashArtist.compareTo(broker.getValue()) < 0){
+                    if (!brokers.containsKey(broker.getKey())){
+                        brokers.put(broker.getKey(), new ArrayList<String>());
                     }
-                    brokers.get(broker.first).add(artist);
+                    brokers.get(broker.getKey()).add(artist);
                     break;
                 }
             }

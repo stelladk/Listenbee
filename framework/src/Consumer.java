@@ -3,7 +3,6 @@ import musicFile.MusicFile;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.*;
-import javafx.util.Pair;
 import musicFile.MusicFileHandler;
 import java.io.EOFException;
 import java.io.IOException;

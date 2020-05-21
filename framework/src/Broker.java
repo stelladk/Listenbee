@@ -2,15 +2,10 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import java.awt.image.BufferedImage;
-
 import java.io.*;
 import java.net.*;
 import java.math.BigInteger;
 
-import javafx.util.*;
 import musicFile.MusicFile;
 
 public class Broker {
@@ -352,7 +347,7 @@ public class Broker {
     /**
      * Send this broke's artists to the other brokers
      * 
-     * @param artists cureent broker's artists
+     * @param artists current broker's artists
      */
     private void notifyBrokers(ArrayList<String> artists) {
         Utilities.print("BROKER: Notify brokers");

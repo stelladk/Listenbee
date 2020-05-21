@@ -1,4 +1,6 @@
-package com.example.eventdeliverysystem;
+package com.example.eventdeliverysystem.testing;
+
+import com.example.eventdeliverysystem.Broker;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

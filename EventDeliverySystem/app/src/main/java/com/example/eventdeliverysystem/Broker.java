@@ -1,7 +1,5 @@
 package com.example.eventdeliverysystem;
 
-import androidx.core.util.Pair;
-
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,11 +22,11 @@ public class Broker {
     private ArrayList<String> brokersList; // available brokers
     private static final ArrayList<String> registeredPublishers = new ArrayList<>();
     private static final HashMap<Pair<String, BigInteger>, Pair<String, Integer>> registeredUsers = new HashMap<>(); // username
-                                                                                                                     // and
-                                                                                                                     // password
-                                                                                                                     // for
-                                                                                                                     // registered
-                                                                                                                     // users
+    // and
+    // password
+    // for
+    // registered
+    // users
 
     private final String userFileIntro = "/* User Credentials */";
     private static File userFile; // registered users
@@ -51,7 +49,7 @@ public class Broker {
 
     /**
      * Initialize broker register all available brokers read all registered users
-     * 
+     *
      * @param brokerIPs online broker IPs
      */
     public void init(ArrayList<String> brokerIPs) {
@@ -244,7 +242,7 @@ public class Broker {
 
     /**
      * Connect with broker and fetch his artists
-     * 
+     *
      * @param connection socket for connection
      * @param brokerIP   connected broker
      */
@@ -282,7 +280,7 @@ public class Broker {
 
     /**
      * If publisher is registered fetch songs Else send hash value
-     * 
+     *
      * @param connection socket for connection
      */
     public void acceptPublisherConnection(Socket connection) {
@@ -350,8 +348,8 @@ public class Broker {
 
     /**
      * Send this broke's artists to the other brokers
-     * 
-     * @param artists cureent broker's artists
+     *
+     * @param artists current broker's artists
      */
     private void notifyBrokers(final ArrayList<String> artists) {
         Utilities.print("BROKER: Notify brokers");
@@ -389,7 +387,7 @@ public class Broker {
 
     /**
      * Pass publisher in broker's registered publisher list
-     * 
+     *
      * @param clientIP publisher's IP address
      */
     private synchronized void registerPublisher(String clientIP) {
@@ -398,7 +396,7 @@ public class Broker {
 
     /**
      * Connect with consumer and process the request
-     * 
+     *
      * @param connection socket for connection
      * @param consumer   consumer IP address
      */
@@ -422,7 +420,7 @@ public class Broker {
                     break;
                 case "PULL":
                     Pair<String, String> song = (Pair) in.readObject();
-                    pull(connection, song.first, song.second);
+                    pull(connection, song.getKey(), song.getValue());
                     break;
                 case "INIT":
                     pull(connection, null, "_INIT");
@@ -437,7 +435,7 @@ public class Broker {
 
     /**
      * Save credentials in a file and inform user about his registration
-     * 
+     *
      * @param connection socket for connection
      * @param clientIP   consumer IP address
      */
@@ -466,7 +464,7 @@ public class Broker {
 
     /**
      * Check credentials send by user and inform user about their validity
-     * 
+     *
      * @param connection socket for connection
      * @param clientIP   consumer IP address
      */
@@ -480,9 +478,9 @@ public class Broker {
             boolean registered = false;
             Pair<String, BigInteger> client = null;
             for (Pair<String, BigInteger> consumer : registeredUsers.keySet()) {// check if consumer is registered
-                if (consumer.first.equals(credentials.first)) { // check his username
+                if (consumer.getKey().equals(credentials.getKey())) { // check his username
                     registered = true;
-                    if (credentials.second.equals(consumer.second)) { // check his password
+                    if (credentials.getValue().equals(consumer.getValue())) { // check his password
                         client = consumer;
                     }
                 }
@@ -509,7 +507,7 @@ public class Broker {
 
     /**
      * Get requested song from user <title,artist>
-     * 
+     *
      * @param clientConnx socket for connection
      * @param title       song title
      * @param artist      artist name
@@ -536,7 +534,7 @@ public class Broker {
             }
         } else if (broker.equals(getIP())) { // the current broker is responsible for the artist
             String publisher = artistsToPublishers.get(artist); // get publisher (IP address) responsible for this
-                                                                // artist
+            // artist
 
             try {
                 // inform consumer that you will send music files
@@ -594,14 +592,14 @@ public class Broker {
 
     /**
      * Read user file to get user credentials
-     * 
+     *
      * @return true if the operation was successful
      */
     private synchronized boolean readUsers() {
         try {
             userReader = new BufferedReader(new FileReader(userFile));
             String line = userReader.readLine();
-            if (!line.toLowerCase().contains(userFileIntro)) {
+            if (!line.contains(userFileIntro)) {
                 Utilities.printError("Not a valid user file");
                 return false;
             }
@@ -648,11 +646,10 @@ public class Broker {
             Pair<String, BigInteger> user = (Pair<String, BigInteger>) in.readObject();
             byte[] send_photo = (byte[]) in.readObject();
 
-            File saved_photo = new File("../res/data/" + user.first + ".jpg");
+            File saved_photo = new File("../res/data/" + user.getKey() + ".jpg");
             FileOutputStream fout = new FileOutputStream(saved_photo);
             fout.write(send_photo);
             fout.close();
-
 
             ObjectOutputStream out = new ObjectOutputStream(clientConnx.getOutputStream());
             out.writeObject("TRUE");
@@ -708,20 +705,19 @@ public class Broker {
      */
     private synchronized String writeUser(Pair<String,BigInteger> credentials, Pair<String, Integer> extra){
         for(Pair<String,BigInteger> user : registeredUsers.keySet()){ //check username
-            if(credentials.first.equals(user.first)){
+            if(credentials.getKey().equals(user.getKey())){
                 return "EXISTS_U";
             }
-            assert extra.first != null;
-            if(extra.first.equals(registeredUsers.get(user).first)){ //check email
+            if(extra.getKey().equals(registeredUsers.get(user).getKey())){ //check email
                 return "EXISTS_E";
             }
         }
         boolean processed = true;
         processed = writeToUserFile("<User>") && processed;
-        processed = writeToUserFile("<username>"+credentials.first+"</username>") && processed;
-        processed = writeToUserFile("<password>"+credentials.second+"</password>") && processed;
-        processed = writeToUserFile("<email>"+extra.first+"</email>") && processed;
-        processed = writeToUserFile("<age>"+extra.second+"</age>") && processed;
+        processed = writeToUserFile("<username>"+credentials.getKey()+"</username>") && processed;
+        processed = writeToUserFile("<password>"+credentials.getValue()+"</password>") && processed;
+        processed = writeToUserFile("<email>"+extra.getKey()+"</email>") && processed;
+        processed = writeToUserFile("<age>"+extra.getValue()+"</age>") && processed;
         processed = writeToUserFile("</User>") && processed;
         if(processed) registeredUsers.put(credentials, extra);
         return processed? "TRUE" : "FALSE";

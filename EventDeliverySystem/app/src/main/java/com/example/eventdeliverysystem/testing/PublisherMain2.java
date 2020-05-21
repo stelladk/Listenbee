@@ -1,4 +1,6 @@
-package com.example.eventdeliverysystem;
+package com.example.eventdeliverysystem.testing;
+
+import com.example.eventdeliverysystem.Publisher;
 
 import java.util.*;
 import java.io.BufferedReader;

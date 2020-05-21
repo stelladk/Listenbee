@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.distributedsystems.listenbee.ExploreAdapter;
-import com.distributedsystems.listenbee.LibraryAdapter;
 import com.distributedsystems.listenbee.MainActivity;
 import com.distributedsystems.listenbee.R;
 import com.example.eventdeliverysystem.Consumer;
