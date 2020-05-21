@@ -81,6 +81,7 @@ public class NotificationCreator {
                         .setMediaSession(mediaSession.getSessionToken()))
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setContentIntent(pendingTapIntent)
+                    .setOngoing(true)
                     .build();
 
             manager.notify(1, notification);
