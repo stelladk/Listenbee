@@ -14,6 +14,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.distributedsystems.listenbee.MainActivity;
 import com.distributedsystems.listenbee.R;
 import com.distributedsystems.listenbee.notification.NotificationActionService;
 import com.example.eventdeliverysystem.musicFile.MusicFile;
@@ -43,6 +44,10 @@ public class NotificationCreator {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationManagerCompat manager = NotificationManagerCompat.from(context);
             MediaSessionCompat mediaSession = new MediaSessionCompat(context, "tag");
+
+            Intent tapIntent = new Intent(context, MainActivity.class);
+            PendingIntent pendingTapIntent = PendingIntent.getActivity(context, 0, tapIntent, 0);
+
 
             byte[] bytes = track.getCover();
             Bitmap cover = null;
@@ -75,6 +80,7 @@ public class NotificationCreator {
                         .setShowActionsInCompactView(0, 1)
                         .setMediaSession(mediaSession.getSessionToken()))
                     .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setContentIntent(pendingTapIntent)
                     .build();
 
             manager.notify(1, notification);
