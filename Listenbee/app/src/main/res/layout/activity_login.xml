@@ -43,7 +43,7 @@
     <Button
         android:id="@+id/login_btn"
         android:text="@string/login_btn"
-        android:onClick="toMainActivity"
+        android:onClick="login"
         style="@style/LoginButton"/>
 
     <!-- SIGN-UP -->

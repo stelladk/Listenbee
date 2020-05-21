@@ -1,6 +1,7 @@
 package com.distributedsystems.listenbee;
 
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,8 +25,14 @@ import com.example.eventdeliverysystem.Utilities;
 import java.math.BigInteger;
 
 public class SignUpActivity extends AppCompatActivity {
+    private String clientIP;
+    private String brokerIP;
+    private Consumer consumer;
 
-    Consumer consumer = null;
+    private EditText usernameForm;
+    private EditText passwordForm;
+    private EditText emailForm;
+    private EditText ageForm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,33 +40,32 @@ public class SignUpActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_signup);
 
-        final Button sign_up_btn = findViewById(R.id.signup_btn);
-        final EditText username_form = findViewById(R.id.username_form);
-        final EditText password_form = findViewById(R.id.password_form);
-        final EditText email_form = findViewById(R.id.email_form);
-        final EditText age_form = findViewById(R.id.age_form);
-        sign_up_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               SignupTask signupTask = new SignupTask();
-               signupTask.execute(username_form.getText(),password_form.getText(),email_form.getText(),age_form.getText());
-            }
-        });
+        usernameForm = findViewById(R.id.username_form);
+        passwordForm = findViewById(R.id.password_form);
+        emailForm = findViewById(R.id.email_form);
+        ageForm = findViewById(R.id.age_form);
 
-        ImageButton back_btn = findViewById(R.id.back_btn);
-        back_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                previous(view);
-            }
-        });
+        new InternetInfo().execute();
     }
 
     /**
-     * TODO -- METHOD NAME & CODE
+     * Sign-up user to the app
+     */
+    public void signup(View view) {
+        Log.d("METHOD", "------ SIGN-UO ------");
+
+        String username = usernameForm.getText().toString();
+        String password = passwordForm.getText().toString();
+        String email = emailForm.getText().toString();
+        String age = ageForm.getText().toString();
+
+        new SignupTask().execute(username, password, email, age);
+    }
+
+    /**
      * Transfer user to main activity
      */
-    public void toMainActivity(View view) {
+    public void toMainActivity() {
         Log.d("METHOD", "------ TO MAIN ACTIVITY ------");
 
         Intent main_activity = new Intent(this, MainActivity.class);
@@ -67,81 +73,67 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     /**
-     * Transfer user to main activity
+     * Transfer user to login
      */
     public void previous(View view){
         Log.d("METHOD", "------ TO PREVIOUS ACTIVITY ------");
 
-        Intent main_activity = new Intent(this, LoginActivity.class);
-        startActivity(main_activity);
+        Intent login_activity = new Intent(this, LoginActivity.class);
+        startActivity(login_activity);
     }
 
-    public class SignupTask extends AsyncTask<Editable, Void, Integer> {
-
+    /**
+     * Class that gets mobiles IP address
+     */
+    private class InternetInfo extends AsyncTask<Void, Void, Void> {
         @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
+        protected Void doInBackground(Void... voids) {
+            WifiManager manager = (WifiManager) getSystemService(WIFI_SERVICE);
+            WifiInfo wifiInfo = manager.getConnectionInfo();
+            clientIP = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
+
+            brokerIP = "192.168.1.10";
+            return null;
         }
 
         @Override
-        protected Integer doInBackground(Editable... editables) {
-            //get IP address
-            WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
-            String client_IP = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
-            Log.d("LOCALHOST", client_IP);
-            String server_IP = "192.168.1.3";
-            consumer = new Consumer(client_IP, server_IP, Broker.getToCliPort());
+        protected void onPostExecute(Void result) {
+            consumer = new Consumer(clientIP, brokerIP, Broker.getToCliPort());
+        }
+    }
 
-            //check required forms
-            if(TextUtils.isEmpty(editables[0])){
-                Log.d("SIGN UP", "Username is required!");
-                Toast.makeText(SignUpActivity.this, "Username is required!", Toast.LENGTH_SHORT).show();
-                return null;
-            }
-            if(TextUtils.isEmpty(editables[1])){
-                Log.d("SIGN UP", "Password is required!");
-                Toast.makeText(SignUpActivity.this, "Password is required!", Toast.LENGTH_SHORT).show();
-                return null;
-            }
-            if(TextUtils.isEmpty(editables[2])){
-                Log.d("SIGN UP", "E-mail is required!");
-                Toast.makeText(SignUpActivity.this, "E-mail is required!", Toast.LENGTH_SHORT).show();
-                return null;
-            }
-            if(TextUtils.isEmpty(editables[3])){
-                Log.d("SIGN UP", "Age is required!");
-                Toast.makeText(SignUpActivity.this, "Age is required!", Toast.LENGTH_SHORT).show();
-                return null;
-            }
+    /**
+     * Takes user credential, communicates with Broker and sign up user to the app
+     */
+    public class SignupTask extends AsyncTask<String, Void, Integer> {
 
-            //connect with Broker
-            String username = editables[0].toString();
-            BigInteger password = Utilities.SHA1(editables[1].toString());
-            String email = editables[2].toString();
-            Integer age = Integer.parseInt(editables[3].toString());
-            return consumer.registerUser(new Pair<String, BigInteger>(username,password), new Pair<String, Integer>(email,age));
+        @Override
+        protected Integer doInBackground(String... str) {
+            return consumer.registerUser(new Pair<String, BigInteger>(str[0], Utilities.SHA1(str[1])), new Pair<String, Integer>(str[2], Integer.parseInt(str[3])));
         }
 
         @Override
-        protected void onPostExecute(Integer res) {
-            super.onPostExecute(res);
-            if(res == -2){
-                //email taken
-                Log.d("SIGN UP", "E-mail already exists");
-                Toast.makeText(SignUpActivity.this, "E-mail already exists", Toast.LENGTH_SHORT).show();
-            }else if(res == -1){
-                //username taken
-                Log.d("SIGN UP", "Username already exists");
-                Toast.makeText(SignUpActivity.this, "Username already exists", Toast.LENGTH_SHORT).show();
-            }else if(res == 0){
+        protected void onPostExecute(Integer result) {
+            switch (result) {
+                //email has been taken from other user
+                case -2:
+                    Log.d("SIGN-UP", "E-mail already exists");
+                    Toast.makeText(SignUpActivity.this, "E-mail already exists", Toast.LENGTH_SHORT).show();
+                //username has been taken from other user
+                case -1:
+                    Log.e("SIGN-UP", "Username already exists");
+                    Toast.makeText(SignUpActivity.this, "Username already exists", Toast.LENGTH_SHORT).show();
+                    break;
                 //no connection
-                Log.d("SIGN UP", "Connection failed");
-                Toast.makeText(SignUpActivity.this, "Connection failed", Toast.LENGTH_SHORT).show();
-            }else if(res == 1){
+                case 0:
+                    Log.e("SIGN-UP", "Connection failed");
+                    Toast.makeText(SignUpActivity.this, "Connection failed", Toast.LENGTH_SHORT).show();
+                    break;
                 //successful sign up
-                Log.d("SIGN UP", "Success!!!");
-                MainActivity.setConsumer(consumer);
-                toMainActivity(null);
+                case 1:
+                    Log.d("SIGN-UP", "Success");
+                    MainActivity.setConsumer(consumer);
+                    toMainActivity();
             }
         }
     }

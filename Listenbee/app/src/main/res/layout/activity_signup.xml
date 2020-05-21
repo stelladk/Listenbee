@@ -71,7 +71,7 @@
     <Button
         android:id="@+id/signup_btn"
         android:text="@string/signup_btn"
-        android:onClick="toMainActivity"
+        android:onClick="signup"
         style="@style/LoginButton"/>
 
 </RelativeLayout>

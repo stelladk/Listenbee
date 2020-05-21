@@ -26,11 +26,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
-import com.example.eventdeliverysystem.Consumer;
-import com.example.eventdeliverysystem.musicFile.MusicFile;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import com.example.eventdeliverysystem.musicFile.MusicFile;
+import com.example.eventdeliverysystem.Consumer;
 import com.distributedsystems.listenbee.fragments.*;
 
 import java.io.File;
@@ -49,16 +48,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static String songArtist;
     private static Bitmap songCover;
     private static MediaPlayer mp3;
-    private static Consumer consumer = null;
+    private static Uri current;
+    private static Consumer consumer;
+    private static MainActivity self;
 
     private BottomNavigationView tabs;
-    private ProgressBar musicBar;
-    private static MainActivity mainView;
-    private static ImageButton play_btn;
-    private static ImageButton pause_btn;
-
     private Fragment activeFragment;
-    private static Uri now_playing;
+    private ProgressBar musicBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,91 +77,135 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         tabs = findViewById(R.id.bottom_navigation);
         tabs.setOnNavigationItemSelectedListener(this);
 
+        self = MainActivity.this;
+
         //Ask for storage permission the first time the app opens
         checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, READ_STORAGE_PERMISSION_CODE);
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_STORAGE_PERMISSION_CODE);
 
         //read downloaded songs from directory
-        loadMusicFiles();
+        readMusicFiles();
 
         mp3 = new MediaPlayer();
-
-//        String server_IP = "127.0.0.1";
-//        String client_IP = "127.0.0.1";
-//        try {
-//            client_IP = InetAddress.getLocalHost().getHostAddress();
-//        } catch (UnknownHostException e) {
-//            e.printStackTrace();
-//        }
-
-        //Initialise Consumer
-//        if(consumer == null){
-//            consumer = new Consumer(client_IP, server_IP, Broker.getToCliPort());
-//        }
-//        if(!consumer.isLoggedIn()){
-//            toLogin();
-//        }
-
-        mainView = MainActivity.this;
-        play_btn = findViewById(R.id.play_btn);
-        pause_btn = findViewById(R.id.pause_btn);
-
-        //TODO: Load artists to library (not yet ready)
 
     }
 
     /**
-     * FIXME
      * Read downloaded songs from directory
      * Add these songs to library
      * @return true if operation was successful
      */
-    public boolean loadMusicFiles() {
-        Log.d("METHOD", "------ LOAD MUSIC FILES ------");
+    public void readMusicFiles() {
+        Log.d("METHOD", "------ READ MUSIC FILES ------");
 
         //get all downloaded songs from directory
         String dirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Listenbee/";
         File dir = new File(dirPath);
         File[] files = dir.listFiles();
 
-//        LayoutInflater inflater = (LayoutInflater) getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-//        //get library layout and library scroll view
-//        RelativeLayout library = (RelativeLayout) findViewById(R.id.library_fragment);
-//        ScrollView libraryView = (ScrollView) library.findViewById(R.id.library_view);
-//
-//        //get song layout and components
-//        View song = (View) inflater.inflate(R.layout.song, null);
-//        TextView titleView = (TextView) song.findViewById(R.id.song_title);
-//        TextView artistView = (TextView) song.findViewById(R.id.song_artist);
-//        ImageView coverView = (ImageView) song.findViewById(R.id.song_cover);
-
         if (files != null){
             for (File file : files) {
                 //get song uri
                 Uri fileUri = Uri.fromFile(file);
                 songs.add(fileUri);
-
-//            //retrieve song metadata
-//            MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-//            metaRetriever.setDataSource(this, fileUri);
-//
-//            String songTitle = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-//            titleView.setText(songTitle);
-//            String songArtist =  metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-//            artistView.setText(songArtist);
-//            byte[] imageBytes = metaRetriever.getEmbeddedPicture();
-//            Bitmap songCover;
-//            BitmapFactory.Options config = new BitmapFactory.Options();
-//            if (imageBytes != null) {
-//                songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
-//                coverView.setImageBitmap(songCover);
-//            }
-
-                //add song layout to library scrollView
-                //libraryView.addView(song);
             }
+            return;
         }
-        return true;
+
+        Log.e("readMusicFiles@Error", "Could not read music files");
+    }
+
+    /**
+     * Play the song that was clicked from library
+     */
+    public static void playOnClick(View view, int position) {
+        ImageButton play_btn = self.findViewById(R.id.play_btn);
+        ImageButton pause_btn = self.findViewById(R.id.pause_btn);
+
+        if (mp3.isPlaying()) {
+            mp3.pause();
+            mp3.reset();
+
+            pause_btn.setVisibility(View.GONE);
+            play_btn.setVisibility(View.VISIBLE);
+        }
+
+        current = songs.get(position);
+        try {
+            mp3.setDataSource(view.getContext(), current);
+        } catch (IOException e) {
+            Log.e("ERROR", "Could not set data to mp3 player");
+        }
+
+        //get song metadata
+        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+        metaRetriever.setDataSource(view.getContext(), current);
+
+        songTitle = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        TextView titleView = self.findViewById(R.id.song_title);
+        titleView.setText(songTitle);
+
+        songArtist =  metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+
+        byte[] imageBytes = metaRetriever.getEmbeddedPicture();
+        BitmapFactory.Options config = new BitmapFactory.Options();
+        if (imageBytes != null) {
+            songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
+            ImageView coverView = self.findViewById(R.id.song_cover);
+            coverView.setImageBitmap(songCover);
+        }
+
+        try {
+            mp3.prepare();
+        } catch (IOException e) {
+            Log.e("ERROR", "Could not play song");
+        }
+
+        mp3.start();
+
+        play_btn.setVisibility(View.GONE);
+        pause_btn.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Play the song that was clicked from for you
+     */
+    public static void playOnClick(MusicFile track) {
+        ImageButton play_btn = self.findViewById(R.id.play_btn);
+        ImageButton pause_btn = self.findViewById(R.id.pause_btn);
+
+        if (mp3.isPlaying()) {
+            mp3.pause();
+            mp3.reset();
+
+            pause_btn.setVisibility(View.GONE);
+            play_btn.setVisibility(View.VISIBLE);
+        }
+
+        songTitle = track.getTrackName();
+        TextView titleView = self.findViewById(R.id.song_title);
+        titleView.setText(songTitle);
+
+        songArtist =  track.getArtistName();
+
+        byte[] imageBytes = track.getCover();
+        BitmapFactory.Options config = new BitmapFactory.Options();
+        if (imageBytes != null) {
+            songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
+            ImageView coverView = self.findViewById(R.id.song_cover);
+            coverView.setImageBitmap(songCover);
+        }
+
+        try {
+            mp3.prepare();
+        } catch (IOException e) {
+            Log.e("ERROR", "Could not play song");
+        }
+
+        mp3.start();
+
+        play_btn.setVisibility(View.GONE);
+        pause_btn.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -188,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
 
         //set title text view
-        TextView titleView = findViewById(R.id.player_song_title);
+        TextView titleView = findViewById(R.id.song_title);
         titleView.setText(songTitle);
 
         //set artist text view
@@ -196,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         artistView.setText(songArtist);
 
         //set image view
-        ImageView coverView = findViewById(R.id.player_song_cover);
+        ImageView coverView = findViewById(R.id.song_cover);
         coverView.setImageBitmap(songCover);
 
         volume();
@@ -224,90 +265,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
 
         //set title text view
-        TextView titleView = findViewById(R.id.player_song_title);
+        TextView titleView = findViewById(R.id.song_title);
         titleView.setText(songTitle);
 
         //set image view
-        ImageView coverView = findViewById(R.id.player_song_cover);
+        ImageView coverView = findViewById(R.id.song_cover);
         coverView.setImageBitmap(songCover);
-    }
-
-    public static void playOnClick(MusicFile track){
-        if (!mp3.isPlaying()) {
-
-            songTitle = track.getTrackName();
-            TextView titleView = mainView.findViewById(R.id.player_song_title);
-            titleView.setText(songTitle);
-
-            songArtist =  track.getArtistName();
-            TextView artistView = mainView.findViewById(R.id.artist_title);
-            if(artistView != null) artistView.setText(songArtist);
-
-            byte[] imageBytes = track.getCover();
-            BitmapFactory.Options config = new BitmapFactory.Options();
-            if (imageBytes != null) {
-                songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
-                ImageView coverView = mainView.findViewById(R.id.player_song_cover);
-                coverView.setImageBitmap(songCover);
-            }
-
-
-            try {
-                mp3.prepare();
-            } catch (IOException e) {
-                Log.e("ERROR", "Could not play song");
-            }
-
-            mp3.start();
-
-            play_btn.setVisibility(View.GONE);
-            pause_btn.setVisibility(View.VISIBLE);
-        }
-    }
-
-    public static void playOnClick(View itemView, int position){
-
-        if (!mp3.isPlaying()) {
-            Uri fileUri = songs.get(position);
-            now_playing = fileUri;
-            try {
-                mp3.setDataSource(itemView.getContext(), fileUri);
-            } catch (IOException e) {
-                Log.e("ERROR", "Could not set data to mp3 player");
-            }
-
-            //get song metadata
-            MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-            metaRetriever.setDataSource(itemView.getContext(), fileUri);
-
-            songTitle = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            TextView titleView = mainView.findViewById(R.id.player_song_title);
-            titleView.setText(songTitle);
-
-            songArtist =  metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            TextView artistView = mainView.findViewById(R.id.artist_title);
-            if(artistView != null) artistView.setText(songArtist);
-
-            byte[] imageBytes = metaRetriever.getEmbeddedPicture();
-            BitmapFactory.Options config = new BitmapFactory.Options();
-            if (imageBytes != null) {
-                songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
-                ImageView coverView = mainView.findViewById(R.id.player_song_cover);
-                coverView.setImageBitmap(songCover);
-            }
-
-
-            try {
-                mp3.prepare();
-            } catch (IOException e) {
-                Log.e("ERROR", "Could not play song");
-            }
-
-            mp3.start();
-
-            play_btn.setVisibility(View.GONE);
-            pause_btn.setVisibility(View.VISIBLE);
-        }
     }
 
     /**
@@ -317,12 +280,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public void play(View view) {
         Log.d("METHOD", "------ PLAY ------");
 
-        if (!mp3.isPlaying()) {
-            Uri fileUri = now_playing; //todo change
+        if (!mp3.isPlaying() && current != null) {
+            Uri fileUri = current;
             try {
                 mp3.setDataSource(getApplicationContext(), fileUri);
             } catch (IOException e) {
-                Log.e("ERROR", "Could not set data to mp3 player");
+                Log.e("play@Error", "Could not set data to mp3 player");
             }
 
             //get song metadata
@@ -330,26 +293,23 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             metaRetriever.setDataSource(this, fileUri);
 
             songTitle = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            TextView titleView = findViewById(R.id.player_song_title);
+            TextView titleView = findViewById(R.id.song_title);
             titleView.setText(songTitle);
 
             songArtist =  metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            TextView artistView = findViewById(R.id.artist_title);
-            if(artistView != null) artistView.setText(songArtist);
 
             byte[] imageBytes = metaRetriever.getEmbeddedPicture();
             BitmapFactory.Options config = new BitmapFactory.Options();
             if (imageBytes != null) {
                 songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
-                ImageView coverView = findViewById(R.id.player_song_cover);
+                ImageView coverView = findViewById(R.id.song_cover);
                 coverView.setImageBitmap(songCover);
             }
-
 
             try {
                 mp3.prepare();
             } catch (IOException e) {
-                Log.e("ERROR", "Could not play song");
+                Log.e("play@Error", "Could not play song");
             }
 
             mp3.start();
@@ -469,16 +429,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         startActivity(settings_activity);
     }
 
-    /**
-     * Transfer user to log-in activity
-     */
-    public void toLogin () {
-        Log.d("METHOD", "------ TO LOG-IN ACTIVITY ------");
-
-        Intent login_activity = new Intent(this, LoginActivity.class);
-        startActivity(login_activity);
-    }
-
     public static List<Uri> getSongs(){
         return songs;
     }
@@ -487,17 +437,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         return consumer;
     }
 
-    public static void setConsumer(Consumer con){consumer = con;}
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//
-//    }
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//
-//    }
+    public static void setConsumer(Consumer client){
+        consumer = client;
+    }
 
     /**
      * Handles bottom navigation bar item clicks.
@@ -528,6 +470,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .addToBackStack(null)
                 .commit();
         activeFragment = selectedFragment;
+
         return true;
     }
 

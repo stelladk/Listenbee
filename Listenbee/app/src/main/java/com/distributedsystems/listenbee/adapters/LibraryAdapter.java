@@ -1,4 +1,4 @@
-package com.distributedsystems.listenbee;
+package com.distributedsystems.listenbee.adapters;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
@@ -9,9 +9,11 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.distributedsystems.listenbee.MainActivity;
+import com.distributedsystems.listenbee.R;
 
 import android.net.Uri;
 import java.util.List;
@@ -38,15 +40,17 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
         MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
         metadataRetriever.setDataSource(context, track);
 
-        byte[] cover = metadataRetriever.getEmbeddedPicture();
         String title = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-        String artist = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        holder.song.setText(title);
 
-        if(cover != null){
-            holder.image.setImageBitmap(BitmapFactory.decodeByteArray(cover, 0, cover.length));
+        String artist = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        holder.artist.setText(artist);
+
+        byte[] imageBytes = metadataRetriever.getEmbeddedPicture();
+        BitmapFactory.Options config = new BitmapFactory.Options();
+        if(imageBytes != null){
+            holder.image.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config));
         }
-        holder.trackName.setText(title);
-        holder.artistName.setText(artist);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,17 +69,17 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
 
         View itemView;
         ImageView image;
-        TextView trackName;
-        TextView artistName;
-        ImageButton download_btn;
+        TextView song;
+        TextView artist;
+        ImageButton downloadBtn;
 
         LibraryViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             image = itemView.findViewById(R.id.song_cover);
-            trackName = itemView.findViewById(R.id.song_title);
-            artistName = itemView.findViewById(R.id.song_artist);
-            download_btn = itemView.findViewById(R.id.download_btn);
+            song = itemView.findViewById(R.id.song_title);
+            artist = itemView.findViewById(R.id.song_artist);
+            downloadBtn = itemView.findViewById(R.id.download_btn);
         }
     }
 }
