@@ -135,7 +135,7 @@ public class ConsumerMain {
             String username = input();
 
             System.out.print("Password: ");
-            BigInteger password = inputPass();
+            BigInteger password = Utilities.SHA1(input());
 
             return new Pair<>(username, password);
     }

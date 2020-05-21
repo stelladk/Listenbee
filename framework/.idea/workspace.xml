@@ -2,57 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="898298da-2e16-4ab4-8a03-63c0bcba92b3" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/LoginActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/LoginActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Broker.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/BrokerMain.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Consumer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ConsumerMain.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pair.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Publisher.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/PublisherMain.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/PublisherMain2.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Utilities.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/AbstractID3v2FrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/AbstractID3v2Tag.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/BaseException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/BufferTools.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ByteBufferUtils.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/EncodedText.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/FileWrapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3Wrapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v1.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v1Genres.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v1Tag.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v22Tag.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v23Tag.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v24Frame.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v24Tag.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2ChapterFrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2ChapterTOCFrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2CommentFrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2Frame.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2FrameSet.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2ObseleteFrame.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2ObseletePictureFrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2PictureFrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2PopmFrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2TagFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2TextFrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2UrlFrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/ID3v2WWWFrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/InvalidDataException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/Mp3File.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/MpegFrame.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/MutableInteger.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/NoSuchTagException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/NotSupportedException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/UnsupportedTagException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/mpatric/mp3agic/Version.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/musicFile/MusicFile.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/musicFile/MusicFileHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,18 +16,17 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/libs/mp3agic-0.9.2.jar!/" />
-    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.general" />
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.ConsumerMain">
     <configuration name="BrokerMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.example.eventdeliverysystem.BrokerMain" />
       <module name="framework" />
@@ -91,9 +40,51 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="ConsumerMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.eventdeliverysystem.ConsumerMain" />
+      <module name="framework" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.eventdeliverysystem.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PublisherMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.eventdeliverysystem.PublisherMain" />
+      <module name="framework" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.eventdeliverysystem.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PublisherMain2" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.eventdeliverysystem.PublisherMain2" />
+      <module name="framework" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.eventdeliverysystem.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.ConsumerMain" />
+        <item itemvalue="Application.PublisherMain2" />
         <item itemvalue="Application.BrokerMain" />
+        <item itemvalue="Application.PublisherMain" />
       </list>
     </recent_temporary>
   </component>
@@ -115,33 +106,39 @@
       <screen x="0" y="32" width="1536" height="832" />
     </state>
     <state x="223" y="103" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.32.1536.832@0.32.1536.832" timestamp="1590066145555" />
-    <state x="473" y="190" key="FileChooserDialogImpl" timestamp="1590065702662">
-      <screen x="0" y="32" width="1536" height="832" />
+    <state x="394" y="129" key="FileChooserDialogImpl" timestamp="1590068867551">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state x="394" y="129" key="FileChooserDialogImpl/0.0.1280.680@0.0.1280.680" timestamp="1590068867551" />
     <state x="473" y="190" key="FileChooserDialogImpl/0.32.1536.832@0.32.1536.832" timestamp="1590065702662" />
-    <state width="1493" height="414" key="GridCell.Tab.0.bottom" timestamp="1590066386785">
-      <screen x="0" y="32" width="1536" height="832" />
+    <state width="1202" height="147" key="GridCell.Tab.0.bottom" timestamp="1590068632354">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="1202" height="147" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1590068632354" />
     <state width="1493" height="414" key="GridCell.Tab.0.bottom/0.32.1536.832@0.32.1536.832" timestamp="1590066386785" />
-    <state width="1493" height="414" key="GridCell.Tab.0.center" timestamp="1590066386785">
-      <screen x="0" y="32" width="1536" height="832" />
+    <state width="1202" height="147" key="GridCell.Tab.0.center" timestamp="1590068632354">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="1202" height="147" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1590068632354" />
     <state width="1493" height="414" key="GridCell.Tab.0.center/0.32.1536.832@0.32.1536.832" timestamp="1590066386785" />
-    <state width="1493" height="414" key="GridCell.Tab.0.left" timestamp="1590066386785">
-      <screen x="0" y="32" width="1536" height="832" />
+    <state width="1202" height="147" key="GridCell.Tab.0.left" timestamp="1590068632354">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="1202" height="147" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1590068632354" />
     <state width="1493" height="414" key="GridCell.Tab.0.left/0.32.1536.832@0.32.1536.832" timestamp="1590066386785" />
-    <state width="1493" height="414" key="GridCell.Tab.0.right" timestamp="1590066386785">
-      <screen x="0" y="32" width="1536" height="832" />
+    <state width="1202" height="147" key="GridCell.Tab.0.right" timestamp="1590068632354">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="1202" height="147" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1590068632354" />
     <state width="1493" height="414" key="GridCell.Tab.0.right/0.32.1536.832@0.32.1536.832" timestamp="1590066386785" />
     <state x="349" y="191" key="IDE.errors.dialog" timestamp="1590063188128">
       <screen x="0" y="32" width="1536" height="832" />
     </state>
     <state x="349" y="191" key="IDE.errors.dialog/0.32.1536.832@0.32.1536.832" timestamp="1590063188128" />
-    <state x="249" y="32" key="SettingsEditor" timestamp="1590065706036">
-      <screen x="0" y="32" width="1536" height="832" />
+    <state x="208" y="0" key="SettingsEditor" timestamp="1590068882981">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state x="208" y="0" key="SettingsEditor/0.0.1280.680@0.0.1280.680" timestamp="1590068882981" />
     <state x="249" y="32" key="SettingsEditor/0.32.1536.832@0.32.1536.832" timestamp="1590065706036" />
     <state x="465" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1590063181031">
       <screen x="0" y="32" width="1536" height="832" />
