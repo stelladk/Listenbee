@@ -45,6 +45,9 @@
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
+        <receiver android:name=".notification.NotificationActionService"/>
+        <receiver android:name=".notification.OnClearFromRecentService"/>
+
     </application>
 
 </manifest>
