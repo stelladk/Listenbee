@@ -1,6 +1,4 @@
 #IntelliJ
-framework/.idea/
-framework/*.iml
 framework/out/
 framework/res/
 
