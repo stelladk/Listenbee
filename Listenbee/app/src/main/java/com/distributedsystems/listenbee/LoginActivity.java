@@ -36,7 +36,8 @@ public class LoginActivity extends AppCompatActivity {
         Button signup_btn = findViewById(R.id.signup_btn);
         final EditText username_form = findViewById(R.id.username_form);
         final EditText password_form = findViewById(R.id.password_form);
-//        toMainActivity(null);
+        //TODO DELETE DEBUG
+        toMainActivity(null); //DEBUG
 
 
         login_btn.setOnClickListener(new View.OnClickListener() {

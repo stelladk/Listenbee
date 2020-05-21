@@ -18,6 +18,7 @@ public class BrokerMain {
         String IP;
         try {
             IP = InetAddress.getLocalHost().getHostAddress();
+            System.out.println("IP: " + IP);
         } catch (UnknownHostException e) {
             System.err.println("ERROR: Broker shutdown");
             System.err.println("ERROR: Could not get IP address");
