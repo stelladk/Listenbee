@@ -1,8 +1,12 @@
 package com.distributedsystems.listenbee;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +15,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -26,6 +31,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import com.distributedsystems.listenbee.notification.NotificationCreator;
+import com.distributedsystems.listenbee.notification.OnClearFromRecentService;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.example.eventdeliverysystem.musicFile.MusicFile;
@@ -55,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private BottomNavigationView tabs;
     private Fragment activeFragment;
     private ProgressBar musicBar;
+
+    private NotificationManager notificationManager;
 
 
     @Override
@@ -87,6 +97,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         readMusicFiles();
 
         mp3 = new MediaPlayer();
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            createNotificationChannel();
+            registerReceiver(receiver, new IntentFilter("Notice"));
+            startService(new Intent(getBaseContext(), OnClearFromRecentService.class));
+        }
 
     }
 
@@ -165,6 +181,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         play_btn.setVisibility(View.GONE);
         pause_btn.setVisibility(View.VISIBLE);
+
+        //Notification
+        NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
+
     }
 
     /**
@@ -439,6 +459,56 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     public static void setConsumer(Consumer client){
         consumer = client;
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(NotificationCreator.CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            notificationManager = getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getExtras().getString("action");
+
+            switch(action){
+                case NotificationCreator.ACTION_PLAY:
+                    if(!mp3.isPlaying()){
+                        play(findViewById(R.id.play_btn));
+                        NotificationCreator.createNotification(MainActivity.this, current, R.drawable.pause_ic);
+                    }else{
+                        pause(findViewById(R.id.pause_btn));
+                        NotificationCreator.createNotification(MainActivity.this, current, R.drawable.play_ic);
+                    }
+                    break;
+                case NotificationCreator.ACTION_FAST_FORWARD:
+                    fastForward(findViewById(R.id.fast_forward_btn));
+                    NotificationCreator.createNotification(MainActivity.this, current, R.drawable.pause_ic);
+                    break;
+            }
+        }
+    };
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            notificationManager.cancelAll();
+        }
+        unregisterReceiver(receiver);
     }
 
     /**

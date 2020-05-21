@@ -34,5 +34,7 @@
     <string name="profile_title">Profile</string>
     <string name="foryou_title">For You</string>
     <string name="pause_desc">Pause</string>
+    <string name="channel_name">Player</string>
+    <string name="channel_description">Notigication featuring music player</string>
 
 </resources>

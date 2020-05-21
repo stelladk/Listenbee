@@ -22,6 +22,7 @@ import java.util.List;
 public class ForYouFragment extends Fragment {
 
     private View view;
+    private RecyclerView library;
     private static Consumer consumer;
     private List<MusicFile> availableSongs;
 
@@ -38,6 +39,10 @@ public class ForYouFragment extends Fragment {
      * Add these songs to for you fragment
      */
     private void loadLibrary() {
+        library = view.findViewById(R.id.foryou_view);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
+        library.setLayoutManager(layoutManager);
+        library.setHasFixedSize(true);
         consumer = MainActivity.getConsumer();
         new LoadTask().execute();
     }
@@ -60,11 +65,6 @@ public class ForYouFragment extends Fragment {
         protected void onPostExecute(Void voids) {
             if(availableSongs != null){
                 ExploreAdapter adapter = new ExploreAdapter(getContext(), availableSongs);
-
-                RecyclerView library = view.findViewById(R.id.foryou_view);
-                LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
-                library.setLayoutManager(layoutManager);
-                library.setHasFixedSize(true);
                 library.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
             }else{
