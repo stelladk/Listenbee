@@ -41,9 +41,18 @@ import com.example.eventdeliverysystem.Consumer;
 import com.distributedsystems.listenbee.fragments.*;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
@@ -59,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static Uri current;
     private static Consumer consumer;
     private static MainActivity self;
+    private static MusicFile file;
 
     private BottomNavigationView tabs;
     private Fragment activeFragment;
@@ -201,6 +211,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             pause_btn.setVisibility(View.GONE);
             play_btn.setVisibility(View.VISIBLE);
         }
+
+        file = track;
 
         songTitle = track.getTrackName();
         TextView titleView = self.findViewById(R.id.song_title);
@@ -428,14 +440,55 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         });
     }
 
-    //todo
-    public void addSong(View view) {
+    /**
+     * Add song to library
+     * @param view add to library button
+     */
+    public Uri addSong(View view) {
+        //create new directory according to path
+        String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Listenbee/";
+        File directory = new File(dir);
+        if (!directory.exists()){
+            if (!directory.mkdir()){
+                Log.e("addSong@Error", "Error occurred in creating dir");
+                return null;
+            }
+        }
 
-    }
+        File output = new File(directory, songTitle + ".mp3");
 
-    //todo
-    public void deleteSong(View view) {
+        FileOutputStream stream;
+        try {
+            byte[] allBytes = new byte[file.getMetadata().length + file.getFileBytes().length];
+            //insert metadata
+            for (int i = 0; i < file.getMetadata().length; i++) allBytes[i] = file.getMetadata()[i];
+            //insert rest of data
+            for (int i = file.getMetadata().length, j = 0; i < allBytes.length; i++, j++) allBytes[i] = file.getFileBytes()[j];
 
+            /* FROM JAVA PROJECT
+
+            ByteBuffer buffer = ByteBuffer.wrap(allBytes);
+
+            WritableByteChannel channel = Files.newByteChannel(output.toPath(), EnumSet.of(StandardOpenOption.CREATE, StandardOpenOption.APPEND));
+            channel.write(buffer);
+
+            channel.close();
+            buffer.clear();
+
+            */
+
+            stream = new FileOutputStream(output);
+            stream.write(allBytes);
+
+            //clear streams
+            stream.flush();
+            stream.close();
+        } catch (IOException e) {
+            Log.e("addSong@Error", "Problem while saving song");
+            return null;
+        }
+
+        return Uri.fromFile(output);
     }
 
     /**

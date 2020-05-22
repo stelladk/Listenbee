@@ -3,34 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="898298da-2e16-4ab4-8a03-63c0bcba92b3" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/../Listenbee/app/app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/app.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/ExploreAdapter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/LibraryAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/adapters/LibraryAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/LoginActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/LoginActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/SignUpActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/SignUpActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/fragments/ForYouFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/fragments/ForYouFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/fragments/LibraryFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/java/com/distributedsystems/listenbee/fragments/LibraryFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/drawable/ic_launcher_background.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/drawable/ic_launcher_background.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/layout/activity_login.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/layout/activity_login.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/layout/activity_main.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/layout/activity_signup.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/layout/activity_signup.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/layout/music_player.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/layout/music_player.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/layout/song.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/layout/song.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-hdpi/ic_launcher.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-hdpi/ic_launcher_round.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-hdpi/ic_launcher_round.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-mdpi/ic_launcher.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-mdpi/ic_launcher_round.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-mdpi/ic_launcher_round.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xhdpi/ic_launcher.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Listenbee/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Listenbee/app/src/main/res/values/styles.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/example/eventdeliverysystem/musicFile/MusicFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/example/eventdeliverysystem/musicFile/MusicFileHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +29,7 @@
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.general" />
   </component>
-  <component name="RunManager" selected="Application.BrokerMain">
+  <component name="RunManager" selected="Application.PublisherMain">
     <configuration name="BrokerMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.example.eventdeliverysystem.BrokerMain" />
       <module name="framework" />
@@ -84,6 +59,7 @@
     <configuration name="PublisherMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.example.eventdeliverysystem.PublisherMain" />
       <module name="framework" />
+      <option name="PROGRAM_PARAMETERS" value="192.168.1.10" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.example.eventdeliverysystem.*" />
@@ -107,12 +83,18 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Application.BrokerMain" />
+      <item itemvalue="Application.ConsumerMain" />
+      <item itemvalue="Application.PublisherMain" />
+      <item itemvalue="Application.PublisherMain2" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.PublisherMain" />
         <item itemvalue="Application.BrokerMain" />
         <item itemvalue="Application.ConsumerMain" />
         <item itemvalue="Application.PublisherMain2" />
-        <item itemvalue="Application.PublisherMain" />
       </list>
     </recent_temporary>
   </component>
@@ -130,35 +112,35 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="223" y="103" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1590066145555">
+    <state x="223" y="103" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1590135558172">
       <screen x="0" y="32" width="1536" height="832" />
     </state>
-    <state x="223" y="103" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.32.1536.832@0.32.1536.832" timestamp="1590066145555" />
+    <state x="223" y="103" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.32.1536.832@0.32.1536.832" timestamp="1590135558172" />
     <state x="394" y="129" key="FileChooserDialogImpl" timestamp="1590068867551">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
     <state x="394" y="129" key="FileChooserDialogImpl/0.0.1280.680@0.0.1280.680" timestamp="1590068867551" />
     <state x="473" y="190" key="FileChooserDialogImpl/0.32.1536.832@0.32.1536.832" timestamp="1590065702662" />
-    <state width="1493" height="606" key="GridCell.Tab.0.bottom" timestamp="1590081823507">
+    <state width="1493" height="330" key="GridCell.Tab.0.bottom" timestamp="1590142486531">
       <screen x="0" y="32" width="1536" height="832" />
     </state>
     <state width="1202" height="147" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1590069623963" />
-    <state width="1493" height="606" key="GridCell.Tab.0.bottom/0.32.1536.832@0.32.1536.832" timestamp="1590081823507" />
-    <state width="1493" height="606" key="GridCell.Tab.0.center" timestamp="1590081823506">
+    <state width="1493" height="330" key="GridCell.Tab.0.bottom/0.32.1536.832@0.32.1536.832" timestamp="1590142486531" />
+    <state width="1493" height="330" key="GridCell.Tab.0.center" timestamp="1590142486531">
       <screen x="0" y="32" width="1536" height="832" />
     </state>
     <state width="1202" height="147" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1590069623963" />
-    <state width="1493" height="606" key="GridCell.Tab.0.center/0.32.1536.832@0.32.1536.832" timestamp="1590081823506" />
-    <state width="1493" height="606" key="GridCell.Tab.0.left" timestamp="1590081823506">
+    <state width="1493" height="330" key="GridCell.Tab.0.center/0.32.1536.832@0.32.1536.832" timestamp="1590142486531" />
+    <state width="1493" height="330" key="GridCell.Tab.0.left" timestamp="1590142486531">
       <screen x="0" y="32" width="1536" height="832" />
     </state>
     <state width="1202" height="147" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1590069623963" />
-    <state width="1493" height="606" key="GridCell.Tab.0.left/0.32.1536.832@0.32.1536.832" timestamp="1590081823506" />
-    <state width="1493" height="606" key="GridCell.Tab.0.right" timestamp="1590081823506">
+    <state width="1493" height="330" key="GridCell.Tab.0.left/0.32.1536.832@0.32.1536.832" timestamp="1590142486531" />
+    <state width="1493" height="330" key="GridCell.Tab.0.right" timestamp="1590142486531">
       <screen x="0" y="32" width="1536" height="832" />
     </state>
     <state width="1202" height="147" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1590069623963" />
-    <state width="1493" height="606" key="GridCell.Tab.0.right/0.32.1536.832@0.32.1536.832" timestamp="1590081823506" />
+    <state width="1493" height="330" key="GridCell.Tab.0.right/0.32.1536.832@0.32.1536.832" timestamp="1590142486531" />
     <state x="349" y="191" key="IDE.errors.dialog" timestamp="1590063188128">
       <screen x="0" y="32" width="1536" height="832" />
     </state>
@@ -168,9 +150,9 @@
     </state>
     <state x="208" y="0" key="SettingsEditor/0.0.1280.680@0.0.1280.680" timestamp="1590068882981" />
     <state x="249" y="32" key="SettingsEditor/0.32.1536.832@0.32.1536.832" timestamp="1590065706036" />
-    <state x="465" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1590074905064">
+    <state x="465" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1590140537793">
       <screen x="0" y="32" width="1536" height="832" />
     </state>
-    <state x="465" y="272" key="com.intellij.ide.util.TipDialog/0.32.1536.832@0.32.1536.832" timestamp="1590074905064" />
+    <state x="465" y="272" key="com.intellij.ide.util.TipDialog/0.32.1536.832@0.32.1536.832" timestamp="1590140537793" />
   </component>
 </project>

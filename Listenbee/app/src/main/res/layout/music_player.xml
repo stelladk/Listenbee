@@ -121,14 +121,6 @@
             android:onClick="addSong"
             style="@style/UtilityBtn"/>
 
-        <ImageButton
-            android:id="@+id/delete_song_btn"
-            android:contentDescription="@string/delete_song_desc"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/delete_ic"
-            android:onClick="deleteSong"
-            style="@style/UtilityBtn"/>
-
     </RelativeLayout>
 
 
