@@ -48,8 +48,9 @@ public class ForYouFragment extends Fragment {
     }
 
     public static void getData(String trackName, String artistName) {
-        List<MusicFile> track = consumer.playData(trackName, artistName, "ONLINE");
-        MainActivity.playOnClick(track.get(0));
+        new StreamTask().execute(trackName, artistName, "ONLINE");
+        while(consumer.getChunkListSize() < 2); //wait for 2 chunks to arrive
+        MainActivity.playOnClick(consumer.getNextChunk()); //play first chunk
     }
 
     public class LoadTask extends AsyncTask<Void, Void, Void> {
@@ -70,6 +71,18 @@ public class ForYouFragment extends Fragment {
             }else{
                 Log.e("ForYouFragment@LoadTask@onPostExecution@Error", "Could not get available songs");
             }
+        }
+    }
+
+    public static class StreamTask extends AsyncTask<String, Void, Void>{
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            String trackName = strings[0];
+            String artistName = strings[1];
+            String mode = strings[2];
+            consumer.playData(trackName, artistName, mode);
+            return null;
         }
     }
 }

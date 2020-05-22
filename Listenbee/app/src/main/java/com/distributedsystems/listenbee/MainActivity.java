@@ -54,7 +54,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, MediaPlayer.OnCompletionListener {
 
     //code numbers for permissions
     private static final int READ_STORAGE_PERMISSION_CODE = 100;
@@ -73,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private BottomNavigationView tabs;
     private Fragment activeFragment;
     private ProgressBar musicBar;
+
+    private List<MusicFile> chunks_queue = new ArrayList<>();
 
     private NotificationManager notificationManager;
 
@@ -107,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         readMusicFiles();
 
         mp3 = new MediaPlayer();
+        mp3.setOnCompletionListener(this);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             createNotificationChannel();
@@ -634,6 +637,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) { // permission denied
                     //TODO inform about the importance of this permission etc.
                 }
+        }
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        while(!consumer.isStreamingDone()){ //do while streaming is not done
+            while(consumer.getChunkListSize() < 1); //wait for a chunk to be added
+            playOnClick(consumer.getNextChunk());
         }
     }
 

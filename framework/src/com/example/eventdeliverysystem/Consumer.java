@@ -28,6 +28,7 @@ public class Consumer {
 
     private List<MusicFile> preview_tracks; //list of preview tracks for library
     private final List<MusicFile> shared_chunks; //shared arraylist with streaming chunks
+    private Boolean streaming_done = true;
 
     public Consumer(String IP, String SERVER_IP, int PORT) {
         Utilities.print("CONSUMER: Create consumer");
@@ -425,6 +426,7 @@ public class Consumer {
         ArrayList<MusicFile> returned = new ArrayList<>(); //arraylist with merged songs
         ArrayList<MusicFile> chunks = new ArrayList<>(); //temp chunks arraylist
         resetChunks();
+        beginStreaming();
         MusicFile file;
         int counter = 0; //when counter == 2 then end of all file chunks
         try {
@@ -458,6 +460,7 @@ public class Consumer {
                 }
                 if (counter >= 2) break;
             }
+            endStreaming();
             return returned;
         } catch (IOException e) {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not get streams");
@@ -465,7 +468,26 @@ public class Consumer {
         } catch (ClassNotFoundException e) {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not cast Object to MusicFile");
         }
+        endStreaming();
         return null;
+    }
+
+    public boolean isStreamingDone(){
+        synchronized (streaming_done){
+            return streaming_done;
+        }
+    }
+
+    private void beginStreaming(){
+        synchronized (streaming_done){
+            streaming_done = false;
+        }
+    }
+
+    private void endStreaming() {
+        synchronized (streaming_done){
+            streaming_done = true;
+        }
     }
 
     /**
