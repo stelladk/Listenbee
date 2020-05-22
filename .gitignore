@@ -1,6 +1,9 @@
 #IntelliJ
+framework/.idea/
+framework/build/
 framework/out/
 framework/res/
+framework/*.iml
 
 #VSCode
 framework/.vscode/
