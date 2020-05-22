@@ -26,7 +26,8 @@ public class Consumer {
 
     private HashMap<String, String> artists = null; //artists assigned to brokers (IP addresses)
 
-    private List<MusicFile> temp_tracks;
+    private List<MusicFile> preview_tracks; //list of preview tracks for library
+    private final List<MusicFile> shared_chunks; //shared arraylist with streaming chunks
 
     public Consumer(String IP, String SERVER_IP, int PORT) {
         Utilities.print("CONSUMER: Create consumer");
@@ -34,6 +35,7 @@ public class Consumer {
         this.SERVER_IP = SERVER_IP;
         this.PORT = PORT;
         STATE = OUT;
+        shared_chunks = new ArrayList<>();
     }
 
     /**
@@ -382,11 +384,11 @@ public class Consumer {
                 getBrokers(in);
             }
             closeConnection(connection);
-            temp_tracks = new ArrayList<>();
+            preview_tracks = new ArrayList<>();
             for(String artistName : artists.keySet()){
                 playData("", artistName, "INFO");
             }
-            return temp_tracks;
+            return preview_tracks;
         } catch(IOException e){
             Utilities.printError("CONSUMER: LOAD: ERROR: Could not get streams");
         } catch (ClassNotFoundException e){
@@ -420,8 +422,9 @@ public class Consumer {
      * @param mode online or offline
      */
     private ArrayList<MusicFile> receiveData (ObjectInputStream in, String mode) {
-        ArrayList<MusicFile> returned = new ArrayList<>();
-        ArrayList<MusicFile> chunks = new ArrayList<>();
+        ArrayList<MusicFile> returned = new ArrayList<>(); //arraylist with merged songs
+        ArrayList<MusicFile> chunks = new ArrayList<>(); //temp chunks arraylist
+        resetChunks();
         MusicFile file;
         int counter = 0; //when counter == 2 then end of all file chunks
         try {
@@ -429,16 +432,15 @@ public class Consumer {
                 try {
                     while ((file = (MusicFile) in.readObject()) != null) {
                         chunks.add(file);
+                        if(mode.equals("ONLINE")){
+                            addChunk(file);
+                        }
                         counter = 0;
                     }
 
                     if (!chunks.isEmpty()) {
-                        if (mode.equals("ONLINE")) { //save music file chunks
-                            // MusicFileHandler.write(chunks);
-                            returned.addAll(chunks);
-                        } else if (mode.equals("OFFLINE")) { //merge chunks and save the music file
+                        if (mode.equals("OFFLINE")) { //merge chunks and save the music file
                             MusicFile merged = MusicFileHandler.merge(chunks);
-                            // MusicFileHandler.write(merged);
                             returned.add(merged);
                         } else if(mode.equals("INFO")){
                             MusicFile preview = chunks.get(0);
@@ -446,7 +448,7 @@ public class Consumer {
                             preview.setGenre(null);
                             preview.setMetadata(null);
                             preview.setFileBytes(null);
-                            temp_tracks.add(preview);
+                            preview_tracks.add(preview);
                         }
                     }
 
@@ -464,6 +466,54 @@ public class Consumer {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not cast Object to MusicFile");
         }
         return null;
+    }
+
+    /**
+     * @return size of shared_chunks arraylist
+     */
+    public int getChunkListSize(){
+        synchronized (shared_chunks){
+            return shared_chunks.size();
+        }
+    }
+
+    /**
+     * Get and remove first chunk
+     * @return first chunk of shared_chunks arraylist
+     */
+    public MusicFile getNextChunk(){
+        synchronized (shared_chunks){
+            return shared_chunks.remove(0);
+        }
+    }
+
+    /**
+     * Get first chunk
+     * @return first chunk of shared_chunks arraylist
+     */
+    public MusicFile viewNextChunk(){
+        synchronized (shared_chunks){
+            return shared_chunks.get(0);
+        }
+    }
+
+    /**
+     * Add chunk to shared_chunks arraylist
+     * @param chunk to be added
+     */
+    private void addChunk(MusicFile chunk){
+        synchronized (shared_chunks){
+            shared_chunks.add(chunk);
+        }
+    }
+
+    /**
+     * Empty shared_chunks arraylist
+     */
+    private void resetChunks(){
+        synchronized (shared_chunks){
+            shared_chunks.clear();
+        }
     }
 
     /**
