@@ -238,6 +238,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         play_btn.setVisibility(View.GONE);
         pause_btn.setVisibility(View.VISIBLE);
+
+        //Notification
+        NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
     }
 
     /**
@@ -349,6 +352,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             view.setVisibility(View.GONE);
             ImageButton pausebtn = findViewById(R.id.pause_btn);
             pausebtn.setVisibility(View.VISIBLE);
+
+            //Notification
+            NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
         }
     }
 
@@ -366,6 +372,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             view.setVisibility(View.GONE);
             ImageButton playbtn = findViewById(R.id.play_btn);
             playbtn.setVisibility(View.VISIBLE);
+
+            //Notification
+            NotificationCreator.createNotification(self, current, R.drawable.play_ic);
         }
     }
 

@@ -35,6 +35,8 @@ public class LoginActivity extends AppCompatActivity {
         passwordForm = findViewById(R.id.password_form);
 
         new InternetInfo().execute();
+        //TODO DELETE DEBUG
+        toMainActivity(); //DEBUG
     }
 
     /**

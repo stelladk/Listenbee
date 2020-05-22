@@ -52,6 +52,8 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
             holder.image.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config));
         }
 
+        holder.downloadBtn.setVisibility(View.GONE);
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -76,9 +78,9 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
         LibraryViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
-            image = itemView.findViewById(R.id.song_cover);
-            song = itemView.findViewById(R.id.song_title);
-            artist = itemView.findViewById(R.id.song_artist);
+            image = itemView.findViewById(R.id.song_cover_item);
+            song = itemView.findViewById(R.id.song_title_item);
+            artist = itemView.findViewById(R.id.song_artist_item);
             downloadBtn = itemView.findViewById(R.id.download_btn);
         }
     }

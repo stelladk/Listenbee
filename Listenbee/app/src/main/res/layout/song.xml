@@ -6,7 +6,7 @@
 
     <!-- SONG COVER -->
     <ImageView
-        android:id="@+id/song_cover"
+        android:id="@+id/song_cover_item"
         android:contentDescription="@string/song_cover_desc"
         style="@style/SongCoverSm"
         android:background="@color/white"/>
@@ -18,12 +18,12 @@
 
         <!-- SONG TITLE -->
         <TextView
-            android:id="@+id/song_title"
+            android:id="@+id/song_title_item"
             style="@style/SongTitleMd"/>
 
         <!-- ARTIST -->
         <TextView
-            android:id="@+id/song_artist"
+            android:id="@+id/song_artist_item"
             style="@style/ArtistMd"/>
 
     </RelativeLayout>

@@ -65,7 +65,7 @@ public class NotificationCreator {
                     .setAction(ACTION_FAST_FORWARD);
             PendingIntent pendingFastForward = PendingIntent.getBroadcast(context, 0, intentFastForward, PendingIntent.FLAG_UPDATE_CURRENT);
 
-
+            boolean persistent = (play_btn == R.drawable.pause_ic);
 
             notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.mipmap.ic_launcher)
@@ -81,7 +81,7 @@ public class NotificationCreator {
                         .setMediaSession(mediaSession.getSessionToken()))
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setContentIntent(pendingTapIntent)
-                    .setOngoing(true)
+                    .setOngoing(persistent)
                     .build();
 
             manager.notify(1, notification);
