@@ -232,6 +232,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             coverView.setImageBitmap(songCover);
         }
 
+        if (Integer.parseInt(songTitle.substring(0, songTitle.indexOf(" "))) > 0) mp3.reset();
+
         File tempMp3 = null;
         try {
             tempMp3 = File.createTempFile(songTitle+"_chunk", "mp3", self.getCacheDir());
@@ -239,8 +241,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             FileOutputStream fos = new FileOutputStream(tempMp3);
             fos.write(track.getFileBytes());
             fos.close();
-            FileInputStream fis = new FileInputStream(tempMp3);
-            mp3.setDataSource(fis.getFD());
+
+            current = Uri.fromFile(tempMp3);
+            mp3.setDataSource(self, current);
         } catch (IOException e) {
             e.printStackTrace();
         }

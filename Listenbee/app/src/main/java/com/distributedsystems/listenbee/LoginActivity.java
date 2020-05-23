@@ -35,8 +35,6 @@ public class LoginActivity extends AppCompatActivity {
         passwordForm = findViewById(R.id.password_form);
 
         new InternetInfo().execute();
-        //TODO DELETE DEBUG
-//        toMainActivity(); //DEBUG
     }
 
     /**
@@ -81,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
             WifiInfo wifiInfo = manager.getConnectionInfo();
             clientIP = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
 
-            brokerIP = "192.168.1.10";
+            brokerIP = "192.168.1.3";
             return null;
         }
 

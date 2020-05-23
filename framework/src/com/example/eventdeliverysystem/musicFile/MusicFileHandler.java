@@ -19,7 +19,7 @@ public class MusicFileHandler {
         System.out.println("HANDLER: Reading music files");
 
         //get the directory
-        File dir = new File("./res/dataset1/");
+        File dir = new File("./res/dataset2/");
         if (!dir.exists()) {
             System.err.println("HANDLER: READ: ERROR: Directory doesn't exist");
             return null;
