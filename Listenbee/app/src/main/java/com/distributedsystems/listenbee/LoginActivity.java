@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     public void login(View view) {
         Log.d("METHOD", "------ LOG-IN ------");
 
-        String username = usernameForm.getText().toString();
+        String username = usernameForm.getText().toString().trim();
         String password = passwordForm.getText().toString();
 
         new LogInTask().execute(username, password);

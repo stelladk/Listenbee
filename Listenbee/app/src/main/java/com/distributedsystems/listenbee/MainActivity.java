@@ -162,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         current = songs.get(position);
         try {
+            mp3.reset();
             mp3.setDataSource(view.getContext(), current);
         } catch (IOException e) {
             Log.e("ERROR", "Could not set data to mp3 player");
@@ -207,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public static void playOnClick(MusicFile track) {
         ImageButton play_btn = self.findViewById(R.id.play_btn);
         ImageButton pause_btn = self.findViewById(R.id.pause_btn);
-
         if (mp3.isPlaying()) {
             mp3.pause();
             mp3.reset();
@@ -221,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         songTitle = track.getTrackName();
         TextView titleView = self.findViewById(R.id.song_title);
         titleView.setText(songTitle);
+        Log.d("PLAY ON CLICK", songTitle);
 
         songArtist =  track.getArtistName();
 
@@ -232,8 +233,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             coverView.setImageBitmap(songCover);
         }
 
-        if (Integer.parseInt(songTitle.substring(0, songTitle.indexOf(" "))) > 0) mp3.reset();
-
         File tempMp3 = null;
         try {
             tempMp3 = File.createTempFile(songTitle+"_chunk", "mp3", self.getCacheDir());
@@ -243,6 +242,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             fos.close();
 
             current = Uri.fromFile(tempMp3);
+            mp3.reset();
             mp3.setDataSource(self, current);
         } catch (IOException e) {
             e.printStackTrace();
@@ -659,8 +659,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        while(!consumer.isStreamingDone()){ //do while streaming is not done
+        while(!consumer.isStreamingDone() || consumer.getChunkListSize() > 0){ //do while streaming is not done
             while(consumer.getChunkListSize() < 1); //wait for a chunk to be added
+            Log.d("ONCOMLETION", consumer.viewNextChunk().getTrackName());
             playOnClick(consumer.getNextChunk());
         }
     }

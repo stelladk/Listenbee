@@ -446,6 +446,7 @@ public class Consumer {
                             returned.add(merged);
                         } else if(mode.equals("INFO")){
                             MusicFile preview = chunks.get(0);
+                            preview.setTrackName(preview.getTrackName().substring(2));
                             preview.setAlbumInfo(null);
                             preview.setGenre(null);
                             preview.setMetadata(null);
