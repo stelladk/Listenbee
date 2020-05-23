@@ -41,6 +41,7 @@ import com.example.eventdeliverysystem.Consumer;
 import com.distributedsystems.listenbee.fragments.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -229,6 +230,19 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
             ImageView coverView = self.findViewById(R.id.song_cover);
             coverView.setImageBitmap(songCover);
+        }
+
+        File tempMp3 = null;
+        try {
+            tempMp3 = File.createTempFile(songTitle+"_chunk", "mp3", self.getCacheDir());
+            tempMp3.deleteOnExit();
+            FileOutputStream fos = new FileOutputStream(tempMp3);
+            fos.write(track.getFileBytes());
+            fos.close();
+            FileInputStream fis = new FileInputStream(tempMp3);
+            mp3.setDataSource(fis.getFD());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         try {

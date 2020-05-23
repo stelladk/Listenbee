@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
 
         new InternetInfo().execute();
         //TODO DELETE DEBUG
-        toMainActivity(); //DEBUG
+//        toMainActivity(); //DEBUG
     }
 
     /**
@@ -108,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                 case -2:
                     Log.d("LOG-IN", "Connection failed");
                     Toast.makeText(LoginActivity.this, "Connection failed", Toast.LENGTH_SHORT).show();
+                    break;
                 //wrong credentials
                 case -1:
                     Log.e("LOG-IN", "Wrong credentials");
