@@ -14,8 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.distributedsystems.listenbee.adapters.ExploreAdapter;
 import com.distributedsystems.listenbee.MainActivity;
 import com.distributedsystems.listenbee.R;
-import com.example.eventdeliverysystem.Consumer;
-import com.example.eventdeliverysystem.musicFile.MusicFile;
+import com.example.eventdeliverysystem.models.Consumer;
+import com.example.eventdeliverysystem.musicfilehandler.MusicFile;
+
 
 import java.util.List;
 

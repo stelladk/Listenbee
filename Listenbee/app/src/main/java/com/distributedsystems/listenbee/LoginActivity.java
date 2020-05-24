@@ -12,10 +12,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.eventdeliverysystem.Broker;
-import com.example.eventdeliverysystem.Consumer;
-import com.example.eventdeliverysystem.Pair;
-import com.example.eventdeliverysystem.Utilities;
+import com.example.eventdeliverysystem.models.Broker;
+import com.example.eventdeliverysystem.models.Consumer;
+import com.example.eventdeliverysystem.utilities.Pair;
+import com.example.eventdeliverysystem.utilities.Utilities;
+
 
 public class LoginActivity extends AppCompatActivity {
     private String clientIP;
@@ -79,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             WifiInfo wifiInfo = manager.getConnectionInfo();
             clientIP = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
 
-            brokerIP = "192.168.1.3";
+            brokerIP = "192.168.1.11";
             return null;
         }
 

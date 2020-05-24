@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.distributedsystems.listenbee.R;
 import com.distributedsystems.listenbee.fragments.ForYouFragment;
-import com.example.eventdeliverysystem.musicFile.MusicFile;
+import com.example.eventdeliverysystem.musicfilehandler.MusicFile;
 
 import java.util.List;
 

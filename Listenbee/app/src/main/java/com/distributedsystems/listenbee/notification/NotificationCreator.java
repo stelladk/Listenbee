@@ -16,8 +16,8 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.distributedsystems.listenbee.MainActivity;
 import com.distributedsystems.listenbee.R;
-import com.distributedsystems.listenbee.notification.NotificationActionService;
-import com.example.eventdeliverysystem.musicFile.MusicFile;
+
+import com.example.eventdeliverysystem.musicfilehandler.MusicFile;
 
 public class NotificationCreator {
     public static final String CHANNEL_ID = "player";

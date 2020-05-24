@@ -17,10 +17,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.eventdeliverysystem.Broker;
-import com.example.eventdeliverysystem.Consumer;
-import com.example.eventdeliverysystem.Pair;
-import com.example.eventdeliverysystem.Utilities;
+import com.example.eventdeliverysystem.models.Broker;
+import com.example.eventdeliverysystem.models.Consumer;
+import com.example.eventdeliverysystem.utilities.Pair;
+import com.example.eventdeliverysystem.utilities.Utilities;
 
 import java.math.BigInteger;
 
@@ -92,7 +92,7 @@ public class SignUpActivity extends AppCompatActivity {
             WifiInfo wifiInfo = manager.getConnectionInfo();
             clientIP = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
 
-            brokerIP = "192.168.1.10";
+            brokerIP = "192.168.1.11";
             return null;
         }
 

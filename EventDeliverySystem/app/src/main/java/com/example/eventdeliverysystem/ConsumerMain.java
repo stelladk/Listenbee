@@ -2,7 +2,7 @@ package com.example.eventdeliverysystem;
 
 import com.example.eventdeliverysystem.models.Broker;
 import com.example.eventdeliverysystem.models.Consumer;
-import com.example.eventdeliverysystem.musicfilehandler.MusicFile;
+import com.example.eventdeliverysystem.musicfilehandler.*;
 import com.example.eventdeliverysystem.utilities.Pair;
 import com.example.eventdeliverysystem.utilities.Utilities;
 
@@ -139,7 +139,7 @@ public class ConsumerMain {
             String username = input();
 
             System.out.print("Password: ");
-            BigInteger password = Utilities.SHA1(input());
+            BigInteger password = inputPass();
 
             return new Pair<>(username, password);
     }

@@ -36,8 +36,8 @@ import com.distributedsystems.listenbee.notification.NotificationCreator;
 import com.distributedsystems.listenbee.notification.OnClearFromRecentService;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import com.example.eventdeliverysystem.musicFile.MusicFile;
-import com.example.eventdeliverysystem.Consumer;
+import com.example.eventdeliverysystem.musicfilehandler.MusicFile;
+import com.example.eventdeliverysystem.models.Consumer;
 import com.distributedsystems.listenbee.fragments.*;
 
 import java.io.File;
@@ -120,6 +120,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            notificationManager.cancelAll();
+        }
+        unregisterReceiver(receiver);
+    }
+
     /**
      * Read downloaded songs from directory
      * Add these songs to library
@@ -198,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         pause_btn.setVisibility(View.VISIBLE);
 
         //Notification
-        NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
+        //NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
 
     }
 
@@ -260,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         pause_btn.setVisibility(View.VISIBLE);
 
         //Notification
-        NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
+        //NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
     }
 
     /**
@@ -374,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             pausebtn.setVisibility(View.VISIBLE);
 
             //Notification
-            NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
+            //NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
         }
     }
 
@@ -394,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             playbtn.setVisibility(View.VISIBLE);
 
             //Notification
-            NotificationCreator.createNotification(self, current, R.drawable.play_ic);
+            //NotificationCreator.createNotification(self, current, R.drawable.play_ic);
         }
     }
 
@@ -520,17 +529,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         return Uri.fromFile(output);
     }
 
-    /**
-     * Transfer user to settings activity
-     * @param view button view
-     */
-    public void toSettings(View view) {
-        Log.d("METHOD", "------ TO SETTINGS ACTIVITY ------");
-
-        Intent settings_activity = new Intent(this, SettingsActivity.class);
-        startActivity(settings_activity);
-    }
-
     public static List<Uri> getSongs(){
         return songs;
     }
@@ -583,15 +581,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             }
         }
     };
-
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            notificationManager.cancelAll();
-        }
-        unregisterReceiver(receiver);
-    }
 
     /**
      * Handles bottom navigation bar item clicks.

@@ -19,7 +19,6 @@
     <string name="add_song_desc">Add Song</string>
     <string name="delete_song_desc">delete song</string>
 
-    <string name="settings_btn_desc">Settings</string>
     <string name="save_btn_desc">Save</string>
     <string name="prev_btn_desc">Previous</string>
     <string name="upload_image_desc">Upload Image</string>
@@ -34,6 +33,8 @@
     <string name="profile_title">Profile</string>
     <string name="foryou_title">For You</string>
     <string name="pause_desc">Pause</string>
+
+    <!-- CHANNEL -->
     <string name="channel_name">Player</string>
     <string name="channel_description">Notigication featuring music player</string>
 

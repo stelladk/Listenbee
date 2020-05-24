@@ -15,27 +15,12 @@
             android:text="@string/profile_title"
             style="@style/FragTitle"/>
 
-        <!-- SETTINGS -->
-        <ImageButton
-            android:id="@+id/settings_btn"
-            android:src="@drawable/settings_ic"
-            android:contentDescription="@string/settings_btn_desc"
-            android:layout_alignParentEnd="true"
-            android:onClick="toSettings"
-            style="@style/ToolbarBtn"/>
-
     </RelativeLayout>
 
     <!-- DIVIDER -->
     <View
         android:id="@+id/divider"
         style="@style/Divider"/>
-
-    <!-- PROFILE IMAGE -->
-    <ImageView
-        android:id="@+id/profile_image"
-        android:contentDescription="@string/image_view_desc"
-        style="@style/ProfileImage" />
 
     <!--PROFILE INFO -->
     <LinearLayout

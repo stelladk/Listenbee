@@ -196,19 +196,6 @@
         <item name="android:tint">@color/red_flag</item>
     </style>
 
-    <!-- PROFILE IMAGE -->
-    <style name="ProfileImage">
-        <!-- Dimensions -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- Alignment -->
-        <item name="android:layout_below">@id/divider</item>
-        <!-- COLOUR -->
-        <item name="android:background">@color/white</item>
-        <!-- MISC -->
-        <item name="android:adjustViewBounds">true</item>
-    </style>
-
     <!-- PROFILE INFORMATION -->
     <style name="ProfileInfo">
         <!-- Dimensions -->
@@ -216,7 +203,7 @@
         <item name="android:layout_height">wrap_content</item>
         <!-- Alignment -->
         <item name="android:orientation">vertical</item>
-        <item name="android:layout_below">@id/profile_image</item>
+        <item name="android:layout_below">@id/divider</item>
         <!-- Misc -->
         <item name="android:paddingTop">16dp</item>
     </style>
