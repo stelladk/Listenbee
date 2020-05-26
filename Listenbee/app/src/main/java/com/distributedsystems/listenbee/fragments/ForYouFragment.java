@@ -49,12 +49,10 @@ public class ForYouFragment extends Fragment {
     }
 
     public static void getData(String trackName, String artistName) {
-        new StreamTask().execute(trackName, artistName, "ONLINE");
-        while(consumer.getChunkListSize() < 2); //wait for 2 chunks to arrive
-        MainActivity.playOnClick(consumer.getNextChunk()); //play first chunk
+        new ReceiveTask().execute(trackName, artistName, "ONLINE");
     }
 
-    public class LoadTask extends AsyncTask<Void, Void, Void> {
+    private class LoadTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
             if (availableSongs == null) {
@@ -75,7 +73,7 @@ public class ForYouFragment extends Fragment {
         }
     }
 
-    public static class StreamTask extends AsyncTask<String, Void, Void>{
+    private static class ReceiveTask extends AsyncTask<String, Void, Void> {
 
         @Override
         protected Void doInBackground(String... strings) {
@@ -84,6 +82,11 @@ public class ForYouFragment extends Fragment {
             String mode = strings[2];
             consumer.playData(trackName, artistName, mode);
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            MainActivity.playOnClick(consumer.getNextChunk());
         }
     }
 }

@@ -175,112 +175,6 @@ public class Consumer {
     }
 
     /**
-     * Update profile photo or age
-     * @param age updated age
-     * @param photo updated photo
-     * @return true if operation was successful
-     */
-    public boolean updateProfile(int age, File photo){
-        if(user_credentials == null){return false;}
-        boolean processed = true;
-        if(photo != null){
-            processed = updatePhoto(user_credentials, photo) && processed;
-        }
-        if(age != -1){
-            processed = updateAge(user_credentials, age) && processed;
-        }
-        return processed;
-    }
-
-    //TODO: delete
-    /**
-     * Update profile age
-     * @param credentials consumer username and password
-     * @param age updated age
-     * @return true if operation was successful
-     */
-    private boolean updateAge(Pair<String, BigInteger> credentials, int age){
-        Socket connection = null;
-        try {
-            //open connection
-            connection = new Socket(SERVER_IP, PORT);
-
-            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
-            out.writeObject("UPDATE_A");
-            out.flush();
-
-            //send username and age to responsible broker
-            out = new ObjectOutputStream(connection.getOutputStream());
-            out.writeObject(credentials);
-            out.flush();
-
-            out.writeObject(age);
-            out.flush();
-
-            //wait for confirmation
-            ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
-            String message = (String) in.readObject();
-            switch(message){
-                case "TRUE":
-                    Utilities.print("CONSUMER: UPDATE AGE: Age changed");
-                    return true;
-                case "FALSE":
-                    Utilities.print("CONSUMER: UPDATE AGE: Could not update age");
-                    return false;
-            }
-        }catch(IOException e){
-            Utilities.printError("CONSUMER: UPDATE AGE: ERROR: Could not get streams");
-        }catch(ClassNotFoundException e){
-            Utilities.printError("CONSUMER: UPDATE AGE: ERROR: Could not cast Object to String");
-        }
-        return false;
-    }
-
-    /**
-     * Update profile photograph
-     * @param credentials consumer username and password
-     * @param photo updated photo
-     * @return true if operation was successful
-     */
-    private boolean updatePhoto(Pair<String, BigInteger> credentials, File photo){
-        Socket connection = null;
-        try {
-            //open connection
-            connection = new Socket(SERVER_IP, PORT);
-
-            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
-            out.writeObject("UPDATE_P");
-            out.flush();
-
-            //send username and photo to responsible broker
-            out = new ObjectOutputStream(connection.getOutputStream());
-            out.writeObject(credentials);
-            out.flush();
-
-            byte[] buffer = Files.readAllBytes(photo.toPath());
-            out.writeObject(buffer);
-            out.flush();
-
-            //wait for confirmation
-            ObjectInputStream in = new ObjectInputStream(connection.getInputStream());
-            String message = (String) in.readObject();
-            switch(message){
-                case "TRUE":
-                    Utilities.print("CONSUMER: UPDATE PHOTO: Photo changed");
-                    return true;
-                case "FALSE":
-                    Utilities.print("CONSUMER: UPDATE PHOTO: Could not update photo");
-                    return false;
-            }
-        }catch(IOException e){
-            Utilities.printError("CONSUMER: UPDATE PHOTO: ERROR: Could not get streams");
-        }catch(ClassNotFoundException e){
-            Utilities.printError("CONSUMER: UPDATE PHOTO: ERROR: Could not cast Object to String");
-        }
-        return false;
-    }
-
-    /**
      * Request song from main broker
      * If song is in main broker it is received
      * Else broker sends a list of other brokers which will be queried
@@ -428,8 +322,10 @@ public class Consumer {
     private ArrayList<MusicFile> receiveData (ObjectInputStream in, String mode) {
         ArrayList<MusicFile> returned = new ArrayList<>(); //arraylist with merged songs
         ArrayList<MusicFile> chunks = new ArrayList<>(); //temp chunks arraylist
+
         resetChunks();
-        beginStreaming();
+        //beginStreaming(); fixme
+
         MusicFile file;
         int counter = 0; //when counter == 2 then end of all file chunks
         try {
@@ -464,7 +360,8 @@ public class Consumer {
                 }
                 if (counter >= 2) break;
             }
-            endStreaming();
+
+            //endStreaming(); fixme
             return returned;
         } catch (IOException e) {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not get streams");
@@ -472,7 +369,8 @@ public class Consumer {
         } catch (ClassNotFoundException e) {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not cast Object to MusicFile");
         }
-        endStreaming();
+
+        //endStreaming(); fixme
         return null;
     }
 
@@ -497,7 +395,7 @@ public class Consumer {
     /**
      * @return size of shared_chunks arraylist
      */
-    public int getChunkListSize(){
+    public int getChunkListSize() {
         synchronized (shared_chunks){
             return shared_chunks.size();
         }
@@ -507,7 +405,7 @@ public class Consumer {
      * Get and remove first chunk
      * @return first chunk of shared_chunks arraylist
      */
-    public MusicFile getNextChunk(){
+    public MusicFile getNextChunk() {
         synchronized (shared_chunks){
             return shared_chunks.remove(0);
         }
@@ -517,7 +415,7 @@ public class Consumer {
      * Get first chunk
      * @return first chunk of shared_chunks arraylist
      */
-    public MusicFile viewNextChunk(){
+    public MusicFile viewNextChunk() {
         synchronized (shared_chunks){
             return shared_chunks.get(0);
         }
@@ -527,7 +425,7 @@ public class Consumer {
      * Add chunk to shared_chunks arraylist
      * @param chunk to be added
      */
-    private void addChunk(MusicFile chunk){
+    private void addChunk(MusicFile chunk) {
         synchronized (shared_chunks){
             shared_chunks.add(chunk);
         }
@@ -536,7 +434,7 @@ public class Consumer {
     /**
      * Empty shared_chunks arraylist
      */
-    private void resetChunks(){
+    private void resetChunks() {
         synchronized (shared_chunks){
             shared_chunks.clear();
         }

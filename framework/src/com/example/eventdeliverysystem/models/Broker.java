@@ -24,12 +24,8 @@ public class Broker {
 
     private ArrayList<String> brokersList; // available brokers
     private static ArrayList<String> registeredPublishers = new ArrayList<>();
-    private static HashMap<Pair<String, BigInteger>, Pair<String, Integer>> registeredUsers; // username
-                                                                                             // and
-                                                                                             // password
-                                                                                             // for
-                                                                                             // registered
-                                                                                             // users
+    //username and password for registered users
+    private static HashMap<Pair<String, BigInteger>, Pair<String, Integer>> registeredUsers;
 
     private static File userFile; // registered users
 
@@ -398,9 +394,6 @@ public class Broker {
                 case "LOGIN":
                     loginUser(connection, consumer);
                     break;
-//                case "UPDATE_P":
-//                    addUserPhoto(connection, in);
-//                    break;
                 case "PULL":
                     Pair<String, String> song = (Pair) in.readObject();
                     pull(connection, song.getKey(), song.getValue());
@@ -521,7 +514,7 @@ public class Broker {
             }
         } else if (broker.equals(getIP())) { // the current broker is responsible for the artist
             String publisher = artistsToPublishers.get(artist); // get publisher (IP address) responsible for this
-                                                                // artist
+            // artist
 
             try {
                 // inform consumer that you will send music files
@@ -576,64 +569,6 @@ public class Broker {
         }
         closeConnection(clientConnx);
     }
-
-//    private synchronized void addUserPhoto(Socket clientConnx, ObjectInputStream in) {
-//
-//        try {
-//            Pair<String, BigInteger> user = (Pair<String, BigInteger>) in.readObject();
-//            byte[] send_photo = (byte[]) in.readObject();
-//
-//            File saved_photo = new File("../res/data/" + user.getKey() + ".jpg");
-//            FileOutputStream fout = new FileOutputStream(saved_photo);
-//            fout.write(send_photo);
-//            fout.close();
-//
-//            ObjectOutputStream out = new ObjectOutputStream(clientConnx.getOutputStream());
-//            out.writeObject("TRUE");
-//            out.flush();
-//            closeConnection(clientConnx);
-//            return;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//
-//        try {
-//            ObjectOutputStream out = new ObjectOutputStream(clientConnx.getOutputStream());
-//            out.writeObject("FALSE");
-//            out.flush();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        closeConnection(clientConnx);
-//    }
-
-//     private synchronized void updateUser(Socket clientConnx, ObjectInputStream in) {
-//         try {
-//             Pair<String, BigInteger> user = (Pair<String, BigInteger>) in.readObject();
-//             int age = (int) in.readObject();
-//
-//             Pair<String, Integer> extra = registeredUsers.get(user);
-//             if(extra != null){ //valid user
-//                 extra = new Pair<String, Integer>(extra.getKey(), age);
-//                 if(extra.getValue() != age && age > 0){
-//                     registeredUsers.put(user, extra);
-//                     userFile.setWritable(true);
-//                     userWriter = new BufferedWriter(new FileWriter(userFile, false));
-//                     userWriter.write(userFileIntro);
-//                     for(Pair<String, BigInteger> creds : registeredUsers.keySet()){
-//                         writeUser(creds, registeredUsers.get(creds));
-//                     }
-//                 }
-//             }
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//         } catch (ClassNotFoundException e) {
-//             e.printStackTrace();
-//         }
-//
-//     }
 
     /**
      * Close the connection established

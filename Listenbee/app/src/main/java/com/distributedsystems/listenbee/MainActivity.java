@@ -55,7 +55,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, MediaPlayer.OnCompletionListener {
+//, MediaPlayer.OnCompletionListener
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     //code numbers for permissions
     private static final int READ_STORAGE_PERMISSION_CODE = 100;
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         readMusicFiles();
 
         mp3 = new MediaPlayer();
-        mp3.setOnCompletionListener(this);
+        //mp3.setOnCompletionListener(this);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             createNotificationChannel();
@@ -217,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public static void playOnClick(MusicFile track) {
         ImageButton play_btn = self.findViewById(R.id.play_btn);
         ImageButton pause_btn = self.findViewById(R.id.pause_btn);
+
         if (mp3.isPlaying()) {
             mp3.pause();
             mp3.reset();
@@ -226,47 +228,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
 
         file = track;
-
-        songTitle = track.getTrackName();
-        TextView titleView = self.findViewById(R.id.song_title);
-        titleView.setText(songTitle);
-        Log.d("PLAY ON CLICK", songTitle);
-
-        songArtist =  track.getArtistName();
-
-        byte[] imageBytes = track.getCover();
-        BitmapFactory.Options config = new BitmapFactory.Options();
-        if (imageBytes != null) {
-            songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
-            ImageView coverView = self.findViewById(R.id.song_cover);
-            coverView.setImageBitmap(songCover);
-        }
-
-        File tempMp3 = null;
-        try {
-            tempMp3 = File.createTempFile(songTitle+"_chunk", "mp3", self.getCacheDir());
-            tempMp3.deleteOnExit();
-            FileOutputStream fos = new FileOutputStream(tempMp3);
-            fos.write(track.getFileBytes());
-            fos.close();
-
-            current = Uri.fromFile(tempMp3);
-            mp3.reset();
-            mp3.setDataSource(self, current);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            mp3.prepare();
-        } catch (IOException e) {
-            Log.e("ERROR", "Could not play song");
-        }
-
-        mp3.start();
-
-        play_btn.setVisibility(View.GONE);
-        pause_btn.setVisibility(View.VISIBLE);
+        new Stream().execute();
 
         //Notification
         //NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
@@ -646,14 +608,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
     }
 
-    @Override
-    public void onCompletion(MediaPlayer mediaPlayer) {
-        while(!consumer.isStreamingDone() || consumer.getChunkListSize() > 0){ //do while streaming is not done
-            while(consumer.getChunkListSize() < 1); //wait for a chunk to be added
-            Log.d("ONCOMLETION", consumer.viewNextChunk().getTrackName());
-            playOnClick(consumer.getNextChunk());
-        }
-    }
+//    @Override
+//    public void onCompletion(MediaPlayer mediaPlayer) {
+//        while(!consumer.isStreamingDone() || consumer.getChunkListSize() > 0){ //do while streaming is not done
+//            while(consumer.getChunkListSize() < 1); //wait for a chunk to be added
+//            Log.d("ONCOMLETION", consumer.viewNextChunk().getTrackName());
+//            playOnClick(consumer.getNextChunk());
+//        }
+//    }
 
     /**
      * Class that handles a progress bar asynchronously
@@ -677,6 +639,78 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         protected void onPostExecute(Void result) {
             mp3.stop();
             mp3.reset();
+        }
+    }
+
+    private static class Stream extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            //wait for 2 chunks to arrive
+            while(consumer.getChunkListSize() < 2);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void voids) {
+            ImageButton play_btn = self.findViewById(R.id.play_btn);
+            ImageButton pause_btn = self.findViewById(R.id.pause_btn);
+
+            play_btn.setVisibility(View.GONE);
+            pause_btn.setVisibility(View.VISIBLE);
+
+            while (consumer.getChunkListSize() > 0) {
+                songTitle = file.getTrackName();
+                TextView titleView = self.findViewById(R.id.song_title);
+                titleView.setText(songTitle);
+                Log.d("PLAY ON CLICK", songTitle); //fixme
+
+                songArtist =  file.getArtistName();
+
+                byte[] imageBytes = file.getCover();
+                BitmapFactory.Options config = new BitmapFactory.Options();
+                if (imageBytes != null) {
+                    songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
+                    ImageView coverView = self.findViewById(R.id.song_cover);
+                    coverView.setImageBitmap(songCover);
+                }
+
+                File tempMp3;
+                try {
+                    tempMp3 = File.createTempFile(songTitle + "_chunk", "mp3", self.getCacheDir());
+                    tempMp3.deleteOnExit();
+
+                    FileOutputStream fos = new FileOutputStream(tempMp3);
+                    fos.write(file.getFileBytes());
+                    fos.close();
+
+                    current = Uri.fromFile(tempMp3);
+                } catch (IOException e) {
+                    Log.e("ERROR", "Could not save in cache");
+                }
+
+                try {
+                    mp3.reset();
+                    mp3.setDataSource(self, current);
+                } catch (IOException e) {
+                    Log.e("ERROR", "Could not play song");
+                }
+
+                try {
+                    mp3.prepare();
+                } catch (IOException e) {
+                    Log.e("ERROR", "Could not play song");
+                }
+
+                mp3.start();
+
+                while (mp3.isPlaying());
+                file = consumer.getNextChunk();
+            }
+
+            pause_btn.setVisibility(View.GONE);
+            play_btn.setVisibility(View.VISIBLE);
         }
     }
 }
