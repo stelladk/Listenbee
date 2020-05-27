@@ -111,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         readMusicFiles();
 
         mp3 = new MediaPlayer();
-        //mp3.setOnCompletionListener(this);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             createNotificationChannel();
@@ -228,6 +227,24 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
 
         file = track;
+
+        songTitle = file.getTrackName().substring(2);
+        TextView titleView = self.findViewById(R.id.song_title);
+        titleView.setText(songTitle);
+
+        songArtist =  file.getArtistName();
+
+        byte[] imageBytes = file.getCover();
+        BitmapFactory.Options config = new BitmapFactory.Options();
+        if (imageBytes != null) {
+            songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
+            ImageView coverView = self.findViewById(R.id.song_cover);
+            coverView.setImageBitmap(songCover);
+        }
+
+        play_btn.setVisibility(View.GONE);
+        pause_btn.setVisibility(View.VISIBLE);
+
         new Stream().execute();
 
         //Notification
@@ -608,15 +625,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
     }
 
-//    @Override
-//    public void onCompletion(MediaPlayer mediaPlayer) {
-//        while(!consumer.isStreamingDone() || consumer.getChunkListSize() > 0){ //do while streaming is not done
-//            while(consumer.getChunkListSize() < 1); //wait for a chunk to be added
-//            Log.d("ONCOMLETION", consumer.viewNextChunk().getTrackName());
-//            playOnClick(consumer.getNextChunk());
-//        }
-//    }
-
     /**
      * Class that handles a progress bar asynchronously
      * The progress bar displays the song current position
@@ -642,6 +650,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
     }
 
+    /**
+     * Class that plays song chunks asynchronously
+     */
     private static class Stream extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -654,38 +665,17 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         @Override
         protected void onPostExecute(Void voids) {
-            ImageButton play_btn = self.findViewById(R.id.play_btn);
-            ImageButton pause_btn = self.findViewById(R.id.pause_btn);
-
-            play_btn.setVisibility(View.GONE);
-            pause_btn.setVisibility(View.VISIBLE);
-
-            while (consumer.getChunkListSize() > 0) {
-                songTitle = file.getTrackName();
-                TextView titleView = self.findViewById(R.id.song_title);
-                titleView.setText(songTitle);
-                Log.d("PLAY ON CLICK", songTitle); //fixme
-
-                songArtist =  file.getArtistName();
-
-                byte[] imageBytes = file.getCover();
-                BitmapFactory.Options config = new BitmapFactory.Options();
-                if (imageBytes != null) {
-                    songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
-                    ImageView coverView = self.findViewById(R.id.song_cover);
-                    coverView.setImageBitmap(songCover);
-                }
-
-                File tempMp3;
+            while (consumer.getChunkListSize() >= 0) {
+                File curMp3;
                 try {
-                    tempMp3 = File.createTempFile(songTitle + "_chunk", "mp3", self.getCacheDir());
-                    tempMp3.deleteOnExit();
+                    curMp3 = File.createTempFile(file.getTrackName() + "_chunk", "mp3", self.getCacheDir());
+                    curMp3.deleteOnExit();
+                    Log.e("TITLE", file.getTrackName());
+                    FileOutputStream out_cur = new FileOutputStream(curMp3);
+                    out_cur.write(file.getFileBytes());
+                    out_cur.close();
 
-                    FileOutputStream fos = new FileOutputStream(tempMp3);
-                    fos.write(file.getFileBytes());
-                    fos.close();
-
-                    current = Uri.fromFile(tempMp3);
+                    current = Uri.fromFile(curMp3);
                 } catch (IOException e) {
                     Log.e("ERROR", "Could not save in cache");
                 }
@@ -706,8 +696,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 mp3.start();
 
                 while (mp3.isPlaying());
-                file = consumer.getNextChunk();
+                if (consumer.getChunkListSize() == 0) break;
+                if (consumer.getChunkListSize() > 0) file = consumer.getNextChunk();
             }
+
+            ImageButton play_btn = self.findViewById(R.id.play_btn);
+            ImageButton pause_btn = self.findViewById(R.id.pause_btn);
 
             pause_btn.setVisibility(View.GONE);
             play_btn.setVisibility(View.VISIBLE);
