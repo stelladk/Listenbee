@@ -67,7 +67,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
         return items.size();
     }
 
-    static class LibraryViewHolder extends RecyclerView.ViewHolder{
+    static class LibraryViewHolder extends RecyclerView.ViewHolder {
 
         View itemView;
         ImageView image;

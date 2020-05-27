@@ -30,8 +30,7 @@ public class Consumer {
     private HashMap<String, String> artists = null; //artists assigned to brokers (IP addresses)
 
     private List<MusicFile> preview_tracks; //list of preview tracks for library
-    private final List<MusicFile> shared_chunks; //shared arraylist with streaming chunks
-    private Boolean streaming_done = true;
+    private final List<MusicFile> shared_chunks; //shared list with streaming chunks
 
     public Consumer(String IP, String SERVER_IP, int PORT) {
         Utilities.print("CONSUMER: Create consumer");
@@ -44,11 +43,13 @@ public class Consumer {
 
     /**
      * Register user to responsible broker
+     *
      * @param credentials pair of username and hashed password
+     *
      * @return 1 if registration was successful,
-     *  0 if registration failed,
-     *  -1 if username already exists,
-     *  -2 if email already exists
+     *         0 if registration failed,
+     *        -1 if username already exists,
+     *        -2 if email already exists
      */
     public int registerUser(Pair<String, BigInteger> credentials, Pair<String, Integer> extra) {
         Utilities.print("CONSUMER: Register user");
@@ -105,14 +106,15 @@ public class Consumer {
     }
 
     /**
-     * User enters credentials
      * Search whether user is registered or not
      * If user is registered login else register him
+     *
      * @param credentials pair of username and hashed password
+     *
      * @return 1 if login was successful,
-     *  0 if username does not exist and user has to register,
-     *  -1 if password was wrong
-     *  -2 if login failed
+     *         0 if username does not exist and user has to register,
+     *        -1 if password was wrong
+     *        -2 if login failed
      */
     public int loginUser(Pair<String, BigInteger> credentials) {
         Utilities.print("CONSUMER: Log in user");
@@ -178,8 +180,10 @@ public class Consumer {
      * Request song from main broker
      * If song is in main broker it is received
      * Else broker sends a list of other brokers which will be queried
+     *
      * @param track song's title
      * @param artist song's artist
+     *
      * @return true if operation was successful
      */
     public ArrayList<MusicFile> playData (String track, String artist, String mode) {
@@ -261,6 +265,7 @@ public class Consumer {
 
     /**
      * Request artists from main broker
+     *
      * @return list of available artists
      */
     public List<MusicFile> loadLibrary(){
@@ -316,15 +321,15 @@ public class Consumer {
      * Get file chunks from stream
      * If online mode is chosen then save each chunk
      * If offline mode is chosen the merge the chunks and save the music file
+     *
      * @param in input stream
      * @param mode online or offline
      */
     private ArrayList<MusicFile> receiveData (ObjectInputStream in, String mode) {
-        ArrayList<MusicFile> returned = new ArrayList<>(); //arraylist with merged songs
-        ArrayList<MusicFile> chunks = new ArrayList<>(); //temp chunks arraylist
+        ArrayList<MusicFile> returned = new ArrayList<>(); //list with merged songs
+        ArrayList<MusicFile> chunks = new ArrayList<>(); //temp chunks list
 
         resetChunks();
-        //beginStreaming(); fixme
 
         MusicFile file;
         int counter = 0; //when counter == 2 then end of all file chunks
@@ -361,7 +366,6 @@ public class Consumer {
                 if (counter >= 2) break;
             }
 
-            //endStreaming(); fixme
             return returned;
         } catch (IOException e) {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not get streams");
@@ -370,30 +374,11 @@ public class Consumer {
             Utilities.printError("CONSUMER: RECEIVE DATA: ERROR: Could not cast Object to MusicFile");
         }
 
-        //endStreaming(); fixme
         return null;
     }
 
-    public boolean isStreamingDone(){
-        synchronized (streaming_done){
-            return streaming_done;
-        }
-    }
-
-    private void beginStreaming(){
-        synchronized (streaming_done){
-            streaming_done = false;
-        }
-    }
-
-    private void endStreaming() {
-        synchronized (streaming_done){
-            streaming_done = true;
-        }
-    }
-
     /**
-     * @return size of shared_chunks arraylist
+     * @return size of shared_chunks list
      */
     public int getChunkListSize() {
         synchronized (shared_chunks){
@@ -403,6 +388,7 @@ public class Consumer {
 
     /**
      * Get and remove first chunk
+     *
      * @return first chunk of shared_chunks arraylist
      */
     public MusicFile getNextChunk() {
@@ -413,6 +399,7 @@ public class Consumer {
 
     /**
      * Get first chunk
+     *
      * @return first chunk of shared_chunks arraylist
      */
     public MusicFile viewNextChunk() {
@@ -423,6 +410,7 @@ public class Consumer {
 
     /**
      * Add chunk to shared_chunks arraylist
+     *
      * @param chunk to be added
      */
     private void addChunk(MusicFile chunk) {
@@ -442,6 +430,7 @@ public class Consumer {
 
     /**
      * Get brokers and their artists
+     *
      * @param in socket input stream
      */
     private void getBrokers (ObjectInputStream in) {

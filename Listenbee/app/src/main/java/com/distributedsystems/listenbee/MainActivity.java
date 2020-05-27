@@ -55,7 +55,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
-//, MediaPlayer.OnCompletionListener
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     //code numbers for permissions
@@ -68,18 +67,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static Bitmap songCover;
     private static MediaPlayer mp3;
     private static Uri current;
-    private static Consumer consumer;
-    private static MainActivity self;
     private static MusicFile file;
+    private static Consumer consumer;
 
     private BottomNavigationView tabs;
     private Fragment activeFragment;
     private ProgressBar musicBar;
-
-    private List<MusicFile> chunks_queue = new ArrayList<>();
-
     private NotificationManager notificationManager;
-
+    private static MainActivity self;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +107,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         mp3 = new MediaPlayer();
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        //Notification banner
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel();
             registerReceiver(receiver, new IntentFilter("Notice"));
             startService(new Intent(getBaseContext(), OnClearFromRecentService.class));
@@ -132,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     /**
      * Read downloaded songs from directory
      * Add these songs to library
-     * @return true if operation was successful
      */
     public void readMusicFiles() {
         Log.d("METHOD", "------ READ MUSIC FILES ------");
@@ -155,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     /**
+     * FIXME notification
      * Play the song that was clicked from library
      */
     public static void playOnClick(View view, int position) {
@@ -212,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     /**
+     * FIXME notification
      * Play the song that was clicked from for you
      */
     public static void playOnClick(MusicFile track) {
@@ -253,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     /**
      * Open music player and set content
+     *
      * @param view button view
      */
     public void openPlayer(View view) {
@@ -288,6 +286,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     /**
      * Minimize music player and set content
+     *
      * @param view button view
      */
     public void minimizePlayer(View view) {
@@ -317,36 +316,19 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     /**
+     * FIXME notification
      * Play the song
+     *
      * @param view play button
      */
     public void play(View view) {
         Log.d("METHOD", "------ PLAY ------");
 
         if (!mp3.isPlaying() && current != null) {
-            Uri fileUri = current;
             try {
-                mp3.setDataSource(getApplicationContext(), fileUri);
+                mp3.setDataSource(getApplicationContext(), current);
             } catch (IOException e) {
                 Log.e("play@Error", "Could not set data to mp3 player");
-            }
-
-            //get song metadata
-            MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-            metaRetriever.setDataSource(this, fileUri);
-
-            songTitle = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            TextView titleView = findViewById(R.id.song_title);
-            titleView.setText(songTitle);
-
-            songArtist =  metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-
-            byte[] imageBytes = metaRetriever.getEmbeddedPicture();
-            BitmapFactory.Options config = new BitmapFactory.Options();
-            if (imageBytes != null) {
-                songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
-                ImageView coverView = findViewById(R.id.song_cover);
-                coverView.setImageBitmap(songCover);
             }
 
             try {
@@ -367,7 +349,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     /**
+     * FIXME notification
      * Pause the song
+     *
      * @param view pause button
      */
     public void pause(View view) {
@@ -388,6 +372,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     /**
      * Fast forward song
+     *
      * @param view fast forward button
      */
     public void fastForward(View view) {
@@ -407,6 +392,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     /**
      * Fast rewind song
+     *
      * @param view fast rewind button
      */
     public void fastRewind(View view) {
@@ -458,17 +444,19 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     /**
+     * TODO
      * Add song to library
+     *
      * @param view add to library button
      */
-    public Uri addSong(View view) {
+    public void addSong(View view) {
         //create new directory according to path
         String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Listenbee/";
         File directory = new File(dir);
         if (!directory.exists()){
             if (!directory.mkdir()){
                 Log.e("addSong@Error", "Error occurred in creating dir");
-                return null;
+                return;
             }
         }
 
@@ -502,24 +490,98 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             stream.close();
         } catch (IOException e) {
             Log.e("addSong@Error", "Problem while saving song");
-            return null;
         }
-
-        return Uri.fromFile(output);
     }
 
+    /**
+     * @return songs' uri
+     */
     public static List<Uri> getSongs(){
         return songs;
     }
 
+    /**
+     * @return Consumer object
+     */
     public static Consumer getConsumer(){
         return consumer;
     }
 
+    /**
+     * Set Consumer object
+     * @param client new Consumer object
+     */
     public static void setConsumer(Consumer client){
         consumer = client;
     }
 
+    /**
+     * Handles bottom navigation bar item clicks.
+     * Loads the right fragment for each item
+     */
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Fragment selectedFragment;
+
+        switch(item.getItemId()){
+            case R.id.action_library:
+                selectedFragment = new LibraryFragment();
+                break;
+            case R.id.action_profile:
+                selectedFragment = new ProfileFragment();
+                break;
+            case R.id.action_foryou:
+                selectedFragment = new ForYouFragment();
+                break;
+            default:
+                return false;
+        }
+
+        //load the right fragment
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container_fragment, selectedFragment)
+                .addToBackStack(null)
+                .commit();
+        activeFragment = selectedFragment;
+
+        return true;
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        switch (requestCode) {
+            case READ_STORAGE_PERMISSION_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) { // permission denied
+                    //TODO inform about the importance of this permission etc.
+                }
+            case WRITE_STORAGE_PERMISSION_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) { // permission denied
+                    //TODO inform about the importance of this permission etc.
+                }
+        }
+    }
+
+    /**
+     * Check whether a permission has been granted
+     *
+     * @param permission permission to be checked
+     * @param requestCode permission code
+     */
+    private void checkPermission(String permission, int requestCode) {
+
+        if (ContextCompat.checkSelfPermission(MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    MainActivity.this,
+                    new String[]{permission},
+                    requestCode
+            );
+        }
+    }
+
+    /**
+     * Create the NotificationChannel
+     */
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -562,70 +624,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     };
 
     /**
-     * Handles bottom navigation bar item clicks.
-     * Loads the right fragment for each item
-     */
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item){
-        Fragment selectedFragment;
-
-        switch(item.getItemId()){
-            case R.id.action_library:
-                selectedFragment = new LibraryFragment();
-                break;
-            case R.id.action_profile:
-                selectedFragment = new ProfileFragment();
-                break;
-            case R.id.action_foryou:
-                selectedFragment = new ForYouFragment();
-                break;
-            default:
-                return false;
-        }
-
-        //load the right fragment
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container_fragment, selectedFragment)
-                .addToBackStack(null)
-                .commit();
-        activeFragment = selectedFragment;
-
-        return true;
-    }
-
-    /**
-     * Check whether a permission has been granted
-     * @param permission permission to be checked
-     * @param requestCode permission code
-     */
-    private void checkPermission(String permission, int requestCode) {
-
-        if (ContextCompat.checkSelfPermission(MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    MainActivity.this,
-                    new String[]{permission},
-                    requestCode
-            );
-        }
-    }
-
-
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        switch (requestCode) {
-            case READ_STORAGE_PERMISSION_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) { // permission denied
-                    //TODO inform about the importance of this permission etc.
-                }
-            case WRITE_STORAGE_PERMISSION_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) { // permission denied
-                    //TODO inform about the importance of this permission etc.
-                }
-        }
-    }
-
-    /**
      * Class that handles a progress bar asynchronously
      * The progress bar displays the song current position
      */
@@ -665,46 +663,51 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         @Override
         protected void onPostExecute(Void voids) {
-            while (consumer.getChunkListSize() >= 0) {
-                File curMp3;
-                try {
-                    curMp3 = File.createTempFile(file.getTrackName() + "_chunk", "mp3", self.getCacheDir());
-                    curMp3.deleteOnExit();
-                    Log.e("TITLE", file.getTrackName());
-                    FileOutputStream out_cur = new FileOutputStream(curMp3);
-                    out_cur.write(file.getFileBytes());
-                    out_cur.close();
+            Thread stream = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (consumer.getChunkListSize() >= 0) {
+                        File curMp3;
+                        try {
+                            //save temporary in cache
+                            curMp3 = File.createTempFile(file.getTrackName() + "_chunk", "mp3", self.getCacheDir());
+                            curMp3.deleteOnExit();
 
-                    current = Uri.fromFile(curMp3);
-                } catch (IOException e) {
-                    Log.e("ERROR", "Could not save in cache");
+                            FileOutputStream out_cur = new FileOutputStream(curMp3);
+                            out_cur.write(file.getFileBytes());
+                            out_cur.close();
+
+                            //get file uri
+                            current = Uri.fromFile(curMp3);
+                        } catch (IOException e) {
+                            Log.e("ERROR", "Could not save in cache");
+                        }
+
+                        //prepare mp3 player
+                        try {
+                            mp3.reset();
+                            mp3.setDataSource(self, current);
+                            mp3.prepare();
+                        } catch (IOException e) {
+                            Log.e("ERROR", "Could not play song");
+                        }
+
+                        mp3.start();
+
+                        //wait for chunk to finish playing
+                        while (mp3.isPlaying());
+                        if (consumer.getChunkListSize() == 0) break;
+                        if (consumer.getChunkListSize() > 0) file = consumer.getNextChunk();
+                    }
+
+                    ImageButton play_btn = self.findViewById(R.id.play_btn);
+                    ImageButton pause_btn = self.findViewById(R.id.pause_btn);
+
+                    pause_btn.setVisibility(View.GONE);
+                    play_btn.setVisibility(View.VISIBLE);
                 }
-
-                try {
-                    mp3.reset();
-                    mp3.setDataSource(self, current);
-                } catch (IOException e) {
-                    Log.e("ERROR", "Could not play song");
-                }
-
-                try {
-                    mp3.prepare();
-                } catch (IOException e) {
-                    Log.e("ERROR", "Could not play song");
-                }
-
-                mp3.start();
-
-                while (mp3.isPlaying());
-                if (consumer.getChunkListSize() == 0) break;
-                if (consumer.getChunkListSize() > 0) file = consumer.getNextChunk();
-            }
-
-            ImageButton play_btn = self.findViewById(R.id.play_btn);
-            ImageButton pause_btn = self.findViewById(R.id.pause_btn);
-
-            pause_btn.setVisibility(View.GONE);
-            play_btn.setVisibility(View.VISIBLE);
+            });
+            stream.start();
         }
     }
 }

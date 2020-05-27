@@ -32,6 +32,7 @@ public class LibraryFragment extends Fragment {
     /**
      * Read downloaded songs from directory
      * Add these songs to library
+     *
      * @return true if operation was successful
      */
     private boolean loadMusicFiles(View view) {
