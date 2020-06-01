@@ -7,23 +7,25 @@ public class MusicFile implements Serializable {
     private String artistName;
     private String albumInfo;
     private String genre;
+    private int duration;
     private byte[] cover;
     private byte[] metadata;
     private byte[] fileBytes;
     private int serial = 0; //serial number for chunks
 
-    public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] cover, byte[] metadata, byte[] fileBytes) {
+    public MusicFile(String trackName, String artistName, String albumInfo, String genre, int duration, byte[] cover, byte[] metadata, byte[] fileBytes) {
         this.trackName = trackName;
         this.artistName = artistName;
         this.albumInfo = albumInfo;
         this.genre = genre;
+        this.duration = duration;
         this.cover = cover;
         this.metadata = metadata;
         this.fileBytes = fileBytes;
     }
 
-    public MusicFile(String trackName, String artistName, String albumInfo, String genre, byte[] cover, byte[] metadata, byte[] fileBytes, int serial) {
-        this(trackName, artistName, albumInfo, genre, cover, metadata, fileBytes);
+    public MusicFile(String trackName, String artistName, String albumInfo, String genre, int duration, byte[] cover, byte[] metadata, byte[] fileBytes, int serial) {
+        this(trackName, artistName, albumInfo, genre, duration, cover, metadata, fileBytes);
         this.serial = serial;
     }
 
@@ -42,6 +44,10 @@ public class MusicFile implements Serializable {
 
     public String getGenre() {
         return genre;
+    }
+
+    public int getDuration() {
+        return duration;
     }
 
     public byte[] getCover() {return cover;}
@@ -73,6 +79,10 @@ public class MusicFile implements Serializable {
 
     public void setGenre(String genre) {
         this.genre = genre;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 
     public void setCover(byte[] cover) {this.cover = cover;}

@@ -68,7 +68,7 @@ public class MusicFileHandler {
                         //array without metadata
                         byte[] bytes = Arrays.copyOfRange(allBytes, offset, end-1);
 
-                        songs.get(artist).add(new MusicFile(title, artist, tag.getAlbum(), tag.getGenreDescription(), cover, metadata, bytes));
+                        songs.get(artist).add(new MusicFile(title, artist, tag.getAlbum(), tag.getGenreDescription(), tag.getLength(), cover, metadata, bytes));
                     }
                 } catch (IOException | UnsupportedTagException | InvalidDataException e) {
                     System.err.println("HANDLER: READ: ERROR: Could not parse file");
@@ -210,6 +210,7 @@ public class MusicFileHandler {
                             file.getArtistName(),
                             file.getAlbumInfo(),
                             file.getGenre(),
+                            file.getDuration(),
                             file.getCover(),
                             file.getMetadata(),
                             Arrays.copyOfRange(songBytes, start, Math.min(start + chunkSize, songBytes.length)), //if end index is greater than the array length then use the array length
@@ -228,7 +229,7 @@ public class MusicFileHandler {
      * @param chunks file chunks
      * @return merged file
      */
-    public static MusicFile merge (ArrayList<MusicFile> chunks){
+    public static MusicFile merge (ArrayList<MusicFile> chunks) {
         System.out.println("HANDLER: Merging music file chunks");
 
         //if the file is null then cancel the activity
@@ -256,6 +257,7 @@ public class MusicFileHandler {
         String artist = chunks.get(0).getArtistName();
         String album = chunks.get(0).getAlbumInfo();
         String genre = chunks.get(0).getGenre();
+        int duration = chunks.get(0).getDuration();
         byte[] cover = chunks.get(0).getCover();
         byte[] metadata = chunks.get(0).getMetadata();
 
@@ -276,6 +278,6 @@ public class MusicFileHandler {
         //clear the list
         temp.clear();
 
-        return new MusicFile(title, artist, album, genre, cover, metadata, bytes);
+        return new MusicFile(title, artist, album, genre, duration, cover, metadata, bytes);
     }
 }

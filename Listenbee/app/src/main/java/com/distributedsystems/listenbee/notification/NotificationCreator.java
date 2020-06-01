@@ -34,9 +34,10 @@ public class NotificationCreator {
 
         String songTitle = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         String songArtist =  metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        String duration = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         byte[] imageBytes = metaRetriever.getEmbeddedPicture();
 
-        MusicFile musicFile = new MusicFile(songTitle, songArtist, null, null, imageBytes, null, null);
+        MusicFile musicFile = new MusicFile(songTitle, songArtist, null, null, Integer.parseInt(duration), imageBytes, null, null);
         createNotification(context, musicFile, play_btn);
     }
 

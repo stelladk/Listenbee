@@ -41,19 +41,10 @@ import com.example.eventdeliverysystem.models.Consumer;
 import com.distributedsystems.listenbee.fragments.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
@@ -69,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static Uri current;
     private static MusicFile file;
     private static Consumer consumer;
+    private static int duration;
+    private static boolean isSreaming;
 
     private BottomNavigationView tabs;
     private Fragment activeFragment;
@@ -197,6 +190,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             Log.e("ERROR", "Could not play song");
         }
 
+        duration = mp3.getDuration();
+
         mp3.start();
 
         play_btn.setVisibility(View.GONE);
@@ -224,6 +219,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
 
         file = track;
+
+        duration = file.getDuration();
 
         songTitle = file.getTrackName().substring(2);
         TextView titleView = self.findViewById(R.id.song_title);
@@ -264,7 +261,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
             //get progress bar
             musicBar = findViewById(R.id.progressBar);
-            int duration = mp3.getDuration();
             musicBar.setMax(duration);
             new Progress().execute();
         }
@@ -630,6 +626,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private class Progress extends AsyncTask<Void, Integer, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
+            //online streaming
+            while (isSreaming) {
+                publishProgress(mp3.getCurrentPosition());
+            }
+
+            //offline streaming
             while (mp3.isPlaying()) {
                 publishProgress(mp3.getCurrentPosition());
             }
@@ -693,12 +695,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                         }
 
                         mp3.start();
+                        isSreaming = true;
 
                         //wait for chunk to finish playing
                         while (mp3.isPlaying());
                         if (consumer.getChunkListSize() == 0) break;
                         if (consumer.getChunkListSize() > 0) file = consumer.getNextChunk();
                     }
+
+                    isSreaming = false;
 
                     ImageButton play_btn = self.findViewById(R.id.play_btn);
                     ImageButton pause_btn = self.findViewById(R.id.pause_btn);
