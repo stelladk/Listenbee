@@ -36,6 +36,7 @@
 
     <!-- CHANNEL -->
     <string name="channel_name">Player</string>
-    <string name="channel_description">Notigication featuring music player</string>
+    <string name="channel_description">Notification featuring music player</string>
+    <string name="waiting_message">Connecting with server… \nPlease do not switch windows!</string>
 
 </resources>

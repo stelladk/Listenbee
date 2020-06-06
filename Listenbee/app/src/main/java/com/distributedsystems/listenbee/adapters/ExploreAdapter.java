@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.distributedsystems.listenbee.R;
-import com.distributedsystems.listenbee.fragments.ForYouFragment;
+import com.distributedsystems.listenbee.fragments.*;
 import com.example.eventdeliverysystem.musicfilehandler.MusicFile;
 
 import java.util.List;
@@ -49,6 +49,12 @@ public class ExploreAdapter extends RecyclerView.Adapter<ExploreAdapter.ExploreV
         }
 
         holder.downloadBtn.setVisibility(View.VISIBLE);
+        holder.downloadBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ForYouFragment.downloadData(title, artist);
+            }
+        });
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

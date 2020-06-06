@@ -32,8 +32,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.distributedsystems.listenbee.notification.NotificationCreator;
-import com.distributedsystems.listenbee.notification.OnClearFromRecentService;
+import com.distributedsystems.listenbee.notification.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.example.eventdeliverysystem.musicfilehandler.MusicFile;
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static boolean isSreaming;
 
     private BottomNavigationView tabs;
-    private Fragment activeFragment;
+    private static Fragment activeFragment;
     private ProgressBar musicBar;
     private NotificationManager notificationManager;
     private static MainActivity self;
@@ -127,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         //get all downloaded songs from directory
         String dirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Listenbee/";
+        Log.d("READPATH", dirPath);
         File dir = new File(dirPath);
         File[] files = dir.listFiles();
 
@@ -443,9 +443,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
      * TODO
      * Add song to library
      *
-     * @param view add to library button
+     * @param file musicfile to be added to library
      */
-    public void addSong(View view) {
+    public static void addSong(MusicFile file) {
         //create new directory according to path
         String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Listenbee/";
         File directory = new File(dir);
@@ -457,15 +457,17 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
 
         File output = new File(directory, songTitle + ".mp3");
-
+        Log.d("ADDSONG","Created file");
         FileOutputStream stream;
         try {
             byte[] allBytes = new byte[file.getMetadata().length + file.getFileBytes().length];
+            Log.d("ADDSONG","Initialised bytes array");
             //insert metadata
             for (int i = 0; i < file.getMetadata().length; i++) allBytes[i] = file.getMetadata()[i];
+            Log.d("ADDSONG","Inserted metadata");
             //insert rest of data
             for (int i = file.getMetadata().length, j = 0; i < allBytes.length; i++, j++) allBytes[i] = file.getFileBytes()[j];
-
+            Log.d("ADDSONG","Inserted data");
             /* FROM JAVA PROJECT
 
             ByteBuffer buffer = ByteBuffer.wrap(allBytes);
@@ -479,11 +481,13 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             */
 
             stream = new FileOutputStream(output);
+            Log.d("ADDSONG"," post Stream create");
             stream.write(allBytes);
-
+            Log.d("ADDSONG"," post Stream write");
             //clear streams
             stream.flush();
             stream.close();
+            Log.d("ADDSONG","post Flush close");
         } catch (IOException e) {
             Log.e("addSong@Error", "Problem while saving song");
         }
@@ -708,8 +712,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     ImageButton play_btn = self.findViewById(R.id.play_btn);
                     ImageButton pause_btn = self.findViewById(R.id.pause_btn);
 
-                    pause_btn.setVisibility(View.GONE);
-                    play_btn.setVisibility(View.VISIBLE);
+//                    pause_btn.setVisibility(View.GONE);
+//                    play_btn.setVisibility(View.VISIBLE);
                 }
             });
             stream.start();

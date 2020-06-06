@@ -1,2 +1,3 @@
+include ':Event Delivery System'
 rootProject.name='Listenbee'
-include ':app', ':Event Delivery System'
+include ':app'
