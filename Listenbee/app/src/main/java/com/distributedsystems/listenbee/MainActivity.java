@@ -26,6 +26,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -199,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         pause_btn.setVisibility(View.VISIBLE);
 
         //Notification
-        //NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
+        NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
 
     }
 
@@ -243,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         new Stream().execute();
 
         //Notification
-        //NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
+        NotificationCreator.createNotification(self, track, R.drawable.pause_ic, true);
     }
 
     /**
@@ -355,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             pausebtn.setVisibility(View.VISIBLE);
 
             //Notification
-            //NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
+            NotificationCreator.createNotification(self, current, R.drawable.pause_ic);
         }
     }
 
@@ -377,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             playbtn.setVisibility(View.VISIBLE);
 
             //Notification
-            //NotificationCreator.createNotification(self, current, R.drawable.play_ic);
+            NotificationCreator.createNotification(self, current, R.drawable.play_ic);
         }
     }
 
@@ -416,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             if (currentPosition - seekBackwardTime >= 0) {
                 mp3.seekTo(currentPosition - seekBackwardTime);
             } else {
-                mp3.seekTo(0);
+                mp3.seekTo(0); //todo
             }
         }
     }
@@ -503,6 +505,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             stream.flush();
             stream.close();
             Log.d("ADDSONG","post Flush close");
+            Toast.makeText(self, "\""+file.getTrackName()+"\" has been added to your library",Toast.LENGTH_SHORT);
         } catch (IOException e) {
             Log.e("addSong@Error", "Problem while saving song");
         }

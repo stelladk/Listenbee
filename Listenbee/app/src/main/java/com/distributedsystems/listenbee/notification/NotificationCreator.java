@@ -41,6 +41,13 @@ public class NotificationCreator {
         createNotification(context, musicFile, play_btn);
     }
 
+    public static void createNotification(Context context, MusicFile track, int play_btn, boolean preview){
+        if(preview){
+            track = new MusicFile(track.getTrackName().substring(2),track.getArtistName(), null, null, 0, track.getCover(), null, null);
+        }
+        createNotification(context, track, play_btn);
+    }
+
     public static void createNotification(Context context, MusicFile track, int play_btn){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationManagerCompat manager = NotificationManagerCompat.from(context);

@@ -30,8 +30,6 @@ public class ForYouFragment extends Fragment {
     private static List<MusicFile> availableSongs = new ArrayList<>();
     private static List<MusicFile> toDownload = null;
 
-    private static LoadTask loadTask = null;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -59,11 +57,15 @@ public class ForYouFragment extends Fragment {
         library.setLayoutManager(layoutManager);
         library.setHasFixedSize(true);
 
-
-        view.findViewById(R.id.waiting).setVisibility(View.VISIBLE);
-        //consumer = MainActivity.getConsumer();
-        loadTask = new LoadTask();
-        loadTask.execute();
+        if(availableSongs.isEmpty()){
+            view.findViewById(R.id.waiting).setVisibility(View.VISIBLE);
+            //consumer = MainActivity.getConsumer();
+            new LoadTask().execute();
+        }else{
+            ExploreAdapter adapter = new ExploreAdapter(getContext(), availableSongs);
+            library.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+        }
 
     }
 
