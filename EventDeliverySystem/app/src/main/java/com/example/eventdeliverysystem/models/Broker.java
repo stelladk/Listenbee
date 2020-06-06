@@ -402,6 +402,9 @@ public class Broker {
                 case "INIT":
                     pull(connection, null, "_INIT");
                     break;
+                case "INFO":
+                    pull(connection, null, "_INFO");
+                    break;
             }
         } catch (IOException e) {
             Utilities.printError("BROKER: ACCEPT CONSUMER CONNECTION: Could not read from stream");

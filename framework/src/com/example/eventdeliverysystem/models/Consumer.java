@@ -190,6 +190,11 @@ public class Consumer {
         Utilities.print("CONSUMER: Song request");
         ArrayList<MusicFile> songs = null;
 
+        String request = "PULL";
+        if(mode.equals("INIT")){
+            request = "INFO";
+        }
+
         // boolean state = false;
         try {
             //CASE 1
@@ -201,7 +206,7 @@ public class Consumer {
 
                 //request song
                 ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
-                out.writeObject("PULL");
+                out.writeObject(request);
                 out.flush();
                 out.writeObject(new Pair<>(track, artist));
                 out.flush();
@@ -239,7 +244,7 @@ public class Consumer {
 
             //request song
             ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
-            out.writeObject("PULL");
+            out.writeObject(request);
             out.flush();
             out.writeObject(new Pair<>(track, artist));
             out.flush();
@@ -349,13 +354,7 @@ public class Consumer {
                             MusicFile merged = MusicFileHandler.merge(chunks);
                             returned.add(merged);
                         } else if(mode.equals("INFO")){
-                            MusicFile preview = chunks.get(0);
-                            preview.setTrackName(preview.getTrackName().substring(2));
-                            preview.setAlbumInfo(null);
-                            preview.setGenre(null);
-                            preview.setMetadata(null);
-                            preview.setFileBytes(null);
-                            preview_tracks.add(preview);
+                            preview_tracks.addAll(chunks);
                         }
                     }
 

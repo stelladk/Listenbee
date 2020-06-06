@@ -1,6 +1,7 @@
 package com.example.eventdeliverysystem.models;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -280,6 +281,12 @@ public class Publisher {
     private void push (String title, String artist, Socket connection) {
         Utilities.print("PUBLISHER: Push song to broker");
 
+        //broker requests preview songs
+        if(artist.equals("_INFO")){
+            sendPreviews(connection);
+            return;
+        }
+
         //if artist doesn't exist notify about failure
         if (!files.containsKey(artist)){
             Utilities.printError("PUBLISHER: ERROR: No such artist exists"+artist);
@@ -334,6 +341,37 @@ public class Publisher {
         } catch (IOException e) {
             Utilities.printError("PUBLISHER: ERROR: PUSH: Could not send file chunks");
             chunks.clear(); //clear chunk list
+        }
+    }
+
+    /**
+     * Send previews of songs to broker
+     * @param connection open connection with broker
+     */
+    private void sendPreviews(Socket connection){
+        ArrayList<MusicFile> previews = new ArrayList<>();
+        ArrayList<MusicFile> chunks;
+        MusicFile preview;
+        for(String artistName : files.keySet()){
+            for(MusicFile file : files.get(artistName)){
+                chunks = MusicFileHandler.split(file);
+                preview = new MusicFile(chunks.get(0).getTrackName().substring(2), chunks.get(0).getArtistName(), null, null, 0, chunks.get(0).getCover(), null, null);
+                previews.add(preview);
+            }
+        }
+
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream());
+
+            for (MusicFile mfile : previews){
+                out.writeObject(mfile);
+                out.flush();
+            }
+            out.writeObject(null);
+            out.flush();
+
+        } catch (IOException e) {
+            Utilities.printError("PUBLISHER: ERROR: SENDPREVIEWS: Could not send file previews");
         }
     }
 
