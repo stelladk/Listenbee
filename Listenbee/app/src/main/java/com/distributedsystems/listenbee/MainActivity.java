@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static boolean isSreaming;
 
     private BottomNavigationView tabs;
-    private static Fragment activeFragment;
+    private static int activeFragmentCode; //0: LibraryFragment, 1: ForYouFragment, 2: ProfileFragment
     private ProgressBar musicBar;
     private NotificationManager notificationManager;
     private static MainActivity self;
@@ -74,10 +74,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         setContentView(R.layout.activity_main);
 
-        activeFragment = new LibraryFragment();
+        activeFragmentCode = 0;
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container_fragment, activeFragment)
+                .replace(R.id.container_fragment, new LibraryFragment())
                 .addToBackStack(null)
                 .commit();
 
@@ -121,8 +121,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
      * Read downloaded songs from directory
      * Add these songs to library
      */
-    public void readMusicFiles() {
+    public static void readMusicFiles() {
         Log.d("METHOD", "------ READ MUSIC FILES ------");
+        songs = new ArrayList<>();
 
         //get all downloaded songs from directory
         String dirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Listenbee/";
@@ -287,11 +288,25 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
      */
     public void minimizePlayer(View view) {
         setContentView(R.layout.activity_main);
+        tabs = findViewById(R.id.bottom_navigation);
+        tabs.setOnNavigationItemSelectedListener(this);
+
+        Fragment selectedFragment;
+        switch (activeFragmentCode){
+            case 1:
+                selectedFragment = new ForYouFragment();
+                break;
+            case 2:
+                selectedFragment = new ProfileFragment();
+                break;
+            default:
+                selectedFragment = new LibraryFragment();
+        }
 
         //re-establish active fragment
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container_fragment, activeFragment)
+                .replace(R.id.container_fragment, selectedFragment)
                 .addToBackStack(null)
                 .commit();
 
@@ -456,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             }
         }
 
-        File output = new File(directory, songTitle + ".mp3");
+        File output = new File(directory, file.getTrackName() + ".mp3");
         Log.d("ADDSONG","Created file");
         FileOutputStream stream;
         try {
@@ -497,6 +512,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
      * @return songs' uri
      */
     public static List<Uri> getSongs(){
+        readMusicFiles();
         return songs;
     }
 
@@ -522,16 +538,19 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Fragment selectedFragment;
-
+        Log.d("onNavigationItemSelected","NOTICE MEEEEE SENPAI");
         switch(item.getItemId()){
             case R.id.action_library:
                 selectedFragment = new LibraryFragment();
+                activeFragmentCode = 0;
                 break;
             case R.id.action_profile:
                 selectedFragment = new ProfileFragment();
+                activeFragmentCode = 2;
                 break;
             case R.id.action_foryou:
                 selectedFragment = new ForYouFragment();
+                activeFragmentCode = 1;
                 break;
             default:
                 return false;
@@ -543,7 +562,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .replace(R.id.container_fragment, selectedFragment)
                 .addToBackStack(null)
                 .commit();
-        activeFragment = selectedFragment;
 
         return true;
     }

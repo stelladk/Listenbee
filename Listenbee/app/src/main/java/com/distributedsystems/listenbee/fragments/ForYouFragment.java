@@ -19,6 +19,7 @@ import com.example.eventdeliverysystem.models.Consumer;
 import com.example.eventdeliverysystem.musicfilehandler.MusicFile;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ForYouFragment extends Fragment {
@@ -26,13 +27,16 @@ public class ForYouFragment extends Fragment {
     private View view;
     private RecyclerView library;
     private static Consumer consumer = MainActivity.getConsumer();
-    private static List<MusicFile> availableSongs = null;
+    private static List<MusicFile> availableSongs = new ArrayList<>();
     private static List<MusicFile> toDownload = null;
+
+    private static LoadTask loadTask = null;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         this.view = inflater.inflate(R.layout.foryou_fragment, container, false);
+        Log.d("OnCreateView", "I'm in for real");
         loadLibrary();
         return this.view;
     }
@@ -50,25 +54,25 @@ public class ForYouFragment extends Fragment {
      * Add these songs to for you fragment
      */
     private void loadLibrary() {
-        view.findViewById(R.id.waiting).setVisibility(View.VISIBLE);
         library = view.findViewById(R.id.foryou_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         library.setLayoutManager(layoutManager);
         library.setHasFixedSize(true);
-        if(availableSongs == null){
-//            consumer = MainActivity.getConsumer();
-            new LoadTask().execute();
-        }else{
-            ExploreAdapter adapter = new ExploreAdapter(getContext(), availableSongs);
-            library.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
-        }
+
+
+        view.findViewById(R.id.waiting).setVisibility(View.VISIBLE);
+        //consumer = MainActivity.getConsumer();
+        loadTask = new LoadTask();
+        loadTask.execute();
+
     }
 
     private class LoadTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
-            if (availableSongs == null) {
+            Log.d("FORYOULOAD", "We're in!");
+            if (availableSongs.isEmpty()) {
+                Log.d("FORYOULOAD", "Loading songs!!!!!!!");
                 availableSongs = consumer.loadLibrary();
             }
             return null;
@@ -76,7 +80,9 @@ public class ForYouFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void voids) {
-            if(availableSongs != null){
+            boolean what = availableSongs.isEmpty();
+            Log.d("ForYouPostLoad", "songs are emtpy? " + what);
+            if(!availableSongs.isEmpty()){
                 ExploreAdapter adapter = new ExploreAdapter(getContext(), availableSongs);
                 library.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
