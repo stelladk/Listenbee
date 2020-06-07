@@ -61,6 +61,8 @@ public class NotificationCreator {
             Bitmap cover = null;
             if(bytes != null){
                 cover = BitmapFactory.decodeByteArray(track.getCover(), 0, track.getCover().length);
+            }else{
+                cover = BitmapFactory.decodeResource(context.getResources(),R.drawable.listenbee_cover);
             }
 
             PendingIntent pendingPlay;

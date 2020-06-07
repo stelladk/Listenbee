@@ -182,10 +182,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         byte[] imageBytes = metaRetriever.getEmbeddedPicture();
         BitmapFactory.Options config = new BitmapFactory.Options();
+        ImageView coverView = self.findViewById(R.id.song_cover);
         if (imageBytes != null) {
             songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
-            ImageView coverView = self.findViewById(R.id.song_cover);
             coverView.setImageBitmap(songCover);
+        }else{
+            coverView.setImageResource(R.drawable.listenbee_cover);
         }
 
         try {
@@ -234,10 +236,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         byte[] imageBytes = file.getCover();
         BitmapFactory.Options config = new BitmapFactory.Options();
+        ImageView coverView = self.findViewById(R.id.song_cover);
         if (imageBytes != null) {
             songCover = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config);
-            ImageView coverView = self.findViewById(R.id.song_cover);
             coverView.setImageBitmap(songCover);
+        }else{
+            coverView.setImageResource(R.drawable.listenbee_cover);
         }
 
         play_btn.setVisibility(View.GONE);
@@ -279,7 +283,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         //set image view
         ImageView coverView = findViewById(R.id.song_cover);
-        coverView.setImageBitmap(songCover);
+        if(songCover != null){
+            coverView.setImageBitmap(songCover);
+        }else{
+            coverView.setImageResource(R.drawable.listenbee_cover);
+        }
 
         volume();
     }
@@ -326,7 +334,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         //set image view
         ImageView coverView = findViewById(R.id.song_cover);
-        coverView.setImageBitmap(songCover);
+        if(songCover != null){
+            coverView.setImageBitmap(songCover);
+        }else{
+            coverView.setImageResource(R.drawable.listenbee_cover);
+        }
     }
 
     /**

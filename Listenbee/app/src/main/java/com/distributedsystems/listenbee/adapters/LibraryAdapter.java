@@ -50,6 +50,8 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
         BitmapFactory.Options config = new BitmapFactory.Options();
         if(imageBytes != null){
             holder.image.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, config));
+        }else{
+            holder.image.setImageResource(R.drawable.listenbee_cover);
         }
 
         holder.downloadBtn.setVisibility(View.GONE);

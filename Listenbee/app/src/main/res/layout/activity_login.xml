@@ -6,10 +6,28 @@
     style="@style/AppTheme">
 
     <!-- APPLICATION ICON -->
-    <!-- TODO -->
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/app_name" />
 
     <!-- APPLICATION NAME -->
-    <!-- TODO -->
+    <TextView
+        android:id="@+id/listenbee"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/logo"
+        android:layout_marginTop="-30dp"
+        android:textAlignment="center"
+        android:textSize="25sp"
+        android:textColor="@color/bee"
+        android:text="@string/app_name"/>
 
     <!-- LOG-IN FORM CONTAINER -->
     <LinearLayout
