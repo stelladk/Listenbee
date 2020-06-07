@@ -53,4 +53,18 @@
         android:onClick="toSignUpActivity"
         style="@style/SignUpButton"/>
 
+    <!--  Change Server IP  -->
+    <Button
+        android:id="@+id/ipchanger"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:textAllCaps="false"
+        android:text="Change my IP?"
+        android:textColor="@color/black"
+        android:background="@color/white"
+        android:stateListAnimator="@null"
+        android:padding="0dp"/>
+
 </RelativeLayout>

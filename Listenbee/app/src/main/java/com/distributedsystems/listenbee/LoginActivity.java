@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +35,15 @@ public class LoginActivity extends AppCompatActivity {
 
         usernameForm = findViewById(R.id.username_form);
         passwordForm = findViewById(R.id.password_form);
+
+        Button ipchanger = findViewById(R.id.ipchanger);
+        ipchanger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                IPDialog dialog = new IPDialog();
+                dialog.show(getSupportFragmentManager(), "IP Changer");
+            }
+        });
 
         new InternetInfo().execute();
     }
@@ -80,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
             WifiInfo wifiInfo = manager.getConnectionInfo();
             clientIP = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
 
-            brokerIP = "192.168.1.4";
+            brokerIP = IPDialog.serverIP();
             return null;
         }
 
