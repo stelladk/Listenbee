@@ -107,12 +107,6 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected Integer doInBackground(String... str) {
-            WifiManager manager = (WifiManager) getSystemService(WIFI_SERVICE);
-            WifiInfo wifiInfo = manager.getConnectionInfo();
-            clientIP = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
-
-            brokerIP = IPDialog.serverIP();
-            consumer = new Consumer(clientIP, brokerIP, Broker.getToCliPort());
             return consumer.loginUser(new Pair<>(str[0], Utilities.SHA1(str[1])));
         }
 

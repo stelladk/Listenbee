@@ -109,12 +109,6 @@ public class SignUpActivity extends AppCompatActivity {
 
         @Override
         protected Integer doInBackground(String... str) {
-            WifiManager manager = (WifiManager) getSystemService(WIFI_SERVICE);
-            WifiInfo wifiInfo = manager.getConnectionInfo();
-            clientIP = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
-
-            brokerIP = IPDialog.serverIP();
-            consumer = new Consumer(clientIP, brokerIP, Broker.getToCliPort());
             return consumer.registerUser(new Pair<String, BigInteger>(str[0], Utilities.SHA1(str[1])), new Pair<String, Integer>(str[2], Integer.parseInt(str[3])));
         }
 
