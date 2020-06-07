@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private ProgressBar musicBar;
     private NotificationManager notificationManager;
     private static MainActivity self;
+    private static boolean paused;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -338,18 +339,25 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         Log.d("METHOD", "------ PLAY ------");
 
         if (!mp3.isPlaying() && current != null) {
-            try {
-                mp3.setDataSource(getApplicationContext(), current);
-            } catch (IOException e) {
-                Log.e("play@Error", "Could not set data to mp3 player");
-            }
+            if(!paused) {
 
-            try {
-                mp3.prepare();
-            } catch (IOException e) {
-                Log.e("play@Error", "Could not play song");
-            }
 
+                try {
+                    mp3.setDataSource(getApplicationContext(), current);
+                } catch (IOException e) {
+                    Log.e("play@Error", "Could not set data to mp3 player");
+                }
+
+                try {
+                    mp3.prepare();
+                } catch (IOException e) {
+                    Log.e("play@Error", "Could not play song");
+                }
+                Log.d("PLAY", "play from the start");
+            }else{
+                Log.d("PLAY", "play from pause");
+                paused = false;
+            }
             mp3.start();
 
             view.setVisibility(View.GONE);
@@ -372,8 +380,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         if (mp3.isPlaying()) {
             mp3.pause();
-            mp3.reset();
-
+//            mp3.reset();
+paused = true;
+Log.d("PAUSE", "Paused");
             view.setVisibility(View.GONE);
             ImageButton playbtn = findViewById(R.id.play_btn);
             playbtn.setVisibility(View.VISIBLE);
@@ -474,17 +483,16 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
 
         File output = new File(directory, file.getTrackName() + ".mp3");
-        Log.d("ADDSONG","Created file");
         FileOutputStream stream;
         try {
             byte[] allBytes = new byte[file.getMetadata().length + file.getFileBytes().length];
-            Log.d("ADDSONG","Initialised bytes array");
+
             //insert metadata
             for (int i = 0; i < file.getMetadata().length; i++) allBytes[i] = file.getMetadata()[i];
-            Log.d("ADDSONG","Inserted metadata");
+
             //insert rest of data
             for (int i = file.getMetadata().length, j = 0; i < allBytes.length; i++, j++) allBytes[i] = file.getFileBytes()[j];
-            Log.d("ADDSONG","Inserted data");
+
             /* FROM JAVA PROJECT
 
             ByteBuffer buffer = ByteBuffer.wrap(allBytes);
@@ -498,13 +506,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             */
 
             stream = new FileOutputStream(output);
-            Log.d("ADDSONG"," post Stream create");
             stream.write(allBytes);
-            Log.d("ADDSONG"," post Stream write");
+
             //clear streams
             stream.flush();
             stream.close();
-            Log.d("ADDSONG","post Flush close");
             Toast.makeText(self, "\""+file.getTrackName()+"\" has been added to your library",Toast.LENGTH_SHORT);
         } catch (IOException e) {
             Log.e("addSong@Error", "Problem while saving song");
@@ -723,7 +729,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                         isSreaming = true;
 
                         //wait for chunk to finish playing
-                        while (mp3.isPlaying());
+                        while (mp3.isPlaying() || paused);
                         if (consumer.getChunkListSize() == 0) break;
                         if (consumer.getChunkListSize() > 0) file = consumer.getNextChunk();
                     }

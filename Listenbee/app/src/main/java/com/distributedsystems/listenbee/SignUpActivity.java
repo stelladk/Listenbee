@@ -92,7 +92,7 @@ public class SignUpActivity extends AppCompatActivity {
             WifiInfo wifiInfo = manager.getConnectionInfo();
             clientIP = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
 
-            brokerIP = "192.168.1.11";
+            brokerIP = "192.168.1.4";
             return null;
         }
 
